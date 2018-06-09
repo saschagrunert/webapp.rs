@@ -54,13 +54,14 @@ impl Server {
 
                         // Write the response
                         let response_data = LoginResponseData { success: true };
-                        if let Ok(login_response) = serde_json::to_vec(&response_data) {
-                            let msg = Message::from(login_response);
-                            if let Err(e) = ws.write_message(msg) {
-                                println!("Unable to write message: {}", e);
+                        match serde_json::to_vec(&response_data) {
+                            Err(e) => println!("Unable to serialize reponse data: {}", e),
+                            Ok(login_response) => {
+                                let msg = Message::from(login_response);
+                                if let Err(e) = ws.write_message(msg) {
+                                    println!("Unable to write message: {}", e);
+                                }
                             }
-                        } else {
-                            println!("Unable to serialize response data");
                         }
                     }
                 }
