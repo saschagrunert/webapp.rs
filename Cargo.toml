@@ -15,5 +15,9 @@ categories = ["web-programming"]
 travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
 appveyor = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
 
+[[bin]]
+name = "app"
+path = "src/client/main.rs"
+
 [dependencies]
 yew = "0.4.0"
