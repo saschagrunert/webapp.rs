@@ -20,7 +20,4 @@ name = "app"
 path = "src/client/main.rs"
 
 [dependencies]
-failure = "0.1.1"
-yew = {version = "0.4.0", features = ["cbor"] }
-serde = "1.0.66"
-serde_derive = "1.0.66"
+yew = "0.4.0"
