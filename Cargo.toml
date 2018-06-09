@@ -16,8 +16,29 @@ travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
 appveyor = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
 
 [[bin]]
-name = "app"
-path = "src/client/main.rs"
+name = "frontend"
+path = "src/frontend/main.rs"
+required-features = ["frontend"]
+
+[[bin]]
+name = "backend"
+path = "src/backend/main.rs"
+required-features = ["backend"]
 
 [dependencies]
-yew = "0.4.0"
+failure = "0.1.1"
+stdweb = { version = "0.4.6", optional = true }
+tungstenite = { version = "0.5.3", optional = true }
+yew = { version = "0.4.0", optional = true }
+serde = "1.0.66"
+serde_derive = "1.0.66"
+serde_json = "1.0.20"
+
+[features]
+frontend = [
+    "stdweb",
+    "yew",
+]
+backend = [
+    "tungstenite",
+]
