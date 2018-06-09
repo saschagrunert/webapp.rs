@@ -1,11 +1,27 @@
 //! The Root component
-use yew::prelude::*;
 use client::login::LoginComponent;
+use yew::prelude::*;
+use yew::services::console::ConsoleService;
+
+/// The main context of the application
+pub struct Context {
+    /// The console which can be logged
+    pub console: ConsoleService,
+}
+
+impl AsMut<ConsoleService> for Context {
+    fn as_mut(&mut self) -> &mut ConsoleService {
+        &mut self.console
+    }
+}
 
 /// Data Model for the Root Component
 pub struct RootComponent {}
 
-impl<C> Component<C> for RootComponent {
+impl<C> Component<C> for RootComponent
+where
+    C: AsMut<ConsoleService>,
+{
     type Message = ();
     type Properties = ();
 
@@ -18,7 +34,10 @@ impl<C> Component<C> for RootComponent {
     }
 }
 
-impl<C: 'static> Renderable<C, RootComponent> for RootComponent {
+impl<C: 'static> Renderable<C, RootComponent> for RootComponent
+where
+    C: AsMut<ConsoleService>,
+{
     fn view(&self) -> Html<C, Self> {
         html! {
             <LoginComponent:/>

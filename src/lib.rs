@@ -6,4 +6,4 @@ extern crate yew;
 
 mod client;
 
-pub use client::root::RootComponent;
+pub use client::root::{Context, RootComponent};
