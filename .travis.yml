@@ -1,0 +1,52 @@
+dist: trusty
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+matrix:
+  allow_failures:
+    - rust: nightly
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];then export OPENSSL_INCLUDE_DIR=`brew --prefix openssl`/include; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];then export OPENSSL_LIB_DIR=`brew --prefix openssl`/lib; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];then curl https://bootstrap.pypa.io/get-pip.py | sudo python; fi
+
+before_script:
+  - pip install 'travis-cargo<0.2' --user --verbose
+  - export PATH=$HOME/.local/bin:$PATH
+  - export PATH=$HOME/Library/Python/2.7/bin:$PATH
+  - cargo install cargo-kcov
+script:
+  - export CARGO_TARGET_DIR=`pwd`/target
+  - travis-cargo build
+  - travis-cargo test
+  - cargo doc --no-deps
+after_success:
+  - if [[ "$TRAVIS_RUST_VERSION" == "stable" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis-cargo doc-upload; fi
+  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cargo kcov --print-install-kcov-sh | sh; fi
+  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cargo kcov --coveralls --kcov ./kcov-33/build/src/kcov; fi
+
+notifications:
+  email:
+    on_success: never
+os:
+  - linux
+  - osx
+addons:
+  apt:
+    sources:
+      - kalakris-cmake
+    packages:
+      - cmake
+      - libcurl4-openssl-dev
+      - libiberty-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev
+      - libpcap-dev
+      - bison
+env:
+  global:
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
+    - secure: WC9zSfV0u90iqsZD5477le2r7f0PwPEXQffN2fVbiV1kOWYZa7czyMeLQdCadfROf9K5SMgDBvRdB+FEyVWDMsatp5hIfeLyxug/xrktP7onzcWIImX+zFXV/Z+RDWOH+ojDsgmtR9PmP+k1+8DAq+w7d2e9uWkrVXhuY2xwvoUi0Ry3Ilw3Kji4EkzAV+sTCHV0wYM95Q1OOeYgIxf69Az73DqC6H254lud+EHculiBKaT+rnLvTdWJKP97xLuZ9p7wB368D3I4LGSQvtuGFynO+FRhjPbWKljeu6D1Q/Zj/CzX8Us0OXY0z4oGPsJTfLeSEJsIwTPFnqCyzmMBkpV4GC63Prso8pYmSe9a+226OAtLTyhWTWuHpw78BO23lsSLHpRIpHleNeMJhdAirEld7OWV3R3gYSNfuYKEQ6moQfpLdpWQbAddmE5qDsp9T5WIeFRu+aUPR45h6H4ma3w0txGiNSJKKzopIolnI3TZoI05B+dOGYoxPAhx5r1adDsqhZiXMgAni/NmUAN+nY19qBOLGQKhrqdqzRyz9QeNUiirPiL1ezyKQazTqjuubsgrbGk3hz9nyFrVgfEGbacYL6wCRzZuoOhBjcSePhymUXjSI+7PB5Ew4GfFNi5Jqxx47/Ba+uM5Gk8CTft/CjQ6jBOH2YxZeVHmwXKbaNI=

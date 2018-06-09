@@ -1,0 +1,19 @@
+[package]
+name = "webapp"
+version = "0.1.0"
+license = "MIT"
+readme = "README.md"
+keywords = ["web", "app", "website", "webapp"]
+authors = ["Sascha Grunert <mail@saschagruenrt.de>"]
+repository = "https://github.com/saschagrunert/webapp.rs"
+homepage = "https://github.com/saschagrunert/webapp.rs"
+documentation = "https://docs.rs/webapp"
+description = "A web application completely written in Rust"
+categories = ["web-programming"]
+
+[badges]
+travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
+appveyor = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
+
+[dependencies]
+yew = "0.4.0"
