@@ -19,7 +19,7 @@ script:
   - export CARGO_TARGET_DIR=`pwd`/target
   - cargo build --bin backend --features=backend
   - cargo build --bin backend --features=backend --release
-  - cargo web build --target wasm32-unknown-unknown --release --bin=frontend --features=frontend
+  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --bin=frontend --features=frontend; fi
   - travis-cargo test
   - cargo doc --no-deps
 after_success:
