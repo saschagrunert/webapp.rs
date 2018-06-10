@@ -50,6 +50,7 @@ where
 {
     fn view(&self) -> Html<C, Self> {
         html! {
+            <h1>{"Welcome"}</h1>
             <LoginComponent:/>
         }
     }
