@@ -25,6 +25,10 @@ name = "backend"
 path = "src/backend/main.rs"
 required-features = ["backend"]
 
+[build-dependencies]
+failure = "0.1.1"
+sass-rs = "0.2.1"
+
 [dependencies]
 failure = "0.1.1"
 env_logger = { version = "0.5.10", optional = true }

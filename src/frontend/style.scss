@@ -1,0 +1,12 @@
+// Custom variables and variable overwrites
+// $global-link-color: #DA7D02;
+
+// Default variables and available mixins
+@import "uikit/src/scss/variables-theme.scss";
+@import "uikit/src/scss/mixins-theme.scss";
+
+// Custom mixin overwrites.
+// @mixin hook-card() { color: #000; }
+
+// Import UIkit
+@import "uikit/src/scss/uikit-theme.scss";

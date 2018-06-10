@@ -1,13 +1,15 @@
-RELEASE := --release
-FRONTEND_TARGET := $(RELEASE) --target wasm32-unknown-unknown
-FRONTENT_ARGS := $(FRONTEND_TARGET) --features=frontend
-BACKEND_TARGET := $(RELEASE)
-BACKEND_ARGS := $(BACKEND_TARGET) --features=backend
+GENERAL_ARGS = --release
+FRONTEND_TARGET = $(GENERAL_ARGS) --target wasm32-unknown-unknown
+FRONTENT_ARGS = $(FRONTEND_TARGET) --features=frontend
+BACKEND_TARGET = $(GENERAL_ARGS)
+BACKEND_ARGS = $(BACKEND_TARGET) --features=backend
 
 .PHONY: frontend backend
 
 ifndef VERBOSE
 .SILENT:
+else
+GENERAL_ARGS += -v
 endif
 
 frontend:
