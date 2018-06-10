@@ -1,7 +1,7 @@
 //! The Login component
 use failure::Error;
 use shared::{LoginRequestData, WsMessage};
-use yew::format::Json;
+use yew::format::Cbor;
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use yew::services::websocket::{WebSocketService, WebSocketTask};
@@ -31,7 +31,7 @@ where
 
     fn create(_: (), env: &mut Env<C, Self>) -> Self {
         // Setup the websocket connection
-        let callback = env.send_back(|Json(data)| Msg::LoginResponse(data));
+        let callback = env.send_back(|Cbor(data)| Msg::LoginResponse(data));
         let notification = env.send_back(|_| Msg::WebSocketIgnore);
         let ws_service: &mut WebSocketService = env.as_mut();
 
@@ -51,7 +51,7 @@ where
         match msg {
             Msg::LoginRequest => {
                 let msg = WsMessage::LoginRequest(self.request.clone());
-                self.web_socket_task.send_binary(Json(&msg));
+                self.web_socket_task.send_binary(Cbor(&msg));
             }
             Msg::LoginResponse(response) => {
                 let console: &mut ConsoleService = ctx.as_mut();
