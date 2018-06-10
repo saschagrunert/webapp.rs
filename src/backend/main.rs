@@ -1,6 +1,5 @@
-#[macro_use]
-extern crate log;
 extern crate env_logger;
+extern crate log;
 extern crate webapp;
 
 use webapp::Server;
@@ -11,6 +10,7 @@ fn main() {
 
     // Start the server
     if let Err(e) = Server::run() {
-        error!("Unable to start server: {}", e);
+        println!("Unable to start server: {}", e);
+        std::process::exit(1);
     }
 }
