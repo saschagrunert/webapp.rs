@@ -1,3 +1,4 @@
+---
 dist: trusty
 language: rust
 rust:
@@ -16,7 +17,9 @@ before_script:
   - ./ci/install_cargo_web
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
-  - travis-cargo build
+  - cargo build --bin backend --features=backend
+  - cargo build --bin backend --features=backend --release
+  - cargo web build --target wasm32-unknown-unknown --release --bin=frontend --features=frontend
   - travis-cargo test
   - cargo doc --no-deps
 after_success:
