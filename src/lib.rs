@@ -3,6 +3,7 @@
 
 #[macro_use]
 extern crate serde_derive;
+
 extern crate failure;
 extern crate serde_json;
 
@@ -20,7 +21,14 @@ mod frontend;
 pub use frontend::root::{Context, RootComponent};
 
 #[cfg(feature = "backend")]
+extern crate mowl;
+
+#[cfg(feature = "backend")]
 extern crate tungstenite;
+
+#[cfg(feature = "backend")]
+#[macro_use]
+extern crate log;
 
 #[cfg(feature = "backend")]
 mod backend;

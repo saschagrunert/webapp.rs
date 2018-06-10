@@ -1,6 +1,13 @@
 //! Shared models for the frontend and backend
 
 #[derive(Deserialize, Serialize, Debug)]
+/// The most general message abstraction
+pub enum WsMessage {
+    LoginRequest(LoginRequestData),
+    LoginResponse(LoginResponseData),
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
 /// The data for a login request
 pub struct LoginRequestData {
     /// The username

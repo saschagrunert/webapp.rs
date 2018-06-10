@@ -1,6 +1,6 @@
 //! The Login component
 use failure::Error;
-use shared::{LoginRequestData, LoginResponseData};
+use shared::{LoginRequestData, WsMessage};
 use yew::format::Json;
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
@@ -16,7 +16,7 @@ pub struct LoginComponent {
 #[derive(Debug)]
 pub enum Msg {
     LoginRequest,
-    LoginResponse(Result<LoginResponseData, Error>),
+    LoginResponse(Result<WsMessage, Error>),
     WebSocketIgnore,
     UpdateUsername(String),
     UpdatePassword(String),
@@ -50,13 +50,14 @@ where
     fn update(&mut self, msg: Self::Message, ctx: &mut Env<C, Self>) -> ShouldRender {
         match msg {
             Msg::LoginRequest => {
-                self.web_socket_task.send_binary(Json(&self.request));
+                let msg = WsMessage::LoginRequest(self.request.clone());
+                self.web_socket_task.send_binary(Json(&msg));
             }
             Msg::LoginResponse(response) => {
                 let console: &mut ConsoleService = ctx.as_mut();
                 match response {
                     Err(e) => console.error(&format!("Error: {}", e)),
-                    Ok(d) => console.log(&format!("Success: {}", d.success)),
+                    Ok(d) => console.log(&format!("Response: {:?}", d)),
                 }
             }
             Msg::UpdateUsername(new_username) => {

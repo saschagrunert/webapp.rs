@@ -9,6 +9,7 @@ frontend:
 		--features=frontend
 
 backend:
+	RUST_LOG=webapp=trace \
 	cargo run \
 		--bin backend \
 		--release \

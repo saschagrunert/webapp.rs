@@ -2,7 +2,7 @@
 
 use failure::Error;
 use serde_json;
-use shared::{LoginRequestData, LoginResponseData};
+use shared::{LoginResponseData, WsMessage};
 use std::net::{TcpListener, TcpStream};
 use std::thread::spawn;
 use tungstenite::protocol::Message;
@@ -17,21 +17,21 @@ impl Server {
     /// Start the websocket server
     pub fn run() -> Result<(), Error> {
         let addr = "0.0.0.0:30000";
-        println!("Starting server at {}", addr);
+        info!("Starting server at {}", addr);
         let server = TcpListener::bind(addr)?;
         for stream in server.incoming() {
             spawn(move || match stream {
-                Err(e) => println!("Unable to accept stream: {}", e),
+                Err(e) => error!("Unable to accept stream: {}", e),
                 Ok(s) => match accept(s) {
-                    Err(e) => println!("Unable to accept websocket connection: {}", e),
+                    Err(e) => error!("Unable to accept websocket connection: {}", e),
                     Ok(mut ws) => loop {
                         match ws.read_message() {
                             Err(e) => {
-                                println!("Unable to read message: {}", e);
+                                error!("Unable to read message: {}", e);
                                 break;
                             }
                             Ok(msg) => {
-                                println!("Received message: {}", msg);
+                                debug!("Received message: {}", msg);
                                 Self::handle_message(&mut ws, msg);
                             }
                         }
@@ -45,28 +45,29 @@ impl Server {
     fn handle_message(ws: &mut WebSocket<TcpStream>, msg: Message) {
         match msg {
             Binary(b) => {
-                // Check for a login request
-                let login_request: Result<LoginRequestData, _> = serde_json::from_slice(&b);
-                match login_request {
-                    Err(e) => println!("Unable to interpret message: {}", e),
-                    Ok(r) => {
-                        println!("User {} is trying to auth", r.username);
+                let request: Result<WsMessage, _> = serde_json::from_slice(&b);
+                match request {
+                    Err(e) => error!("Unable to interpret message: {}", e),
+                    Ok(WsMessage::LoginRequest(d)) => {
+                        // Check for a login request
+                        debug!("User {} is trying to auth", d.username);
 
                         // Write the response
-                        let response_data = LoginResponseData { success: true };
+                        let response_data = WsMessage::LoginResponse(LoginResponseData { success: true });
                         match serde_json::to_vec(&response_data) {
-                            Err(e) => println!("Unable to serialize reponse data: {}", e),
+                            Err(e) => error!("Unable to serialize reponse data: {}", e),
                             Ok(login_response) => {
                                 let msg = Message::from(login_response);
                                 if let Err(e) = ws.write_message(msg) {
-                                    println!("Unable to write message: {}", e);
+                                    error!("Unable to write message: {}", e);
                                 }
                             }
                         }
                     }
+                    _ => warn!("Unsuppored message type"),
                 }
             }
-            _ => println!("Unsupported message type"),
+            _ => warn!("No binary message"),
         }
     }
 }
