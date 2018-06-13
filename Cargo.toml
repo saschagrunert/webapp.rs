@@ -55,6 +55,7 @@ optional = true
 version = "0.4.2"
 
 [dependencies.openssl]
+features = ["v110"]
 optional = true
 version = "0.10.10"
 
