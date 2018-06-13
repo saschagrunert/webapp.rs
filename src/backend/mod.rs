@@ -23,11 +23,10 @@ impl Server {
                 .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
                 .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))
         }).bind(addr)?
+            .shutdown_timeout(0)
             .start();
 
-        Ok(Server {
-            runner: sys,
-        })
+        Ok(Server { runner: sys })
     }
 
     /// Start the server
