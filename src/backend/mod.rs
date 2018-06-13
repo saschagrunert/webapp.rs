@@ -5,7 +5,7 @@ use actix::SystemRunner;
 use actix_web::{fs, http, middleware, server, ws, App, Binary};
 use failure::Error;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
-use serde_json;
+use serde_cbor;
 use shared::{LoginResponseData, WsMessage};
 
 /// The server instance
@@ -69,7 +69,7 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
 
 impl WebSocket {
     fn handle_login_request(&mut self, data: &Binary, ctx: &mut ws::WebsocketContext<Self>) {
-        let request: Result<WsMessage, _> = serde_json::from_slice(data.as_ref());
+        let request: Result<WsMessage, _> = serde_cbor::from_slice(data.as_ref());
         match request {
             Err(e) => error!("Unable to interpret message: {}", e),
             Ok(WsMessage::LoginRequest(d)) => {
@@ -78,7 +78,7 @@ impl WebSocket {
 
                 // Write the response
                 let response_data = WsMessage::LoginResponse(LoginResponseData { success: true });
-                match serde_json::to_vec(&response_data) {
+                match serde_cbor::to_vec(&response_data) {
                     Err(e) => error!("Unable to serialize reponse data: {}", e),
                     Ok(login_response) => ctx.binary(login_response),
                 }

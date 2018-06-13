@@ -4,7 +4,6 @@
 #[macro_use]
 extern crate serde_derive;
 extern crate failure;
-extern crate serde_json;
 
 #[cfg(feature = "default")]
 extern crate actix;
@@ -18,6 +17,9 @@ extern crate log;
 
 #[cfg(feature = "default")]
 extern crate openssl;
+
+#[cfg(feature = "default")]
+extern crate serde_cbor;
 
 #[cfg(feature = "default")]
 mod backend;

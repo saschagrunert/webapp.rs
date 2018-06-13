@@ -2,7 +2,7 @@
 use failure::Error;
 use frontend::services::websocket::{WebSocketService, WebSocketTask};
 use shared::{LoginRequestData, WsMessage};
-use yew::format::Json;
+use yew::format::Cbor;
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
 use API_URL;
@@ -10,7 +10,7 @@ use API_URL;
 /// Data Model for the Login component
 pub struct LoginComponent {
     request: LoginRequestData,
-    // web_socket_task: WebSocketTask,
+    web_socket_task: WebSocketTask,
 }
 
 #[derive(Debug)]
@@ -31,19 +31,19 @@ where
 
     fn create(_: (), env: &mut Env<C, Self>) -> Self {
         // Setup the websocket connection
-        // TODO: reimplement better service handling
-        // let callback = env.send_back(|Json(data)| Msg::LoginResponse(data));
-        // let notification = env.send_back(|_| Msg::WebSocketIgnore);
-        // let ws_service: &mut WebSocketService = env.as_mut();
-        // Create the websocket tastk
-        // let task = ws_service.connect(API_URL, callback, notification);
+        let callback = env.send_back(|Cbor(data)| Msg::LoginResponse(data));
+        let notification = env.send_back(|_| Msg::WebSocketIgnore);
+        let mut service = WebSocketService::new();
+
+        // Create the websocket task
+        let task = service.connect(API_URL, callback, notification);
 
         LoginComponent {
             request: LoginRequestData {
                 username: String::new(),
                 password: String::new(),
             },
-            // web_socket_task: task,
+            web_socket_task: task,
         }
     }
 
@@ -51,7 +51,7 @@ where
         match msg {
             Msg::LoginRequest => {
                 let msg = WsMessage::LoginRequest(self.request.clone());
-                // self.web_socket_task.send_binary(Json(&msg));
+                self.web_socket_task.send(Cbor(&msg));
             }
             Msg::LoginResponse(response) => {
                 let console: &mut ConsoleService = ctx.as_mut();
