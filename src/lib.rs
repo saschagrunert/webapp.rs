@@ -17,6 +17,9 @@ extern crate actix_web;
 extern crate log;
 
 #[cfg(feature = "default")]
+extern crate openssl;
+
+#[cfg(feature = "default")]
 mod backend;
 
 #[cfg(feature = "default")]
@@ -38,4 +41,4 @@ pub use frontend::root::{Context, RootComponent};
 mod shared;
 
 /// The global API url for websocket communication
-pub const API_URL: &str = "ws://localhost:30000/ws";
+pub const API_URL: &str = "wss://saschagrunert.de:30000/ws";

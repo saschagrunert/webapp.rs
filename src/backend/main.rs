@@ -4,6 +4,7 @@ extern crate log;
 extern crate webapp;
 
 use failure::Error;
+use std::process::exit;
 use webapp::Server;
 
 fn main() -> Result<(), Error> {
@@ -13,7 +14,5 @@ fn main() -> Result<(), Error> {
 
     // Create and start the server
     let server = Server::new("0.0.0.0:30000")?;
-    server.start();
-
-    Ok(())
+    exit(server.start());
 }

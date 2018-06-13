@@ -4,6 +4,7 @@ use actix::prelude::*;
 use actix::SystemRunner;
 use actix_web::{fs, http, middleware, server, ws, App, Binary};
 use failure::Error;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde_json;
 use shared::{LoginResponseData, WsMessage};
 
@@ -15,18 +16,25 @@ pub struct Server {
 impl Server {
     /// Create a new server instance
     pub fn new(addr: &str) -> Result<Self, Error> {
-        let sys = actix::System::new("ws");
+        // Build a new actor system
+        let system_runner = actix::System::new("ws");
 
+        // Load the SSL Certificate
+        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
+        builder.set_private_key_file("tls/key.pem", SslFiletype::PEM)?;
+        builder.set_certificate_chain_file("tls/crt.pem")?;
+
+        // Create the server
         server::new(|| {
             App::new()
                 .middleware(middleware::Logger::default())
                 .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
                 .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))
-        }).bind(addr)?
+        }).bind_ssl(addr, builder)?
             .shutdown_timeout(0)
             .start();
 
-        Ok(Server { runner: sys })
+        Ok(Server { runner: system_runner })
     }
 
     /// Start the server
