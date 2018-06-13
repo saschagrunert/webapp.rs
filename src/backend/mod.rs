@@ -9,7 +9,6 @@ use shared::{LoginResponseData, WsMessage};
 
 /// The server instance
 pub struct Server {
-    address: String,
     runner: SystemRunner,
 }
 
@@ -28,13 +27,11 @@ impl Server {
 
         Ok(Server {
             runner: sys,
-            address: addr.to_owned(),
         })
     }
 
     /// Start the server
     pub fn start(self) -> i32 {
-        info!("Starting server at {}", self.address);
         self.runner.run()
     }
 }
