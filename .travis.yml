@@ -37,14 +37,6 @@ notifications:
     on_success: never
 os:
   - linux
-addons:
-  apt:
-    sources:
-      - kalakris-cmake
-    packages:
-      - libcurl4-openssl-dev
-      - libpcap-dev
-      - bison
 env:
   global:
     - OPENSSL_VERSION=openssl-1.0.2
