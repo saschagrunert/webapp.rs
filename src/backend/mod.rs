@@ -54,7 +54,7 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
         match msg {
             ws::Message::Ping(msg) => ctx.pong(&msg),
             ws::Message::Text(text) => ctx.text(text),
-            ws::Message::Binary(bin) => self.handle_login_request(bin, ctx),
+            ws::Message::Binary(bin) => self.handle_login_request(&bin, ctx),
             ws::Message::Close(_) => {
                 ctx.stop();
             }
@@ -64,7 +64,7 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
 }
 
 impl WebSocket {
-    fn handle_login_request(&mut self, data: Binary, ctx: &mut ws::WebsocketContext<Self>) {
+    fn handle_login_request(&mut self, data: &Binary, ctx: &mut ws::WebsocketContext<Self>) {
         let request: Result<WsMessage, _> = serde_json::from_slice(data.as_ref());
         match request {
             Err(e) => error!("Unable to interpret message: {}", e),
