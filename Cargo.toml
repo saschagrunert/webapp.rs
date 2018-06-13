@@ -1,20 +1,15 @@
 [package]
-name = "webapp"
-version = "0.2.0"
-license = "MIT"
-readme = "README.md"
-keywords = ["web", "app", "website", "webapp"]
 authors = ["Sascha Grunert <mail@saschagruenrt.de>"]
-repository = "https://github.com/saschagrunert/webapp.rs"
-homepage = "https://github.com/saschagrunert/webapp.rs"
-documentation = "https://docs.rs/webapp"
-description = "A web application completely written in Rust"
 categories = ["web-programming"]
-
-[badges]
-travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
-appveyor = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
-
+description = "A web application completely written in Rust"
+documentation = "https://docs.rs/webapp"
+homepage = "https://github.com/saschagrunert/webapp.rs"
+keywords = ["web", "app", "website", "webapp"]
+license = "MIT"
+name = "webapp"
+readme = "README.md"
+repository = "https://github.com/saschagrunert/webapp.rs"
+version = "0.2.0"
 [[bin]]
 name = "frontend"
 path = "src/frontend/main.rs"
@@ -23,7 +18,14 @@ required-features = ["frontend"]
 [[bin]]
 name = "backend"
 path = "src/backend/main.rs"
-required-features = ["backend"]
+[badges.appveyor]
+branch = "master"
+repository = "saschagrunert/webapp.rs"
+service = "github"
+
+[badges.travis-ci]
+branch = "master"
+repository = "saschagrunert/webapp.rs"
 
 [build-dependencies]
 failure = "0.1.1"
@@ -31,24 +33,34 @@ sass-rs = "0.2.1"
 
 [dependencies]
 failure = "0.1.1"
-env_logger = { version = "0.5.10", optional = true }
-log = { version = "0.4.2", optional = true }
-mowl = { version = "1.3.0", optional = true }
 serde = "1.0.66"
 serde_derive = "1.0.66"
 serde_json = "1.0.20"
-stdweb = { version = "0.4.6", optional = true }
-tungstenite = { version = "0.5.3", optional = true }
-yew = { version = "0.4.0", optional = true }
+
+[dependencies.actix]
+optional = true
+version = "0.5.8"
+
+[dependencies.actix-web]
+optional = true
+version = "0.6.13"
+
+[dependencies.env_logger]
+optional = true
+version = "0.5.10"
+
+[dependencies.log]
+optional = true
+version = "0.4.2"
+
+[dependencies.stdweb]
+optional = true
+version = "0.4.6"
+
+[dependencies.yew]
+optional = true
+version = "0.4.0"
 
 [features]
-frontend = [
-    "stdweb",
-    "yew",
-]
-backend = [
-    "env_logger",
-    "log",
-    "mowl",
-    "tungstenite",
-]
+default = ["actix", "actix-web", "env_logger", "log"]
+frontend = ["stdweb", "yew"]

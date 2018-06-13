@@ -1,8 +1,8 @@
 GENERAL_ARGS = --release
 FRONTEND_TARGET = $(GENERAL_ARGS) --target wasm32-unknown-unknown
-FRONTENT_ARGS = $(FRONTEND_TARGET) --features=frontend
+FRONTENT_ARGS = $(FRONTEND_TARGET) --no-default-features --features=frontend
 BACKEND_TARGET = $(GENERAL_ARGS)
-BACKEND_ARGS = $(BACKEND_TARGET) --features=backend
+BACKEND_ARGS = $(BACKEND_TARGET)
 
 .PHONY: frontend backend
 

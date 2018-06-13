@@ -10,8 +10,9 @@ fn main() -> Result<(), Error> {
     // Initialize the logger
     env_logger::init();
 
-    // Start the server
-    Server::run()?;
+    // Create and start the server
+    let server = Server::new("0.0.0.0:30000")?;
+    server.start();
 
     Ok(())
 }

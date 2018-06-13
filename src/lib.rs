@@ -3,9 +3,24 @@
 
 #[macro_use]
 extern crate serde_derive;
-
 extern crate failure;
 extern crate serde_json;
+
+#[cfg(feature = "default")]
+extern crate actix;
+
+#[cfg(feature = "default")]
+extern crate actix_web;
+
+#[cfg(feature = "default")]
+#[macro_use]
+extern crate log;
+
+#[cfg(feature = "default")]
+mod backend;
+
+#[cfg(feature = "default")]
+pub use backend::Server;
 
 #[cfg(feature = "frontend")]
 extern crate stdweb;
@@ -20,23 +35,7 @@ mod frontend;
 #[cfg(feature = "frontend")]
 pub use frontend::root::{Context, RootComponent};
 
-#[cfg(feature = "backend")]
-extern crate mowl;
-
-#[cfg(feature = "backend")]
-extern crate tungstenite;
-
-#[cfg(feature = "backend")]
-#[macro_use]
-extern crate log;
-
-#[cfg(feature = "backend")]
-mod backend;
-
-#[cfg(feature = "backend")]
-pub use backend::Server;
-
 mod shared;
 
 /// The global API url for websocket communication
-pub const API_URL: &str = "ws://saschagrunert.de:30000";
+pub const API_URL: &str = "ws://localhost:30000";

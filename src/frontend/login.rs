@@ -79,9 +79,9 @@ where
     fn view(&self) -> Html<C, Self> {
         html! {
             <form onsubmit="return false", />
-                <input value=&self.request.username, oninput=|e| Msg::UpdateUsername(e.value), />
-                <input type="password", value=&self.request.password, oninput=|e| Msg::UpdatePassword(e.value), />
-                <button type="submit", onclick=|_| Msg::LoginRequest,>{"Login"}</button>
+                <input class="uk-input", value=&self.request.username, oninput=|e| Msg::UpdateUsername(e.value), />
+                <input class="uk-input", type="password", value=&self.request.password, oninput=|e| Msg::UpdatePassword(e.value), />
+                <button class="uk-button", type="submit", onclick=|_| Msg::LoginRequest,>{"Login"}</button>
             </form>
         }
     }
