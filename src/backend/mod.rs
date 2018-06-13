@@ -2,7 +2,7 @@
 
 use actix::prelude::*;
 use actix::SystemRunner;
-use actix_web::{http, middleware, server, ws, App, Binary};
+use actix_web::{fs, http, middleware, server, ws, App, Binary};
 use failure::Error;
 use serde_json;
 use shared::{LoginResponseData, WsMessage};
@@ -21,7 +21,8 @@ impl Server {
         server::new(|| {
             App::new()
                 .middleware(middleware::Logger::default())
-                .resource("/", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
+                .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
+                .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))
         }).bind(addr)?
             .start();
 

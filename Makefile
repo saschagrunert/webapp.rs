@@ -23,7 +23,6 @@ frontend_deploy:
 		$(FRONTENT_ARGS)
 
 backend:
-	RUST_LOG=webapp=trace \
 	cargo run \
 		$(BACKEND_ARGS) \
 		--bin backend

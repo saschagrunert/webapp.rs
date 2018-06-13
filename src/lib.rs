@@ -38,4 +38,4 @@ pub use frontend::root::{Context, RootComponent};
 mod shared;
 
 /// The global API url for websocket communication
-pub const API_URL: &str = "ws://localhost:30000";
+pub const API_URL: &str = "ws://localhost:30000/ws";
