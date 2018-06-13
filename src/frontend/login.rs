@@ -78,10 +78,26 @@ where
 {
     fn view(&self) -> Html<C, Self> {
         html! {
-            <form onsubmit="return false", />
-                <input class="uk-input", value=&self.request.username, oninput=|e| Msg::UpdateUsername(e.value), />
-                <input class="uk-input", type="password", value=&self.request.password, oninput=|e| Msg::UpdatePassword(e.value), />
-                <button class="uk-button", type="submit", onclick=|_| Msg::LoginRequest,>{"Login"}</button>
+            <form class=("uk-container", "uk-container-small"), onsubmit="return false",>
+                <fieldset class="uk-fieldset",>
+                    <legend class="uk-legend",>{"Authentication Demo"}</legend>
+                    <div class="uk-margin",>
+                        <input class="uk-input",
+                               placeholder="Username",
+                               value=&self.request.username,
+                               oninput=|e| Msg::UpdateUsername(e.value), />
+                    </div>
+                    <div class="uk-margin",>
+                        <input class="uk-input",
+                               type="password",
+                               placeholder="Password",
+                               value=&self.request.password,
+                               oninput=|e| Msg::UpdatePassword(e.value), />
+                    </div>
+                    <button class=("uk-button", "uk-button-default"),
+                            type="submit",
+                            onclick=|_| Msg::LoginRequest,>{"Login"}</button>
+                </fieldset>
             </form>
         }
     }

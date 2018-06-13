@@ -9,12 +9,19 @@ matrix:
   allow_failures:
     - rust: nightly
 
+cache:
+  cargo: true
+  apt: true
+
 before_script:
   - pip install 'travis-cargo<0.2' --user --verbose
   - export PATH=$HOME/.local/bin:$PATH
   - export PATH=$HOME/Library/Python/2.7/bin:$PATH
   - cargo install cargo-kcov
   - ./ci/install_cargo_web
+  - sudo add-apt-repository -y ppa:0k53d-karl-f830m/openssl
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
   - cargo build --bin backend
@@ -35,17 +42,11 @@ addons:
     sources:
       - kalakris-cmake
     packages:
-      - cmake
       - libcurl4-openssl-dev
-      - openssl
-      - libssl-dev
-      - libiberty-dev
-      - libelf-dev
-      - libdw-dev
-      - binutils-dev
       - libpcap-dev
       - bison
 env:
   global:
+    - OPENSSL_VERSION=openssl-1.0.2
     - TRAVIS_CARGO_NIGHTLY_FEATURE=""
     - secure: WC9zSfV0u90iqsZD5477le2r7f0PwPEXQffN2fVbiV1kOWYZa7czyMeLQdCadfROf9K5SMgDBvRdB+FEyVWDMsatp5hIfeLyxug/xrktP7onzcWIImX+zFXV/Z+RDWOH+ojDsgmtR9PmP+k1+8DAq+w7d2e9uWkrVXhuY2xwvoUi0Ry3Ilw3Kji4EkzAV+sTCHV0wYM95Q1OOeYgIxf69Az73DqC6H254lud+EHculiBKaT+rnLvTdWJKP97xLuZ9p7wB368D3I4LGSQvtuGFynO+FRhjPbWKljeu6D1Q/Zj/CzX8Us0OXY0z4oGPsJTfLeSEJsIwTPFnqCyzmMBkpV4GC63Prso8pYmSe9a+226OAtLTyhWTWuHpw78BO23lsSLHpRIpHleNeMJhdAirEld7OWV3R3gYSNfuYKEQ6moQfpLdpWQbAddmE5qDsp9T5WIeFRu+aUPR45h6H4ma3w0txGiNSJKKzopIolnI3TZoI05B+dOGYoxPAhx5r1adDsqhZiXMgAni/NmUAN+nY19qBOLGQKhrqdqzRyz9QeNUiirPiL1ezyKQazTqjuubsgrbGk3hz9nyFrVgfEGbacYL6wCRzZuoOhBjcSePhymUXjSI+7PB5Ew4GfFNi5Jqxx47/Ba+uM5Gk8CTft/CjQ6jBOH2YxZeVHmwXKbaNI=
