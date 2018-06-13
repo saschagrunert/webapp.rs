@@ -17,13 +17,11 @@ before_script:
   - ./ci/install_cargo_web
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
-  - cargo build --bin backend --features=backend
-  - cargo build --bin backend --features=backend --release
+  - cargo build --bin backend
+  - cargo build --bin backend --release
   - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --bin=frontend --features=frontend; fi
   - travis-cargo test
-  - cargo doc --no-deps
 after_success:
-  - if [[ "$TRAVIS_RUST_VERSION" == "stable" ]]; then travis-cargo doc-upload; fi
   - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo kcov --print-install-kcov-sh | sh; fi
   - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo kcov --coveralls --kcov ./kcov-33/build/src/kcov; fi
 
