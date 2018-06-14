@@ -28,14 +28,15 @@ branch = "master"
 repository = "saschagrunert/webapp.rs"
 
 [build-dependencies]
+capnpc = "0.8.9"
 failure = "0.1.1"
 sass-rs = "0.2.1"
 
 [dependencies]
 failure = "0.1.1"
 serde = "1.0.66"
-serde_derive = "1.0.66"
 serde_cbor = "0.8.2"
+serde_derive = "1.0.66"
 
 [dependencies.actix]
 optional = true
@@ -45,6 +46,9 @@ version = "0.5.8"
 features = ["alpn"]
 optional = true
 version = "0.6.13"
+
+[dependencies.capnp]
+version = "0.8.17"
 
 [dependencies.env_logger]
 optional = true

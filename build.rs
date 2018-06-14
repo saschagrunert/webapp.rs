@@ -1,6 +1,8 @@
+extern crate capnpc;
 extern crate failure;
 extern crate sass_rs;
 
+use capnpc::CompilerCommand;
 use failure::Error;
 use sass_rs::{compile_file, Options, OutputStyle};
 use std::env;
@@ -12,6 +14,7 @@ const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
 const TAG: &str = "v3.0.0-rc.5";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
+const CAPNP_FILE: &str = "protocol.capnp";
 
 pub fn main() -> Result<(), Error> {
     // Prepare the directory
@@ -49,6 +52,11 @@ pub fn main() -> Result<(), Error> {
             copy(&target, format!("static/css/{}", CSS_FILE))?;
         }
     }
+
+    // Compile capnp protocol definition
+    CompilerCommand::new()
+        .file(PathBuf::from("src").join(CAPNP_FILE))
+        .run()?;
 
     Ok(())
 }

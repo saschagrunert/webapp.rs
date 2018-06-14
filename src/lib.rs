@@ -3,6 +3,7 @@
 
 #[macro_use]
 extern crate serde_derive;
+extern crate capnp;
 extern crate failure;
 
 #[cfg(feature = "default")]
