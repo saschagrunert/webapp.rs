@@ -13,6 +13,15 @@ cache:
   cargo: true
   apt: true
 
+install:
+  - curl -O https://capnproto.org/capnproto-c++-0.5.3.tar.gz
+  - tar zxf capnproto-c++-0.5.3.tar.gz
+  - cd capnproto-c++-0.5.3
+  - ./configure --prefix=$HOME
+  - make -j3
+  - make install
+  - cd ../
+
 before_script:
   - pip install 'travis-cargo<0.2' --user --verbose
   - export PATH=$HOME/.local/bin:$PATH
