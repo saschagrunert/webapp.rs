@@ -56,7 +56,7 @@ impl Actor for WebSocket {
 impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
     fn handle(&mut self, msg: ws::Message, ctx: &mut Self::Context) {
         // process websocket messages
-        debug!("Message: {:?}", msg);
+        debug!("Got message");
         match msg {
             ws::Message::Ping(msg) => ctx.pong(&msg),
             ws::Message::Text(text) => ctx.text(text),
