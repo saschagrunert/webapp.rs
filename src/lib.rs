@@ -36,7 +36,7 @@ extern crate yew;
 mod frontend;
 
 #[cfg(feature = "frontend")]
-pub use frontend::root::{Context, RootComponent};
+pub use frontend::root::RootComponent;
 
 pub mod protocol_capnp {
     #![allow(dead_code)]
