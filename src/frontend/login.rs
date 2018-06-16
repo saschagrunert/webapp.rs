@@ -7,8 +7,8 @@ use yew::{prelude::*, services::console::ConsoleService};
 pub struct LoginComponent {
     username: String,
     password: String,
-    websocket: WebSocketService,
-    protocol: ProtocolService,
+    websocket_service: WebSocketService,
+    protocol_service: ProtocolService,
 }
 
 #[derive(Debug)]
@@ -33,28 +33,31 @@ where
         let notification = env.send_back(|_| Msg::WebSocketIgnore);
 
         // Create the websocket service
-        let websocket = WebSocketService::new(callback, notification).expect("No valid websocket connection");
+        let websocket_service = WebSocketService::new(callback, notification).expect("No valid websocket connection");
 
         // Create the protocol service
-        let protocol = ProtocolService::new();
+        let protocol_service = ProtocolService::new();
 
         LoginComponent {
             username: String::new(),
             password: String::new(),
-            websocket,
-            protocol,
+            websocket_service,
+            protocol_service,
         }
     }
 
     fn update(&mut self, msg: Self::Message, ctx: &mut Env<C, Self>) -> ShouldRender {
         match msg {
-            Msg::LoginRequest => match self.protocol.write_login_request(&self.username, &self.password) {
+            Msg::LoginRequest => match self
+                .protocol_service
+                .write_login_request(&self.username, &self.password)
+            {
                 Err(e) => ctx.as_mut().error(&format!("Unable to create login request: {}", e)),
-                Ok(data) => self.websocket.send(data),
+                Ok(data) => self.websocket_service.send(data),
             },
             Msg::LoginResponse(mut response) => {
                 let console: &mut ConsoleService = ctx.as_mut();
-                match self.protocol.read_login_response(&mut response) {
+                match self.protocol_service.read_login_response(&mut response) {
                     Err(e) => console.error(&format!("Unable to read login response: {}", e)),
                     Ok(success) => console.info(&format!("Login succeed: {}", success)),
                 }
