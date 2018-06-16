@@ -41,6 +41,13 @@ mod frontend;
 #[cfg(feature = "frontend")]
 pub use frontend::root::{Context, RootComponent};
 
+pub mod protocol_capnp {
+    #![allow(dead_code)]
+    #![allow(missing_docs)]
+    #![allow(unknown_lints)]
+    #![allow(clippy)]
+    include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
+}
 mod shared;
 
 /// The global API url for websocket communication

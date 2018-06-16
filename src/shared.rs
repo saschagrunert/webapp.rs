@@ -1,12 +1,5 @@
 //! Shared models for the frontend and backend
 
-pub mod protocol_capnp {
-    #![allow(unknown_lints)]
-    #![allow(clippy)]
-    #![allow(dead_code)]
-    include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
-}
-
 #[derive(Deserialize, Serialize, Debug)]
 /// The most general message abstraction
 pub enum WsMessage {
