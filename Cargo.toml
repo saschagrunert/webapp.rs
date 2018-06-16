@@ -33,6 +33,7 @@ failure = "0.1.1"
 sass-rs = "0.2.1"
 
 [dependencies]
+capnp = "0.8.17"
 failure = "0.1.1"
 
 [dependencies.actix]
@@ -43,9 +44,6 @@ version = "0.5.8"
 features = ["alpn"]
 optional = true
 version = "0.6.13"
-
-[dependencies.capnp]
-version = "0.8.17"
 
 [dependencies.env_logger]
 optional = true
@@ -64,9 +62,8 @@ optional = true
 version = "0.4.6"
 
 [dependencies.yew]
-features = ["cbor"]
+git = "https://github.com/DenisKolodin/yew"
 optional = true
-version = "0.4.0"
 
 [features]
 default = ["actix", "actix-web", "env_logger", "log", "openssl"]

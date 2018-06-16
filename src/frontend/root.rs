@@ -18,27 +18,21 @@ impl AsMut<ConsoleService> for Context {
 /// Data Model for the Root Component
 pub struct RootComponent {}
 
-impl<C> Component<C> for RootComponent
-where
-    C: AsMut<ConsoleService>,
-{
+impl Component for RootComponent {
     type Message = ();
     type Properties = ();
 
-    fn create(_: (), _: &mut Env<C, Self>) -> Self {
+    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         RootComponent {}
     }
 
-    fn update(&mut self, _: Self::Message, _: &mut Env<C, Self>) -> ShouldRender {
+    fn update(&mut self, _: Self::Message) -> ShouldRender {
         true
     }
 }
 
-impl<C> Renderable<C, RootComponent> for RootComponent
-where
-    C: 'static + AsMut<ConsoleService>,
-{
-    fn view(&self) -> Html<C, Self> {
+impl Renderable<RootComponent> for RootComponent {
+    fn view(&self) -> Html<Self> {
         html! {
             <LoginComponent:/>
         }

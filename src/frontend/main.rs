@@ -1,17 +1,13 @@
 extern crate webapp;
 extern crate yew;
 
-use webapp::{Context, RootComponent};
+use webapp::RootComponent;
 use yew::prelude::*;
-use yew::services::console::ConsoleService;
 
 fn main() {
     // Initialize the application
     yew::initialize();
-    let context = Context {
-        console: ConsoleService::new(),
-    };
-    let app: App<_, RootComponent> = App::new(context);
+    let app: App<RootComponent> = App::new();
 
     // Set the root component
     app.mount_to_body();
