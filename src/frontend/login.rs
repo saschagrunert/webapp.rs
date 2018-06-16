@@ -1,22 +1,20 @@
 //! The Login component
-use capnp::{message::Builder, serialize_packed::write_message};
-use failure::Error;
-use frontend::services::websocket::{WebSocketService, WebSocketTask};
-use protocol_capnp::request;
+
+use frontend::services::{protocol::ProtocolService, websocket::WebSocketService};
 use yew::{prelude::*, services::console::ConsoleService};
-use API_URL;
 
 /// Data Model for the Login component
 pub struct LoginComponent {
     username: String,
     password: String,
-    web_socket_task: WebSocketTask,
+    websocket: WebSocketService,
+    protocol: ProtocolService,
 }
 
 #[derive(Debug)]
 pub enum Msg {
     LoginRequest,
-    LoginResponse(Result<Vec<u8>, Error>),
+    LoginResponse(Vec<u8>),
     WebSocketIgnore,
     UpdateUsername(String),
     UpdatePassword(String),
@@ -31,45 +29,34 @@ where
 
     fn create(_: (), env: &mut Env<C, Self>) -> Self {
         // Setup the websocket connection
-        let callback = env.send_back(|data: Result<Vec<u8>, Error>| Msg::LoginResponse(data));
+        let callback = env.send_back(|data| Msg::LoginResponse(data));
         let notification = env.send_back(|_| Msg::WebSocketIgnore);
-        let mut service = WebSocketService::new();
 
-        // Create the websocket task
-        let task = service.connect(API_URL, callback, notification);
+        // Create the websocket service
+        let websocket = WebSocketService::new(callback, notification).expect("No valid websocket connection");
+
+        // Create the protocol service
+        let protocol = ProtocolService::new();
 
         LoginComponent {
             username: String::new(),
             password: String::new(),
-            web_socket_task: task,
+            websocket,
+            protocol,
         }
     }
 
     fn update(&mut self, msg: Self::Message, ctx: &mut Env<C, Self>) -> ShouldRender {
         match msg {
-            Msg::LoginRequest => {
-                // Create an empty message
-                let mut message = Builder::new_default();
-                {
-                    // Set the request parameters
-                    let request = message.init_root::<request::Builder>();
-                    let mut login = request.init_login();
-                    login.set_username(&self.username);;
-                    login.set_password(&self.password);;
-                }
-
-                // Serialize to a vector
-                let mut data = Vec::new();
-                write_message(&mut data, &message).unwrap();
-
-                // Send the data
-                self.web_socket_task.send(&data);
-            }
-            Msg::LoginResponse(response) => {
+            Msg::LoginRequest => match self.protocol.write_login_request(&self.username, &self.password) {
+                Err(e) => ctx.as_mut().error(&format!("Unable to create login request: {}", e)),
+                Ok(data) => self.websocket.send(data),
+            },
+            Msg::LoginResponse(mut response) => {
                 let console: &mut ConsoleService = ctx.as_mut();
-                match response {
-                    Err(e) => console.error(&format!("Error: {}", e)),
-                    Ok(d) => console.log(&format!("Response: {:?}", d)),
+                match self.protocol.read_login_response(&mut response) {
+                    Err(e) => console.error(&format!("Unable to read login response: {}", e)),
+                    Ok(success) => console.info(&format!("Login succeed: {}", success)),
                 }
             }
             Msg::UpdateUsername(new_username) => {

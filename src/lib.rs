@@ -2,6 +2,8 @@
 //! The main library interface
 
 extern crate capnp;
+
+#[cfg_attr(feature = "frontend", macro_use)]
 extern crate failure;
 
 #[cfg(feature = "default")]

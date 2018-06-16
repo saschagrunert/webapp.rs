@@ -1,6 +1,7 @@
 //! A custom websocket service
 //! [`WebSocket` Protocol](https://tools.ietf.org/html/rfc6455).
 
+use failure::Error;
 use stdweb::{
     traits::IMessageEvent,
     web::{
@@ -8,92 +9,85 @@ use stdweb::{
         IEventTarget, SocketBinaryType, SocketReadyState, WebSocket,
     },
 };
-use yew::{callback::Callback, format::Binary, services::Task};
+use yew::{callback::Callback, services::Task};
+use API_URL;
 
 /// A status of a websocket connection. Used for status notification.
 pub enum WebSocketStatus {
-    /// Fired when a websocket connection was opened.
+    /// Used when a websocket connection was opened
     Opened,
 
-    /// Fired when a websocket connection was closed.
+    /// Used when a websocket connection was closed
     Closed,
 
-    /// Fired when a websocket connection was failed.
+    /// Used when a websocket connection was failed
     Error,
 }
 
 /// A handle to control current websocket connection. Implements `Task` and could be canceled.
-pub struct WebSocketTask {
-    ws: WebSocket,
+pub struct WebSocketService {
+    websocket: WebSocket,
     notification: Callback<WebSocketStatus>,
 }
 
-/// A websocket service attached to a user context.
-#[derive(Default)]
-pub struct WebSocketService {}
-
 impl WebSocketService {
-    /// Creates a new service instance connected to `App` by provided `sender`.
-    pub fn new() -> Self {
-        Self {}
-    }
-
-    /// Connects to a server by a websocket connection. Needs two functions to generate data and
+    /// Connects to a server by a websocket connection.
+    /// Needs two functions to generate data and
     /// notification messages.
-    pub fn connect<T: 'static>(
-        &mut self,
-        url: &str,
-        callback: Callback<T>,
-        notification: Callback<WebSocketStatus>,
-    ) -> WebSocketTask
-    where
-        T: From<Binary>,
-    {
-        let ws = WebSocket::new(url).unwrap();
-        ws.set_binary_type(SocketBinaryType::ArrayBuffer);
-        let notify = notification.clone();
-        ws.add_event_listener(move |_: SocketOpenEvent| {
-            notify.emit(WebSocketStatus::Opened);
+    pub fn new(callback: Callback<Vec<u8>>, notification: Callback<WebSocketStatus>) -> Result<Self, Error> {
+        // Connect to the API
+        let websocket = WebSocket::new(API_URL)?;
+        websocket.set_binary_type(SocketBinaryType::ArrayBuffer);
+
+        // Create notification callbacks
+        let n = notification.clone();
+        websocket.add_event_listener(move |_: SocketOpenEvent| {
+            n.emit(WebSocketStatus::Opened);
         });
-        let notify = notification.clone();
-        ws.add_event_listener(move |_: SocketCloseEvent| {
-            notify.emit(WebSocketStatus::Closed);
+        let n = notification.clone();
+        websocket.add_event_listener(move |_: SocketCloseEvent| {
+            n.emit(WebSocketStatus::Closed);
         });
-        let notify = notification.clone();
-        ws.add_event_listener(move |_: SocketErrorEvent| {
-            notify.emit(WebSocketStatus::Error);
+        let n = notification.clone();
+        websocket.add_event_listener(move |_: SocketErrorEvent| {
+            n.emit(WebSocketStatus::Error);
         });
-        ws.add_event_listener(move |event: SocketMessageEvent| {
+
+        // Add data callback
+        websocket.add_event_listener(move |event: SocketMessageEvent| {
             if let Some(bytes) = event.data().into_array_buffer() {
-                let bytes: Vec<u8> = bytes.into();
-                let data = Ok(bytes);
-                let out = T::from(data);
-                callback.emit(out);
+                callback.emit(bytes.into());
             }
         });
-        WebSocketTask { ws, notification }
-    }
-}
 
-impl WebSocketTask {
+        Ok(Self {
+            websocket,
+            notification,
+        })
+    }
+
     /// Sends binary data to a websocket connection.
     pub fn send(&mut self, data: &[u8]) {
-        if let Err(_) = self.ws.send_bytes(data) {
+        if self.websocket.send_bytes(data).is_err() {
             self.notification.emit(WebSocketStatus::Error);
         }
     }
 }
 
-impl Task for WebSocketTask {
+impl Task for WebSocketService {
+    /// Test wheter the websocket connection is active
     fn is_active(&self) -> bool {
-        self.ws.ready_state() == SocketReadyState::Open
+        self.websocket.ready_state() == SocketReadyState::Open
     }
+
+    // Close the websocket connection
     fn cancel(&mut self) {
-        self.ws.close();
+        self.websocket.close();
     }
 }
 
-impl Drop for WebSocketTask {
+impl Drop for WebSocketService {
+    /// Close this connection on drop
     fn drop(&mut self) {
         if self.is_active() {
             self.cancel();
