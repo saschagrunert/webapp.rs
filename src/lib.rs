@@ -1,8 +1,6 @@
 #![deny(missing_docs)]
 //! The main library interface
 
-#[macro_use]
-extern crate serde_derive;
 extern crate capnp;
 extern crate failure;
 
@@ -18,9 +16,6 @@ extern crate log;
 
 #[cfg(feature = "default")]
 extern crate openssl;
-
-#[cfg(feature = "default")]
-extern crate serde_cbor;
 
 #[cfg(feature = "default")]
 mod backend;
@@ -48,7 +43,6 @@ pub mod protocol_capnp {
     #![allow(clippy)]
     include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
 }
-mod shared;
 
 /// The global API url for websocket communication
 pub const API_URL: &str = "wss://saschagrunert.de:30000/ws";

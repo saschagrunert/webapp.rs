@@ -1,12 +1,14 @@
 //! A custom websocket service
 //! [`WebSocket` Protocol](https://tools.ietf.org/html/rfc6455).
 
-use stdweb::traits::IMessageEvent;
-use stdweb::web::event::{SocketCloseEvent, SocketErrorEvent, SocketMessageEvent, SocketOpenEvent};
-use stdweb::web::{IEventTarget, SocketBinaryType, SocketReadyState, WebSocket};
-use yew::callback::Callback;
-use yew::format::Binary;
-use yew::services::Task;
+use stdweb::{
+    traits::IMessageEvent,
+    web::{
+        event::{SocketCloseEvent, SocketErrorEvent, SocketMessageEvent, SocketOpenEvent},
+        IEventTarget, SocketBinaryType, SocketReadyState, WebSocket,
+    },
+};
+use yew::{callback::Callback, format::Binary, services::Task};
 
 /// A status of a websocket connection. Used for status notification.
 pub enum WebSocketStatus {
@@ -75,14 +77,9 @@ impl WebSocketService {
 
 impl WebSocketTask {
     /// Sends binary data to a websocket connection.
-    pub fn send<T>(&mut self, data: T)
-    where
-        T: Into<Binary>,
-    {
-        if let Ok(body) = data.into() {
-            if let Err(_) = self.ws.send_bytes(&body) {
-                self.notification.emit(WebSocketStatus::Error);
-            }
+    pub fn send(&mut self, data: &[u8]) {
+        if let Err(_) = self.ws.send_bytes(data) {
+            self.notification.emit(WebSocketStatus::Error);
         }
     }
 }

@@ -1,16 +1,14 @@
 //! The main backend interface
 
-use actix::prelude::*;
-use actix::SystemRunner;
+use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App, Binary};
+use capnp::{
+    message::{Builder, ReaderOptions},
+    serialize_packed::{read_message, write_message},
+};
 use failure::Error;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
-use serde_cbor;
-use shared::{LoginResponseData, WsMessage};
-
-use capnp::message::ReaderOptions;
-use capnp::serialize_packed::read_message;
-use protocol_capnp::request;
+use protocol_capnp::{request, response};
 
 /// The server instance
 pub struct Server {
@@ -62,8 +60,11 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
         match msg {
             ws::Message::Ping(msg) => ctx.pong(&msg),
             ws::Message::Text(text) => ctx.text(text),
-            ws::Message::Binary(bin) => self.handle_request(&bin, ctx),
-            ws::Message::Close(_) => {
+            ws::Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
+                error!("Unable to handle request: {}", e);
+            },
+            ws::Message::Close(reason) => {
+                info!("Closing websocket connection: {:?}", reason);
                 ctx.stop();
             }
             _ => (),
@@ -72,33 +73,35 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
 }
 
 impl WebSocket {
-    fn handle_request(&mut self, data: &Binary, ctx: &mut ws::WebsocketContext<Self>) {
-        let reader = read_message(&mut data.as_ref(), ReaderOptions::new()).unwrap();
-        let request = reader.get_root::<request::Reader>().unwrap();
+    fn handle_request(&mut self, data: &Binary, ctx: &mut ws::WebsocketContext<Self>) -> Result<(), Error> {
+        // Try to read the message
+        let reader = read_message(&mut data.as_ref(), ReaderOptions::new())?;
+        let request = reader.get_root::<request::Reader>()?;
 
+        // Check the request type
         match request.which() {
             Ok(request::Login(data)) => {
-            }
-            Ok(request::Logout(())) => {
-            }
-            Err(capnp::NotInSchema(_)) => {}
-        }
+                debug!("User {:?} is trying to Login", data?.get_username());
+                let mut message = Builder::new_default();
 
-        let request: Result<WsMessage, _> = serde_cbor::from_slice(data.as_ref());
-        match request {
-            Err(e) => error!("Unable to interpret message: {}", e),
-            Ok(WsMessage::LoginRequest(d)) => {
-                // Check for a login request
-                debug!("User {} is trying to auth", d.username);
-
-                // Write the response
-                let response_data = WsMessage::LoginResponse(LoginResponseData { success: true });
-                match serde_cbor::to_vec(&response_data) {
-                    Err(e) => error!("Unable to serialize reponse data: {}", e),
-                    Ok(login_response) => ctx.binary(login_response),
+                {
+                    // Set the message data
+                    let response = message.init_root::<response::Builder>();
+                    let mut login = response.init_login();
+                    login.set_success(true);
                 }
+
+                // Write the message into a buffer
+                let mut data = Vec::new();
+                write_message(&mut data, &message)?;
+
+                // Send the response to the websocket
+                ctx.binary(data);
+
+                Ok(())
             }
-            _ => warn!("Unsuppored message type"),
+            Ok(request::Logout(())) => Ok(()),
+            Err(e) => Err(e.into()),
         }
     }
 }

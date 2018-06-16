@@ -8,7 +8,7 @@ struct Request {
 
     union {
         login @0 :Login;
-        logout @1: Text;
+        logout @1 :Void;
     }
 }
 
@@ -18,7 +18,7 @@ struct Response {
     }
 
     union {
-        login @0: Login;
-        logout @1: Text;
+        login @0 :Login;
+        logout @1 :Text;
     }
 }
