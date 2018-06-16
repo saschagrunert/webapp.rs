@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
-const TAG: &str = "v3.0.0-rc.5";
+const TAG: &str = "v3.0.0-rc.6";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 const CAPNP_FILE: &str = "protocol.capnp";

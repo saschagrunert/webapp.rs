@@ -80,27 +80,30 @@ where
 {
     fn view(&self) -> Html<C, Self> {
         html! {
-            <form class=("uk-container", "uk-container-small"), onsubmit="return false",>
-                <fieldset class="uk-fieldset",>
-                    <legend class="uk-legend",>{"Authentication Demo"}</legend>
-                    <div class="uk-margin",>
-                        <input class="uk-input",
-                               placeholder="Username",
-                               value=&self.username,
-                               oninput=|e| Msg::UpdateUsername(e.value), />
-                    </div>
-                    <div class="uk-margin",>
-                        <input class="uk-input",
-                               type="password",
-                               placeholder="Password",
-                               value=&self.password,
-                               oninput=|e| Msg::UpdatePassword(e.value), />
-                    </div>
-                    <button class=("uk-button", "uk-button-default"),
-                            type="submit",
-                            onclick=|_| Msg::LoginRequest,>{"Login"}</button>
-                </fieldset>
-            </form>
+            <div class=("uk-card", "uk-card-default", "uk-card-body",
+                        "uk-width-1-3@s", "uk-position-center"),>
+                <form onsubmit="return false",>
+                    <fieldset class="uk-fieldset",>
+                        <legend class="uk-legend",>{"Authentication"}</legend>
+                        <div class="uk-margin",>
+                            <input class="uk-input",
+                                placeholder="Username",
+                                value=&self.username,
+                                oninput=|e| Msg::UpdateUsername(e.value), />
+                        </div>
+                        <div class="uk-margin",>
+                            <input class="uk-input",
+                                type="password",
+                                placeholder="Password",
+                                value=&self.password,
+                                oninput=|e| Msg::UpdatePassword(e.value), />
+                        </div>
+                        <button class=("uk-button", "uk-button-default"),
+                                type="submit",
+                                onclick=|_| Msg::LoginRequest,>{"Login"}</button>
+                    </fieldset>
+                </form>
+            </div>
         }
     }
 }
