@@ -1,7 +1,7 @@
 //! A cookie handling service to read and write cookies
 
 use failure::Error;
-use stdweb::{unstable::TryInto, web::Date};
+use stdweb::unstable::TryInto;
 
 #[derive(Debug, Fail)]
 pub enum CookieError {
@@ -17,14 +17,9 @@ impl CookieService {
         CookieService
     }
 
-    /// Set a cookie for a given name, value and validity days
-    pub fn set_cookie(&self, name: &str, value: &str, days: i32) {
-        let date = Date::new();
-        date.set_time(date.get_time() + (days * 24 * 60 * 60 * 1000) as f64);
-        let expires = "; expires=".to_owned() + &date.to_utc_string();
-        js! {
-            document.cookie = @{name} + "=" + (@{value} || "")  + @{expires} + "; path=/";
-        }
+    /// Set a cookie for a given name and value for a default validity of one year
+    pub fn set_cookie(&self, name: &str, value: &str) {
+        self.set_cookie_expiring(name, value, 365)
     }
 
     /// Retrieve a cookie for a given name
@@ -53,6 +48,16 @@ impl CookieService {
 
     /// Remove a cookie for a given name
     pub fn remove_cookie(&self, name: &str) {
-        self.set_cookie(name, "", -1);
+        self.set_cookie_expiring(name, "", -1);
+    }
+
+    /// Set a cookie for a given name, value and validity days
+    fn set_cookie_expiring(&self, name: &str, value: &str, days: i32) {
+        js! {
+            var date = new Date();
+            date.setTime(date.getTime() + (@{days} * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toUTCString();
+            document.cookie = @{name} + "=" + (@{value} || "")  + expires + "; path=/";
+        }
     }
 }
