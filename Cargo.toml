@@ -65,6 +65,18 @@ version = "0.4.6"
 git = "https://github.com/DenisKolodin/yew"
 optional = true
 
+[dependencies.jsonwebtoken]
+optional = true
+version = "4.0.1"
+
+[dependencies.serde]
+optional = true
+version = "1.0.66"
+
+[dependencies.serde_derive]
+optional = true
+version = "1.0.66"
+
 [features]
-default = ["actix", "actix-web", "env_logger", "log", "openssl"]
+default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "log", "openssl", "serde", "serde_derive"]
 frontend = ["stdweb", "yew"]

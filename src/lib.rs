@@ -20,6 +20,13 @@ extern crate log;
 extern crate openssl;
 
 #[cfg(feature = "default")]
+extern crate jsonwebtoken;
+
+#[cfg(feature = "default")]
+#[macro_use]
+extern crate serde_derive;
+
+#[cfg(feature = "default")]
 mod backend;
 
 #[cfg(feature = "default")]

@@ -7,8 +7,10 @@ use capnp::{
     serialize_packed::{read_message, write_message},
 };
 use failure::Error;
+use jsonwebtoken::{decode, encode, Header, Validation};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use protocol_capnp::{request, response};
+use std::time::SystemTime;
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
@@ -17,6 +19,18 @@ pub enum ServerError {
 
     #[fail(display = "wrong username or password")]
     WrongUsernamePassword,
+
+    #[fail(display = "unable to create token")]
+    CreateToken,
+
+    #[fail(display = "unable to verify token")]
+    VerifyToken,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Claim {
+    sub: String,
+    exp: u64,
 }
 
 /// The server instance
@@ -28,7 +42,7 @@ impl Server {
     /// Create a new server instance
     pub fn new(addr: &str) -> Result<Self, Error> {
         // Build a new actor system
-        let system_runner = actix::System::new("ws");
+        let runner = actix::System::new("ws");
 
         // Load the SSL Certificate
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
@@ -45,7 +59,7 @@ impl Server {
             .shutdown_timeout(0)
             .start();
 
-        Ok(Server { runner: system_runner })
+        Ok(Server { runner })
     }
 
     /// Start the server
@@ -116,7 +130,10 @@ impl WebSocket {
                         {
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
-                            login.set_token("secret_token");
+
+                            let token = self.create_token(username, 3600)?;
+                            debug!("Token: {}", token);
+                            login.set_token(&token);
                         }
 
                         // Write the message into a buffer
@@ -129,11 +146,16 @@ impl WebSocket {
                     Ok(request::login::Token(token_data)) => {
                         let token = token_data?;
                         debug!("Token {} wants to be renewed", token);
-                        // Just send the token back for now
+
                         {
+                            // Try to verify and create a new token
+                            let new_token = self.verify_token(token)?;
+                            debug!("New token: {}", new_token);
+
+                            // Create the response
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
-                            login.set_token(token);
+                            login.set_token(&new_token);
                         }
 
                         // Write the message into a buffer
@@ -149,6 +171,23 @@ impl WebSocket {
             Err(e) => Err(e.into()),
             _ => Err(ServerError::UnimplementedRequest.into()),
         }
+    }
+
+    /// Create a new default token for a given username and a validity in seconds
+    fn create_token(&self, username: &str, validity: u64) -> Result<String, Error> {
+        let time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
+        let claim = Claim {
+            sub: username.to_owned(),
+            exp: time.as_secs() + validity,
+        };
+        encode(&Header::default(), &claim, b"secret").map_err(|_| ServerError::CreateToken.into())
+    }
+
+    /// Verify the validity of a token and get a new one
+    fn verify_token(&self, token: &str) -> Result<String, Error> {
+        let data = decode::<Claim>(token, b"secret", &Validation::default())
+            .map_err(|_| Error::from(ServerError::VerifyToken))?;
+        self.create_token(&data.claims.sub, 3600)
     }
 
     /// Create an error response from a given description string

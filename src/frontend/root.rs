@@ -86,7 +86,11 @@ impl Component for RootComponent {
                     self.authentication_state = AuthenticationState::Authenticated;
                     true
                 }
-                Err(_) => false,
+                Err(_) => {
+                    self.cookie_service.remove_cookie(SESSION_COOKIE);
+                    self.authentication_state = AuthenticationState::UnAuthenticated;
+                    true
+                }
             },
             _ => false,
         }
