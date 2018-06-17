@@ -76,7 +76,7 @@ impl Component for LoginComponent {
             },
             Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
                 Ok(token) => {
-                    self.console_service.info(&format!("Login succeed: {}", token));
+                    self.console_service.info("Login succeed");
 
                     // Set the retrieved session cookie
                     self.cookie_service.set_cookie(SESSION_COOKIE, &token);

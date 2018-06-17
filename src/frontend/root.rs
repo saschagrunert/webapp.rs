@@ -7,7 +7,7 @@ use frontend::{
         websocket::{WebSocketService, WebSocketStatus},
     },
 };
-use yew::prelude::*;
+use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
 #[derive(Debug)]
@@ -23,6 +23,7 @@ pub enum Message {
 pub struct RootComponent {
     authentication_state: AuthenticationState,
     cookie_service: CookieService,
+    console_service: ConsoleService,
     protocol_service: ProtocolService,
     websocket_service: WebSocketService,
 }
@@ -48,6 +49,7 @@ impl Component for RootComponent {
 
         Self {
             authentication_state: AuthenticationState::Unknown,
+            console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             protocol_service: ProtocolService::new(),
             websocket_service,
@@ -65,6 +67,7 @@ impl Component for RootComponent {
                 if let Ok(token) = self.cookie_service.get_cookie(SESSION_COOKIE) {
                     match self.protocol_service.write_login_token_request(&token) {
                         Ok(data) => {
+                            self.console_service.info("Token found, trying to authenticate");
                             self.websocket_service.send(data);
                             false
                         }
@@ -75,6 +78,7 @@ impl Component for RootComponent {
                         }
                     }
                 } else {
+                    self.console_service.info("No token found");
                     self.authentication_state = AuthenticationState::UnAuthenticated;
                     true
                 }
@@ -82,11 +86,14 @@ impl Component for RootComponent {
             Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
                 Ok(token) => {
                     // Set the retrieved session cookie
+                    self.console_service.info("Login succeed");
                     self.cookie_service.set_cookie(SESSION_COOKIE, &token);
                     self.authentication_state = AuthenticationState::Authenticated;
                     true
                 }
                 Err(_) => {
+                    // Remote the existing cookie
+                    self.console_service.info("Login failed");
                     self.cookie_service.remove_cookie(SESSION_COOKIE);
                     self.authentication_state = AuthenticationState::UnAuthenticated;
                     true
