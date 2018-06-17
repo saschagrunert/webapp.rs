@@ -10,6 +10,15 @@ use failure::Error;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use protocol_capnp::{request, response};
 
+#[derive(Debug, Fail)]
+pub enum ServerError {
+    #[fail(display = "unimplemented request message")]
+    UnimplementedRequest,
+
+    #[fail(display = "wrong username or password")]
+    WrongUsernamePassword,
+}
+
 /// The server instance
 pub struct Server {
     runner: SystemRunner,
@@ -56,12 +65,16 @@ impl Actor for WebSocket {
 impl StreamHandler<ws::Message, ws::ProtocolError> for WebSocket {
     fn handle(&mut self, msg: ws::Message, ctx: &mut Self::Context) {
         // process websocket messages
-        debug!("Got message");
         match msg {
             ws::Message::Ping(msg) => ctx.pong(&msg),
             ws::Message::Text(text) => ctx.text(text),
             ws::Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
-                error!("Unable to handle request: {}", e);
+                warn!("Unable to send succeeding response: {}", e);
+                // Try to send the error response
+                match self.create_error_response(&e.to_string()) {
+                    Ok(d) => ctx.binary(d),
+                    Err(e) => error!("Unable to send error: {}", e),
+                }
             },
             ws::Message::Close(reason) => {
                 info!("Closing websocket connection: {:?}", reason);
@@ -81,27 +94,77 @@ impl WebSocket {
         // Check the request type
         match request.which() {
             Ok(request::Login(data)) => {
-                debug!("User {:?} is trying to Login", data?.get_username());
+                // Create a new message builder
                 let mut message = Builder::new_default();
+                let mut response_data = Vec::new();
 
-                {
-                    // Set the message data
-                    let response = message.init_root::<response::Builder>();
-                    let mut login = response.init_login();
-                    login.set_success(true);
+                // Check if its a credential or token login type
+                match data?.which() {
+                    Ok(request::login::Credentials(d)) => {
+                        let v = d?;
+                        let username = v.get_username()?;
+                        let password = v.get_password()?;
+                        debug!("User {} is trying to login", username);
+
+                        // For now, error if username and password does not match
+                        if username != password {
+                            debug!("Username and password does not match");
+                            return Err(ServerError::WrongUsernamePassword.into());
+                        }
+
+                        // Else create a "secret" token for the response
+                        {
+                            let response = message.init_root::<response::Builder>();
+                            let mut login = response.init_login();
+                            login.set_token("secret_token");
+                        }
+
+                        // Write the message into a buffer
+                        write_message(&mut response_data, &message)?;
+
+                        // Send the response to the websocket
+                        ctx.binary(response_data);
+                        Ok(())
+                    }
+                    Ok(request::login::Token(token_data)) => {
+                        let token = token_data?;
+                        debug!("Token {} wants to be renewed", token);
+                        // Just send the token back for now
+                        {
+                            let response = message.init_root::<response::Builder>();
+                            let mut login = response.init_login();
+                            login.set_token(token);
+                        }
+
+                        // Write the message into a buffer
+                        write_message(&mut response_data, &message)?;
+
+                        // Send the response to the websocket
+                        ctx.binary(response_data);
+                        Ok(())
+                    }
+                    Err(e) => Err(e.into()),
                 }
-
-                // Write the message into a buffer
-                let mut data = Vec::new();
-                write_message(&mut data, &message)?;
-
-                // Send the response to the websocket
-                ctx.binary(data);
-
-                Ok(())
             }
-            Ok(request::Logout(())) => Ok(()),
             Err(e) => Err(e.into()),
+            _ => Err(ServerError::UnimplementedRequest.into()),
         }
+    }
+
+    /// Create an error response from a given description string
+    fn create_error_response(&self, description: &str) -> Result<Vec<u8>, Error> {
+        let mut message = Builder::new_default();
+
+        {
+            let response = message.init_root::<response::Builder>();
+            let mut error = response.init_error();
+            error.set_description(description);
+        }
+
+        // Write the message into a buffer
+        let mut data = Vec::new();
+        write_message(&mut data, &message)?;
+
+        Ok(data)
     }
 }

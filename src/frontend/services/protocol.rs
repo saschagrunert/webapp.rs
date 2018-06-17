@@ -15,8 +15,8 @@ pub struct ProtocolService {
 
 #[derive(Debug, Fail)]
 pub enum ProtocolError {
-    #[fail(display = "invalid message type, need: {}", needed_type)]
-    InvalidMessageType { needed_type: String },
+    #[fail(display = "got error response: {}", description)]
+    Response { description: String },
 }
 
 impl ProtocolService {
@@ -30,6 +30,9 @@ impl ProtocolService {
 
     /// Write the data and return to the caller
     fn write(&mut self) -> Result<&[u8], Error> {
+        // Clear the data before serialization
+        self.data.clear();
+
         // Serialize and return
         write_message(&mut self.data, &self.builder)?;
         Ok(&self.data)
@@ -41,27 +44,41 @@ impl ProtocolService {
     }
 
     /// Create a new login request from a given username and password
-    pub fn write_login_request(&mut self, username: &str, password: &str) -> Result<&[u8], Error> {
+    pub fn write_login_credential_request(&mut self, username: &str, password: &str) -> Result<&[u8], Error> {
+        {
+            // Set the request parameters
+            let request = self.builder.init_root::<request::Builder>();
+            let login = request.init_login();
+
+            let mut creds = login.init_credentials();
+            creds.set_username(username);
+            creds.set_password(password);
+        }
+
+        self.write()
+    }
+
+    /// Create a new login request from a given token
+    pub fn write_login_token_request(&mut self, token: &str) -> Result<&[u8], Error> {
         {
             // Set the request parameters
             let request = self.builder.init_root::<request::Builder>();
             let mut login = request.init_login();
-            login.set_username(username);;
-            login.set_password(password);;
+            login.set_token(token);
         }
 
         self.write()
     }
 
     // Get a login response for given bytes
-    pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<bool, Error> {
+    pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<String, Error> {
         let reader = self.read(data)?;
         let response = reader.get_root::<response::Reader>()?;
         match response.which()? {
-            response::Login(data) => Ok(data?.get_success()),
-            _ => Err(Error::from(ProtocolError::InvalidMessageType {
-                needed_type: "login reseponse".to_owned(),
-            })),
+            response::Login(data) => Ok(data?.get_token()?.to_owned()),
+            response::Error(data) => Err(ProtocolError::Response {
+                description: data?.get_description()?.to_owned(),
+            }.into()),
         }
     }
 }

@@ -3,7 +3,7 @@
 
 extern crate capnp;
 
-#[cfg_attr(feature = "frontend", macro_use)]
+#[macro_use]
 extern crate failure;
 
 #[cfg(feature = "default")]
@@ -26,6 +26,7 @@ mod backend;
 pub use backend::Server;
 
 #[cfg(feature = "frontend")]
+#[macro_use]
 extern crate stdweb;
 
 #[cfg(feature = "frontend")]

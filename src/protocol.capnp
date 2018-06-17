@@ -1,24 +1,35 @@
 @0x998efb67a0d7453f;
 
 struct Request {
-    struct Login {
-        username @0 :Text;
-        password @1 :Text;
+    union {
+        login       @0 :Login;
+        placeholder @1 :Void;
     }
 
-    union {
-        login @0 :Login;
-        logout @1 :Void;
+    struct Login {
+        union {
+            credentials @0 :Credentials;
+            token       @1 :Text;
+        }
+
+        struct Credentials {
+            username @0 :Text;
+            password @1 :Text;
+        }
     }
 }
 
 struct Response {
-    struct Login {
-        success @0 :Bool;
+    union {
+        error @0 :Error;
+        login @1 :Login;
     }
 
-    union {
-        login @0 :Login;
-        logout @1 :Text;
+    struct Error {
+        description @0 :Text;
+    }
+
+    struct Login {
+        token @0 :Text;
     }
 }
