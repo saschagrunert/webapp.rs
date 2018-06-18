@@ -49,6 +49,10 @@ version = "0.6.13"
 optional = true
 version = "0.5.10"
 
+[dependencies.jsonwebtoken]
+optional = true
+version = "4.0.1"
+
 [dependencies.log]
 optional = true
 version = "0.4.2"
@@ -56,18 +60,6 @@ version = "0.4.2"
 [dependencies.openssl]
 optional = true
 version = "0.10.10"
-
-[dependencies.stdweb]
-optional = true
-version = "0.4.6"
-
-[dependencies.yew]
-git = "https://github.com/DenisKolodin/yew"
-optional = true
-
-[dependencies.jsonwebtoken]
-optional = true
-version = "4.0.1"
 
 [dependencies.serde]
 optional = true
@@ -77,6 +69,18 @@ version = "1.0.66"
 optional = true
 version = "1.0.66"
 
+[dependencies.stdweb]
+optional = true
+version = "0.4.6"
+
+[dependencies.time]
+optional = true
+version = "0.1.40"
+
+[dependencies.yew]
+git = "https://github.com/DenisKolodin/yew"
+optional = true
+
 [features]
-default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "log", "openssl", "serde", "serde_derive"]
+default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "log", "openssl", "serde", "serde_derive", "time"]
 frontend = ["stdweb", "yew"]

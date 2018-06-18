@@ -1,6 +1,4 @@
 //! The main backend interface
-#![allow(unused_attributes)]
-#![feature(assoc_unix_epoch)]
 
 use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App, Binary};
@@ -12,7 +10,7 @@ use failure::Error;
 use jsonwebtoken::{decode, encode, Header, Validation};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use protocol_capnp::{request, response};
-use std::time::SystemTime;
+use time::get_time;
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
@@ -32,7 +30,7 @@ pub enum ServerError {
 #[derive(Debug, Deserialize, Serialize)]
 struct Claim {
     sub: String,
-    exp: u64,
+    exp: i64,
 }
 
 /// The server instance
@@ -176,11 +174,10 @@ impl WebSocket {
     }
 
     /// Create a new default token for a given username and a validity in seconds
-    fn create_token(&self, username: &str, validity: u64) -> Result<String, Error> {
-        let time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH)?;
+    fn create_token(&self, username: &str, validity: i64) -> Result<String, Error> {
         let claim = Claim {
             sub: username.to_owned(),
-            exp: time.as_secs() + validity,
+            exp: get_time().sec + validity,
         };
         encode(&Header::default(), &claim, b"secret").map_err(|_| ServerError::CreateToken.into())
     }

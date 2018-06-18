@@ -17,14 +17,17 @@ extern crate actix_web;
 extern crate log;
 
 #[cfg(feature = "default")]
-extern crate openssl;
+extern crate jsonwebtoken;
 
 #[cfg(feature = "default")]
-extern crate jsonwebtoken;
+extern crate openssl;
 
 #[cfg(feature = "default")]
 #[macro_use]
 extern crate serde_derive;
+
+#[cfg(feature = "default")]
+extern crate time;
 
 #[cfg(feature = "default")]
 mod backend;
