@@ -33,7 +33,7 @@ extern crate time;
 mod backend;
 
 #[cfg(feature = "default")]
-pub use backend::Server;
+pub use backend::server::Server;
 
 #[cfg(feature = "frontend")]
 #[macro_use]

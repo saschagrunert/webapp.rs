@@ -38,12 +38,12 @@ failure = "0.1.1"
 
 [dependencies.actix]
 optional = true
-version = "0.5.8"
+version = "0.6.0"
 
 [dependencies.actix-web]
 features = ["alpn"]
 optional = true
-version = "0.6.13"
+git = "https://github.com/actix/actix-web"
 
 [dependencies.env_logger]
 optional = true
