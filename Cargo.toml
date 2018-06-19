@@ -38,7 +38,7 @@ failure = "0.1.1"
 
 [dependencies.actix]
 optional = true
-version = "0.6.0"
+version = "0.6.1"
 
 [dependencies.actix-web]
 features = ["alpn"]
