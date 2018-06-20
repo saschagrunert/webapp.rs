@@ -5,6 +5,7 @@ use actix_web::{fs, http, middleware, server, ws, App};
 use backend::websocket::WebSocket;
 use failure::Error;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
@@ -26,6 +27,13 @@ pub struct Server {
     runner: SystemRunner,
 }
 
+/// Shared mutable application state
+#[derive(Debug, Default)]
+pub struct State {
+    /// The tokens stored for authentication
+    pub tokens: RefCell<HashMap<String, String>>,
+}
+
 impl Server {
     /// Create a new server instance
     pub fn new(addr: &str) -> Result<Self, Error> {
@@ -39,7 +47,7 @@ impl Server {
 
         // Create the server
         server::new(|| {
-            App::new()
+            App::with_state(Arc::new(State::default()))
                 .middleware(middleware::Logger::default())
                 .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
                 .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))

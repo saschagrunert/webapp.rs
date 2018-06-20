@@ -40,6 +40,15 @@ failure = "0.1.1"
 optional = true
 version = "0.6.1"
 
+[dependencies.uuid]
+features = ["v4"]
+optional = true
+version = "0.6.5"
+
+[dependencies.lazy_static]
+optional = true
+version = "1.0.1"
+
 [dependencies.actix-web]
 features = ["alpn"]
 optional = true
@@ -82,5 +91,5 @@ git = "https://github.com/DenisKolodin/yew"
 optional = true
 
 [features]
-default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "log", "openssl", "serde", "serde_derive", "time"]
+default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "lazy_static", "log", "openssl", "serde", "serde_derive", "time", "uuid"]
 frontend = ["stdweb", "yew"]

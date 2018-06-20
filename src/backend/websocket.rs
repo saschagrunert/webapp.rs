@@ -5,19 +5,23 @@ use actix_web::{
     ws::{Message, ProtocolError, WebsocketContext},
     Binary,
 };
-use backend::{server::ServerError, token::Claim};
+use backend::{
+    server::{ServerError, State},
+    token::Token,
+};
 use capnp::{
     message::{Builder, ReaderOptions},
     serialize_packed::{read_message, write_message},
 };
 use failure::Error;
 use protocol_capnp::{request, response};
+use std::sync::Arc;
 
 /// The actual websocket
 pub struct WebSocket;
 
 impl Actor for WebSocket {
-    type Context = WebsocketContext<Self>;
+    type Context = WebsocketContext<Self, Arc<State>>;
 }
 
 /// Handler for `Message`
@@ -50,7 +54,7 @@ impl StreamHandler<Message, ProtocolError> for WebSocket {
 }
 
 impl WebSocket {
-    fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self>) -> Result<(), Error> {
+    fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, Arc<State>>) -> Result<(), Error> {
         // Try to read the message
         let reader = read_message(&mut data.as_ref(), ReaderOptions::new())?;
         let request = reader.get_root::<request::Reader>()?;
@@ -81,9 +85,16 @@ impl WebSocket {
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
 
-                            let token = Claim::create_token(username, 3600)?;
+                            let token = Token::create(username, 3600)?;
                             debug!("Token: {}", token);
                             login.set_token(&token);
+
+                            // Save the token for validation
+                            // TODO: check if token is already present
+                            ctx.state()
+                                .tokens
+                                .try_borrow_mut()?
+                                .insert(username.to_owned(), token.to_owned());
                         }
 
                         // Write the message into a buffer
@@ -99,13 +110,15 @@ impl WebSocket {
 
                         {
                             // Try to verify and create a new token
-                            let new_token = Claim::verify_token(token)?;
+                            let new_token = Token::verify(token)?;
                             debug!("New token: {}", new_token);
 
                             // Create the response
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
                             login.set_token(&new_token);
+
+                            // TODO: update the token within the application state
                         }
 
                         // Write the message into a buffer

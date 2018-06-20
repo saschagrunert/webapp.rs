@@ -4,31 +4,44 @@ use backend::server::ServerError;
 use failure::Error;
 use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
+use uuid::Uuid;
 
-#[derive(Debug, Deserialize, Serialize)]
-/// A web token claim
-pub struct Claim {
-    /// The subject of the token
-    pub sub: String,
-
-    /// The exipration date of the token
-    pub exp: i64,
+lazy_static! {
+    static ref SECRET: String = Uuid::new_v4().to_string();
 }
 
-impl Claim {
+#[derive(Debug, Deserialize, Serialize)]
+/// A web token
+pub struct Token {
+    /// The subject of the token
+    sub: String,
+
+    /// The exipration date of the token
+    exp: i64,
+
+    /// The issued at field
+    iat: i64,
+
+    /// The token id
+    jti: String,
+}
+
+impl Token {
     /// Create a new default token for a given username and a validity in seconds
-    pub fn create_token(username: &str, validity: i64) -> Result<String, Error> {
-        let claim = Claim {
+    pub fn create(username: &str, validity: i64) -> Result<String, Error> {
+        let claim = Token {
             sub: username.to_owned(),
             exp: get_time().sec + validity,
+            iat: get_time().sec,
+            jti: Uuid::new_v4().to_string(),
         };
-        encode(&Header::default(), &claim, b"secret").map_err(|_| ServerError::CreateToken.into())
+        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ServerError::CreateToken.into())
     }
 
     /// Verify the validity of a token and get a new one
-    pub fn verify_token(token: &str) -> Result<String, Error> {
-        let data = decode::<Claim>(token, b"secret", &Validation::default())
+    pub fn verify(token: &str) -> Result<String, Error> {
+        let data = decode::<Token>(token, SECRET.as_ref(), &Validation::default())
             .map_err(|_| Error::from(ServerError::VerifyToken))?;
-        Self::create_token(&data.claims.sub, 3600)
+        Self::create(&data.claims.sub, 3600)
     }
 }

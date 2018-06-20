@@ -14,6 +14,10 @@ extern crate actix_web;
 
 #[cfg(feature = "default")]
 #[macro_use]
+extern crate lazy_static;
+
+#[cfg(feature = "default")]
+#[macro_use]
 extern crate log;
 
 #[cfg(feature = "default")]
@@ -28,6 +32,9 @@ extern crate serde_derive;
 
 #[cfg(feature = "default")]
 extern crate time;
+
+#[cfg(feature = "default")]
+extern crate uuid;
 
 #[cfg(feature = "default")]
 mod backend;
@@ -58,7 +65,7 @@ pub mod protocol_capnp {
 }
 
 /// The global API url for websocket communication
-pub const API_URL: &str = "wss://saschagrunert.de:30000/ws";
+pub const API_URL: &str = "wss://localhost:30000/ws";
 
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";

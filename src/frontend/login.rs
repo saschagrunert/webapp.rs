@@ -105,8 +105,7 @@ impl Component for LoginComponent {
 impl Renderable<LoginComponent> for LoginComponent {
     fn view(&self) -> Html<Self> {
         html! {
-            <div class=("uk-card", "uk-card-default", "uk-card-body",
-                        "uk-width-1-3@s", "uk-position-center"),>
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <form onsubmit="return false",>
                     <fieldset class="uk-fieldset",>
                         <legend class="uk-legend",>{"Authentication"}</legend>
@@ -123,7 +122,7 @@ impl Renderable<LoginComponent> for LoginComponent {
                                    value=&self.password,
                                    oninput=|e| Message::UpdatePassword(e.value), />
                         </div>
-                        <button class=("uk-button", "uk-button-default"),
+                        <button class="uk-button uk-button-default",
                                 type="submit",
                                 onclick=|_| Message::LoginRequest,>{"Login"}</button>
                     </fieldset>
