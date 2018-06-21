@@ -1,6 +1,7 @@
 //! The Root component
 use frontend::{
-    login::LoginComponent,
+    components::content::ContentComponent,
+    components::login::LoginComponent,
     services::{
         cookie::CookieService,
         protocol::ProtocolService,
@@ -111,7 +112,7 @@ impl Renderable<RootComponent> for RootComponent {
                 <div></div>
             },
             AuthenticationState::Authenticated => html! {
-               <h1>{"Already authenticated"}</h1>
+               <ContentComponent:/>
             },
             AuthenticationState::UnAuthenticated => html! {
                <LoginComponent:/>

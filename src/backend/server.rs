@@ -2,10 +2,9 @@
 
 use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App};
-use backend::websocket::WebSocket;
+use backend::{token::TokenStore, websocket::WebSocket};
 use failure::Error;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
-use std::{cell::RefCell, collections::HashMap, sync::Arc};
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
@@ -20,6 +19,9 @@ pub enum ServerError {
 
     #[fail(display = "unable to verify token")]
     VerifyToken,
+
+    #[fail(display = "unable to update token")]
+    UpdateToken,
 }
 
 /// The server instance
@@ -28,10 +30,10 @@ pub struct Server {
 }
 
 /// Shared mutable application state
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct State {
     /// The tokens stored for authentication
-    pub tokens: RefCell<HashMap<String, String>>,
+    pub store: TokenStore,
 }
 
 impl Server {
@@ -45,9 +47,12 @@ impl Server {
         builder.set_private_key_file("tls/key.pem", SslFiletype::PEM)?;
         builder.set_certificate_chain_file("tls/crt.pem")?;
 
+        // Create a default app state
+        let state = State::default();
+
         // Create the server
-        server::new(|| {
-            App::with_state(Arc::new(State::default()))
+        server::new(move || {
+            App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
                 .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
                 .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))

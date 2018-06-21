@@ -3,11 +3,45 @@
 use backend::server::ServerError;
 use failure::Error;
 use jsonwebtoken::{decode, encode, Header, Validation};
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
+};
 use time::get_time;
 use uuid::Uuid;
 
 lazy_static! {
     static ref SECRET: String = Uuid::new_v4().to_string();
+}
+
+const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
+
+/// Generic multi processing ready token storage type
+#[derive(Clone, Debug, Default)]
+pub struct TokenStore(Arc<RwLock<HashSet<String>>>);
+
+impl TokenStore {
+    /// Insert a new token
+    pub fn create(&self, username: &str) -> Result<String, Error> {
+        let token = Token::create(username, DEFAULT_TOKEN_VALIDITY)?;
+        debug!("New token: {}", token);
+        self.0
+            .try_write()
+            .map_err(|_| Error::from(ServerError::CreateToken))?
+            .insert(token.clone());
+        trace!("All current token: {:?}", self.0);
+        Ok(token)
+    }
+
+    /// Update old_token for new_token
+    pub fn verify(&self, token: &str) -> Result<String, Error> {
+        let new_token = Token::verify(token)?;
+        debug!("Token {} verified, new token: {}", token, new_token);
+        let mut data = self.0.try_write().map_err(|_| Error::from(ServerError::UpdateToken))?;
+        data.remove(token);
+        data.insert(new_token.clone());
+        Ok(new_token)
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -42,6 +76,6 @@ impl Token {
     pub fn verify(token: &str) -> Result<String, Error> {
         let data = decode::<Token>(token, SECRET.as_ref(), &Validation::default())
             .map_err(|_| Error::from(ServerError::VerifyToken))?;
-        Self::create(&data.claims.sub, 3600)
+        Self::create(&data.claims.sub, DEFAULT_TOKEN_VALIDITY)
     }
 }

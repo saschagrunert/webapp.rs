@@ -38,7 +38,7 @@ failure = "0.1.1"
 
 [dependencies.actix]
 optional = true
-version = "0.6.1"
+git = "https://github.com/actix/actix"
 
 [dependencies.uuid]
 features = ["v4"]

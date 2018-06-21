@@ -5,56 +5,44 @@ use actix_web::{
     ws::{Message, ProtocolError, WebsocketContext},
     Binary,
 };
-use backend::{
-    server::{ServerError, State},
-    token::Token,
-};
+use backend::server::{ServerError, State};
 use capnp::{
     message::{Builder, ReaderOptions},
     serialize_packed::{read_message, write_message},
 };
 use failure::Error;
 use protocol_capnp::{request, response};
-use std::sync::Arc;
 
 /// The actual websocket
 pub struct WebSocket;
 
 impl Actor for WebSocket {
-    type Context = WebsocketContext<Self, Arc<State>>;
+    type Context = WebsocketContext<Self, State>;
 }
 
 /// Handler for `Message`
 impl StreamHandler<Message, ProtocolError> for WebSocket {
-    fn handle(&mut self, msg: Result<Option<Message>, ProtocolError>, ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Message, ctx: &mut Self::Context) {
         match msg {
-            Err(e) => error!("Error handling message: {}", e),
-            Ok(data) => if let Some(m) = data {
-                // process websocket messages
-                match m {
-                    Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
-                        warn!("Unable to send succeeding response: {}", e);
-                        // Try to send the error response
-                        match self.create_error_response(&e.to_string()) {
-                            Ok(d) => ctx.binary(d),
-                            Err(e) => error!("Unable to send error: {}", e),
-                        }
-                    },
-                    Message::Close(reason) => {
-                        info!("Closing websocket connection: {:?}", reason);
-                        ctx.stop();
-                    }
-                    e => warn!("Got invalid message: {:?}", e),
+            Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
+                warn!("Unable to send succeeding response: {}", e);
+                // Try to send the error response
+                match self.create_error_response(&e.to_string()) {
+                    Ok(d) => ctx.binary(d),
+                    Err(e) => error!("Unable to send error: {}", e),
                 }
-            } else {
-                info!("No valid message data found");
             },
+            Message::Close(reason) => {
+                info!("Closing websocket connection: {:?}", reason);
+                ctx.stop();
+            }
+            e => warn!("Got invalid message: {:?}", e),
         }
     }
 }
 
 impl WebSocket {
-    fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, Arc<State>>) -> Result<(), Error> {
+    fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
         // Try to read the message
         let reader = read_message(&mut data.as_ref(), ReaderOptions::new())?;
         let request = reader.get_root::<request::Reader>()?;
@@ -74,27 +62,21 @@ impl WebSocket {
                         let password = v.get_password()?;
                         debug!("User {} is trying to login", username);
 
-                        // For now, error if username and password does not match
-                        if username != password {
-                            debug!("Username and password does not match");
+                        // Error if username and password are invalid
+                        if username.is_empty() || password.is_empty() {
+                            debug!("Wrong username or password");
                             return Err(ServerError::WrongUsernamePassword.into());
                         }
 
                         // Else create a "secret" token for the response
                         {
+                            // Create a new token
+                            let token = ctx.state().store.create(username)?;
+
+                            // Create the response
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
-
-                            let token = Token::create(username, 3600)?;
-                            debug!("Token: {}", token);
                             login.set_token(&token);
-
-                            // Save the token for validation
-                            // TODO: check if token is already present
-                            ctx.state()
-                                .tokens
-                                .try_borrow_mut()?
-                                .insert(username.to_owned(), token.to_owned());
                         }
 
                         // Write the message into a buffer
@@ -110,15 +92,12 @@ impl WebSocket {
 
                         {
                             // Try to verify and create a new token
-                            let new_token = Token::verify(token)?;
-                            debug!("New token: {}", new_token);
+                            let new_token = ctx.state().store.verify(token)?;
 
                             // Create the response
                             let response = message.init_root::<response::Builder>();
                             let mut login = response.init_login();
                             login.set_token(&new_token);
-
-                            // TODO: update the token within the application state
                         }
 
                         // Write the message into a buffer
