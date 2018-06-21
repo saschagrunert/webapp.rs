@@ -8,6 +8,7 @@ use SESSION_COOKIE;
 pub struct LoginComponent {
     username: String,
     password: String,
+    button_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
     protocol_service: ProtocolService,
@@ -42,6 +43,7 @@ impl Component for LoginComponent {
         Self {
             username: String::new(),
             password: String::new(),
+            button_disabled: true,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
             websocket_service,
@@ -91,11 +93,13 @@ impl Component for LoginComponent {
             },
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
-                false
+                self.button_disabled = self.username.is_empty();
+                true
             }
             Message::UpdatePassword(new_password) => {
                 self.password = new_password;
-                false
+                self.button_disabled = self.password.is_empty();
+                true
             }
             _ => false,
         }
@@ -124,6 +128,7 @@ impl Renderable<LoginComponent> for LoginComponent {
                         </div>
                         <button class="uk-button uk-button-default",
                                 type="submit",
+                                disabled=self.button_disabled,
                                 onclick=|_| Message::LoginRequest,>{"Login"}</button>
                     </fieldset>
                 </form>
