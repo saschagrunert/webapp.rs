@@ -110,8 +110,8 @@ impl WebSocket {
                     Err(e) => Err(e.into()),
                 }
             }
+            Ok(request::Logout(token)) => Ok(ctx.state().store.remove(token?)?),
             Err(e) => Err(e.into()),
-            _ => Err(ServerError::UnimplementedRequest.into()),
         }
     }
 

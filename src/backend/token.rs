@@ -42,6 +42,15 @@ impl TokenStore {
         data.insert(new_token.clone());
         Ok(new_token)
     }
+
+    /// Remove a token from the storage
+    pub fn remove(&self, token: &str) -> Result<(), Error> {
+        self.0
+            .try_write()
+            .map_err(|_| Error::from(ServerError::RemoveToken))?
+            .remove(token);
+        Ok(())
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

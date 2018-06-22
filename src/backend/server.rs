@@ -8,9 +8,6 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
-    #[fail(display = "unimplemented request message")]
-    UnimplementedRequest,
-
     #[fail(display = "wrong username or password")]
     WrongUsernamePassword,
 
@@ -22,6 +19,9 @@ pub enum ServerError {
 
     #[fail(display = "unable to update token")]
     UpdateToken,
+
+    #[fail(display = "unable to remove token")]
+    RemoveToken,
 }
 
 /// The server instance
