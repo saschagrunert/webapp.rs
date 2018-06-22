@@ -109,7 +109,9 @@ impl Renderable<RootComponent> for RootComponent {
     fn view(&self) -> Html<Self> {
         match self.authentication_state {
             AuthenticationState::Unknown => html! {
-                <div></div>
+                <div class="uk-position-center",>
+                    {"Loading application…"}
+                </div>
             },
             AuthenticationState::Authenticated => html! {
                <ContentComponent:/>

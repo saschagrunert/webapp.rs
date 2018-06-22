@@ -93,12 +93,12 @@ impl Component for LoginComponent {
             },
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
-                self.button_disabled = self.username.is_empty();
+                self.button_disabled = self.username.is_empty() || self.password.is_empty();
                 true
             }
             Message::UpdatePassword(new_password) => {
                 self.password = new_password;
-                self.button_disabled = self.password.is_empty();
+                self.button_disabled = self.username.is_empty() || self.password.is_empty();
                 true
             }
             _ => false,
