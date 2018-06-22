@@ -2,8 +2,8 @@
 
 struct Request {
     union {
-        login       @0 :Login;
-        placeholder @1 :Void;
+        login  @0 :Login;   # The login credentials or a token
+        logout @1 :Text;    # The session token
     }
 
     struct Login {
