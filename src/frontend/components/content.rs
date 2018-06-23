@@ -1,8 +1,13 @@
 //! The Main Content component
+
+use frontend::services::cookie::CookieService;
 use yew::prelude::*;
+use SESSION_COOKIE;
 
 /// Data Model for the Content component
-pub struct ContentComponent {}
+pub struct ContentComponent {
+    cookie_service: CookieService,
+}
 
 #[derive(Debug)]
 /// Available message types to process
@@ -17,11 +22,16 @@ impl Component for ContentComponent {
     /// Initialization routine
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         // Create the component
-        Self {}
+        Self {
+            cookie_service: CookieService::new(),
+        }
     }
 
     /// Called everytime when messages are received
-    fn update(&mut self, _: Self::Message) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Message::LogoutRequest => self.cookie_service.remove_cookie(SESSION_COOKIE),
+        }
         true
     }
 }
