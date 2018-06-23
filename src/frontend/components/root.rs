@@ -67,7 +67,7 @@ impl Component for RootComponent {
         match msg {
             Message::WebSocketConnected => {
                 // Verify if a session cookie already exist and try to authenticate if so
-                if let Ok(token) = self.cookie_service.get_cookie(SESSION_COOKIE) {
+                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     match self.protocol_service.write_login_token_request(&token) {
                         Ok(data) => {
                             self.console_service.info("Token found, trying to authenticate");
@@ -75,7 +75,7 @@ impl Component for RootComponent {
                             false
                         }
                         Err(_) => {
-                            self.cookie_service.remove_cookie(SESSION_COOKIE);
+                            self.cookie_service.remove(SESSION_COOKIE);
                             self.authentication_state = AuthenticationState::UnAuthenticated;
                             true
                         }
@@ -90,14 +90,14 @@ impl Component for RootComponent {
                 Ok(token) => {
                     // Set the retrieved session cookie
                     self.console_service.info("Login succeed");
-                    self.cookie_service.set_cookie(SESSION_COOKIE, &token);
+                    self.cookie_service.set(SESSION_COOKIE, &token);
                     self.authentication_state = AuthenticationState::Authenticated;
                     true
                 }
                 Err(_) => {
                     // Remote the existing cookie
                     self.console_service.info("Login failed");
-                    self.cookie_service.remove_cookie(SESSION_COOKIE);
+                    self.cookie_service.remove(SESSION_COOKIE);
                     self.authentication_state = AuthenticationState::UnAuthenticated;
                     true
                 }

@@ -61,7 +61,7 @@ impl Component for LoginComponent {
             {
                 Ok(data) => {
                     // Remove the current session cookie
-                    self.cookie_service.remove_cookie(SESSION_COOKIE);
+                    self.cookie_service.remove(SESSION_COOKIE);
 
                     // Send the request
                     self.websocket_service.send(data);
@@ -78,7 +78,7 @@ impl Component for LoginComponent {
                     self.console_service.info("Login succeed");
 
                     // Set the retrieved session cookie
-                    self.cookie_service.set_cookie(SESSION_COOKIE, &token);
+                    self.cookie_service.set(SESSION_COOKIE, &token);
 
                     true
                 }

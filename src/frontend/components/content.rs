@@ -36,14 +36,14 @@ impl Component for ContentComponent {
         match msg {
             Message::LogoutRequest => {
                 // Retrieve the currently set cookie
-                if let Ok(token) = self.cookie_service.get_cookie(SESSION_COOKIE) {
+                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
                     if let Ok(data) = self.protocol_service.write_logout_request(&token) {
                         // Send the request
                         self.websocket_service.send(data);
                     }
                     // Remove the cookie if set
-                    self.cookie_service.remove_cookie(SESSION_COOKIE);
+                    self.cookie_service.remove(SESSION_COOKIE);
                 }
             }
         }
