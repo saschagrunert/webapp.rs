@@ -17,12 +17,13 @@ pub enum Message {
     LoginRequest(String),
     LoginResponse(Vec<u8>),
     WebSocketConnected,
-    WebSocketIgnore,
+    WebSocketFailure,
 }
 
 /// Data Model for the Root Component
 pub struct RootComponent {
     authentication_state: AuthenticationState,
+    initial_message: String,
     cookie_service: CookieService,
     console_service: ConsoleService,
     protocol_service: ProtocolService,
@@ -44,12 +45,13 @@ impl Component for RootComponent {
         let callback = link.send_back(|data| Message::LoginResponse(data));
         let notification = link.send_back(|data| match data {
             WebSocketStatus::Opened => Message::WebSocketConnected,
-            _ => Message::WebSocketIgnore,
+            _ => Message::WebSocketFailure,
         });
         let websocket_service = WebSocketService::new(callback, notification).expect("No valid websocket connection");
 
         Self {
             authentication_state: AuthenticationState::Unknown,
+            initial_message: "Loading application…".to_owned(),
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             protocol_service: ProtocolService::new(),
@@ -100,7 +102,10 @@ impl Component for RootComponent {
                     true
                 }
             },
-            _ => false,
+            _ => {
+                self.initial_message = "Error loading application.".to_owned();
+                true
+            }
         }
     }
 }
@@ -110,7 +115,7 @@ impl Renderable<RootComponent> for RootComponent {
         match self.authentication_state {
             AuthenticationState::Unknown => html! {
                 <div class="uk-position-center",>
-                    {"Loading application…"}
+                    {&self.initial_message}
                 </div>
             },
             AuthenticationState::Authenticated => html! {
