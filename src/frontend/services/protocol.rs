@@ -70,6 +70,17 @@ impl ProtocolService {
         self.write()
     }
 
+    /// Create a logout request from a fiven token
+    pub fn write_logout_request(&mut self, token: &str) -> Result<&[u8], Error> {
+        {
+            // Set the request parameters
+            let mut request = self.builder.init_root::<request::Builder>();
+            request.set_logout(token);
+        }
+
+        self.write()
+    }
+
     // Get a login response for given bytes
     pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<String, Error> {
         let reader = self.read(data)?;

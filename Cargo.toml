@@ -10,6 +10,11 @@ name = "webapp"
 readme = "README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
 version = "0.2.0"
+
+[badges]
+travis-ci = { repository = "saschagrunert/git-journal", branch = "master" }
+appveyor = { repository = "saschagrunert/git-journal", branch = "master", service = "github" }
+
 [[bin]]
 name = "frontend"
 path = "src/frontend/main.rs"
@@ -18,14 +23,6 @@ required-features = ["frontend"]
 [[bin]]
 name = "backend"
 path = "src/backend/main.rs"
-[badges.appveyor]
-branch = "master"
-repository = "saschagrunert/webapp.rs"
-service = "github"
-
-[badges.travis-ci]
-branch = "master"
-repository = "saschagrunert/webapp.rs"
 
 [build-dependencies]
 capnpc = "0.8.9"
@@ -33,67 +30,37 @@ failure = "0.1.1"
 sass-rs = "0.2.1"
 
 [dependencies]
+actix = { git = "https://github.com/actix/actix", optional = true }
+actix-web = { git = "https://github.com/actix/actix-web", features = ["alpn"], optional = true }
 capnp = "0.8.17"
+env_logger = { version = "0.5.10", optional = true }
 failure = "0.1.1"
-
-[dependencies.actix]
-optional = true
-git = "https://github.com/actix/actix"
-
-[dependencies.uuid]
-features = ["v4"]
-optional = true
-version = "0.6.5"
-
-[dependencies.lazy_static]
-optional = true
-version = "1.0.1"
-
-[dependencies.actix-web]
-features = ["alpn"]
-optional = true
-git = "https://github.com/actix/actix-web"
-
-[dependencies.env_logger]
-optional = true
-version = "0.5.10"
-
-[dependencies.jsonwebtoken]
-optional = true
-version = "4.0.1"
-
-[dependencies.log]
-optional = true
-version = "0.4.2"
-
-[dependencies.openssl]
-optional = true
-version = "0.10.10"
-
-[dependencies.serde]
-optional = true
-version = "1.0.66"
-
-[dependencies.serde_derive]
-optional = true
-version = "1.0.66"
-
-[dependencies.stdweb]
-optional = true
-version = "0.4.6"
-
-[dependencies.time]
-optional = true
-version = "0.1.40"
-
-[dependencies.url]
-optional = true
-version = "1.7.0"
-
-[dependencies.yew]
-git = "https://github.com/DenisKolodin/yew"
-optional = true
+jsonwebtoken = { version = "4.0.1", optional = true }
+lazy_static = { version = "1.0.1", optional = true }
+log = { version = "0.4.2", optional = true }
+openssl = { version = "0.10.10", optional = true }
+serde = { version = "1.0.66", optional = true }
+serde_derive = { version = "1.0.66", optional = true }
+stdweb = { version = "0.4.6", optional = true }
+time = { version = "0.1.40", optional = true }
+uuid = { version = "0.6.5", features = ["v4"], optional = true }
+yew = { git = "https://github.com/DenisKolodin/yew", optional = true }
 
 [features]
-default = ["actix", "actix-web", "env_logger", "jsonwebtoken", "lazy_static", "log", "openssl", "serde", "serde_derive", "time", "uuid"]
-frontend = ["stdweb", "url", "yew"]
+default = [
+    "actix",
+    "actix-web",
+    "env_logger",
+    "jsonwebtoken",
+    "lazy_static",
+    "log",
+    "openssl",
+    "serde",
+    "serde_derive",
+    "time",
+    "uuid"
+]
+frontend = [
+    "stdweb",
+    "yew"
+]

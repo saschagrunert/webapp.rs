@@ -34,10 +34,6 @@ impl Component for LoginComponent {
         // Create the websocket service
         let callback = link.send_back(|data| Message::LoginResponse(data));
         let notification = link.send_back(|_| Message::WebSocketIgnore);
-        let websocket_service = WebSocketService::new(callback, notification).expect("No valid websocket connection");
-
-        // Create the protocol service
-        let protocol_service = ProtocolService::new();
 
         // Create the component
         Self {
@@ -46,8 +42,9 @@ impl Component for LoginComponent {
             button_disabled: true,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
-            websocket_service,
-            protocol_service,
+            websocket_service: WebSocketService::new_with_callbacks(callback, notification)
+                .expect("No valid websocket connection"),
+            protocol_service: ProtocolService::new(),
         }
     }
 

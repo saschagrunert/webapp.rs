@@ -47,9 +47,6 @@ pub use backend::server::Server;
 extern crate stdweb;
 
 #[cfg(feature = "frontend")]
-extern crate url;
-
-#[cfg(feature = "frontend")]
 #[macro_use]
 extern crate yew;
 

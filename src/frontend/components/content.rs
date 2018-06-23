@@ -1,12 +1,14 @@
 //! The Main Content component
 
-use frontend::services::cookie::CookieService;
+use frontend::services::{cookie::CookieService, protocol::ProtocolService, websocket::WebSocketService};
 use yew::prelude::*;
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
 pub struct ContentComponent {
     cookie_service: CookieService,
+    protocol_service: ProtocolService,
+    websocket_service: WebSocketService,
 }
 
 #[derive(Debug)]
@@ -24,13 +26,26 @@ impl Component for ContentComponent {
         // Create the component
         Self {
             cookie_service: CookieService::new(),
+            protocol_service: ProtocolService::new(),
+            websocket_service: WebSocketService::new().expect("No valid websocket connection"),
         }
     }
 
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::LogoutRequest => self.cookie_service.remove_cookie(SESSION_COOKIE),
+            Message::LogoutRequest => {
+                // Retrieve the currently set cookie
+                if let Ok(token) = self.cookie_service.get_cookie(SESSION_COOKIE) {
+                    // Create the logout request
+                    if let Ok(data) = self.protocol_service.write_logout_request(&token) {
+                        // Send the request
+                        self.websocket_service.send(data);
+                    }
+                    // Remove the cookie if set
+                    self.cookie_service.remove_cookie(SESSION_COOKIE);
+                }
+            }
         }
         true
     }

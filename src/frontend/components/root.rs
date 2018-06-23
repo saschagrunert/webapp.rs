@@ -47,7 +47,6 @@ impl Component for RootComponent {
             WebSocketStatus::Opened => Message::WebSocketConnected,
             _ => Message::WebSocketFailure,
         });
-        let websocket_service = WebSocketService::new(callback, notification).expect("No valid websocket connection");
 
         Self {
             authentication_state: AuthenticationState::Unknown,
@@ -55,7 +54,8 @@ impl Component for RootComponent {
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             protocol_service: ProtocolService::new(),
-            websocket_service,
+            websocket_service: WebSocketService::new_with_callbacks(callback, notification)
+                .expect("No valid websocket connection"),
         }
     }
 
