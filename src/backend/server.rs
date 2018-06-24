@@ -55,7 +55,7 @@ impl Server {
             App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
                 .resource("/ws", |r| r.method(http::Method::GET).f(|r| ws::start(r, WebSocket)))
-                .handler("/", fs::StaticFiles::new("static/").index_file("index.html"))
+                .handler("/", fs::StaticFiles::new("target/deploy").index_file("index.html"))
         }).bind_ssl(addr, builder)?
             .shutdown_timeout(0)
             .start();

@@ -16,7 +16,7 @@ travis-ci = { repository = "saschagrunert/git-journal", branch = "master" }
 appveyor = { repository = "saschagrunert/git-journal", branch = "master", service = "github" }
 
 [[bin]]
-name = "frontend"
+name = "app"
 path = "src/frontend/main.rs"
 required-features = ["frontend"]
 
