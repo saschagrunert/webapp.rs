@@ -21,8 +21,9 @@ struct Request {
 
 struct Response {
     union {
-        error @0 :Error;
-        login @1 :Login;
+        error  @0 :Error;
+        login  @1 :Login;
+        logout @2 :Void;
     }
 
     struct Error {

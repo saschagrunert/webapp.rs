@@ -1,7 +1,14 @@
 //! The Login component
 
-use frontend::services::{cookie::CookieService, protocol::ProtocolService, websocket::WebSocketService};
-use yew::{prelude::*, services::ConsoleService};
+use frontend::services::{
+    cookie::CookieService,
+    protocol::ProtocolService,
+    websocket::{WebSocketService, WebSocketStatus},
+};
+use yew::{
+    prelude::*,
+    services::{ConsoleService, Task},
+};
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
@@ -22,7 +29,8 @@ pub enum Message {
     LoginResponse(Vec<u8>),
     UpdateUsername(String),
     UpdatePassword(String),
-    WebSocketIgnore,
+    WebSocketConnected,
+    WebSocketFailure,
 }
 
 impl Component for LoginComponent {
@@ -33,7 +41,10 @@ impl Component for LoginComponent {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Create the websocket service
         let callback = link.send_back(|data| Message::LoginResponse(data));
-        let notification = link.send_back(|_| Message::WebSocketIgnore);
+        let notification = link.send_back(|data| match data {
+            WebSocketStatus::Opened => Message::WebSocketConnected,
+            _ => Message::WebSocketFailure,
+        });
 
         // Create the component
         Self {
@@ -90,15 +101,26 @@ impl Component for LoginComponent {
             },
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
-                self.button_disabled = self.username.is_empty() || self.password.is_empty();
+                self.button_disabled =
+                    !self.websocket_service.is_active() || self.username.is_empty() || self.password.is_empty();
                 true
             }
             Message::UpdatePassword(new_password) => {
                 self.password = new_password;
+                self.button_disabled =
+                    !self.websocket_service.is_active() || self.username.is_empty() || self.password.is_empty();
+                true
+            }
+            Message::WebSocketConnected => {
+                self.console_service.info("Websocket connected");
                 self.button_disabled = self.username.is_empty() || self.password.is_empty();
                 true
             }
-            _ => false,
+            Message::WebSocketFailure => {
+                self.console_service.warn("Lost websocket connection");
+                self.button_disabled = true;
+                true
+            }
         }
     }
 }

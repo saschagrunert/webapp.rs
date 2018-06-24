@@ -1,4 +1,5 @@
 //! The Root component
+
 use frontend::{
     components::content::ContentComponent,
     components::login::LoginComponent,
