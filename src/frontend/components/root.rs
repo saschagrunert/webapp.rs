@@ -6,6 +6,7 @@ use frontend::{
     services::{
         cookie::CookieService,
         protocol::ProtocolService,
+        router::{Route, RouterAgent},
         websocket::{WebSocketService, WebSocketStatus},
     },
 };
@@ -15,6 +16,7 @@ use SESSION_COOKIE;
 #[derive(Debug)]
 /// Available message types to process
 pub enum Message {
+    HandleRoute(Route<()>),
     LoginRequest(String),
     LoginResponse(Vec<u8>),
     WebSocketConnected,
@@ -29,6 +31,7 @@ pub struct RootComponent {
     console_service: ConsoleService,
     protocol_service: ProtocolService,
     websocket_service: WebSocketService,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
 }
 
 /// Possible authentication states
@@ -43,20 +46,20 @@ impl Component for RootComponent {
     type Properties = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let callback = link.send_back(|data| Message::LoginResponse(data));
-        let notification = link.send_back(|data| match data {
-            WebSocketStatus::Opened => Message::WebSocketConnected,
-            _ => Message::WebSocketFailure,
-        });
-
         Self {
             authentication_state: AuthenticationState::Unknown,
             initial_message: "Loading application…".to_owned(),
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             protocol_service: ProtocolService::new(),
-            websocket_service: WebSocketService::new_with_callbacks(callback, notification)
-                .expect("No valid websocket connection"),
+            websocket_service: WebSocketService::new_with_callbacks(
+                link.send_back(|data| Message::LoginResponse(data)),
+                link.send_back(|data| match data {
+                    WebSocketStatus::Opened => Message::WebSocketConnected,
+                    _ => Message::WebSocketFailure,
+                }),
+            ).expect("No valid websocket connection"),
+            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
         }
     }
 
@@ -103,6 +106,9 @@ impl Component for RootComponent {
                     true
                 }
             },
+            Message::HandleRoute(_route) => {
+                true
+            }
             _ => {
                 self.initial_message = "Error loading application.".to_owned();
                 true

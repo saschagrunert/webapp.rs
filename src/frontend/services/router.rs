@@ -9,8 +9,8 @@ use stdweb::{
 };
 use yew::{callback::Callback, prelude::worker::*};
 
-/// A service that facilitates manipulation of the browser's URL bar and responding to browser
-/// 'forward' and 'back' events.
+/// A service that facilitates manipulation of the browser's URL bar and
+/// responding to browser 'forward' and 'back' events.
 ///
 /// The `T` determines what route state can be stored in the route service.
 pub struct RouterService<T> {
@@ -27,7 +27,7 @@ where
     /// Creates the route service.
     pub fn new() -> RouterService<T> {
         let location = window().location().expect("browser does not support location API");
-        RouterService {
+        Self {
             history: window().history(),
             location,
             event_listener: None,
@@ -35,9 +35,9 @@ where
         }
     }
 
-    /// Registers a callback to the route service.
-    /// Callbacks will be called when the History API experiences a change such as
-    /// popping a state off of its stack when the forward or back buttons are pressed.
+    /// Registers a callback to the route service. Callbacks will be called
+    /// when the History API experiences a change such as popping a state off
+    /// of its stack when the forward or back buttons are pressed.
     pub fn register_callback(&mut self, callback: Callback<(String, T)>) {
         self.event_listener = Some(window().add_event_listener(move |event: PopStateEvent| {
             let state_value: Value = event.state();
@@ -53,10 +53,10 @@ where
         }));
     }
 
-    /// Sets the browser's url bar to contain the provided route,
-    /// and creates a history entry that can be navigated via the forward and back buttons.
-    /// The route should be a relative path that starts with a '/'.
-    /// A state object be stored with the url.
+    /// Sets the browser's url bar to contain the provided route, and creates a
+    /// history entry that can be navigated via the forward and back buttons.
+    /// The route should be a relative path that starts with a '/'. A state
+    /// object be stored with the url.
     pub fn set_route(&mut self, route: &str, state: T) {
         self.history.push_state(state, "", Some(route));
     }
@@ -161,10 +161,12 @@ impl<T> Transferable for Route<T> where for<'de> T: Serialize + Deserialize<'de>
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Request<T> {
-    /// Changes the route using a RouteInfo struct and alerts connected components to the route change.
+    /// Changes the route using a RouteInfo struct and alerts connected
+    /// components to the route change.
     ChangeRoute(Route<T>),
 
-    /// Changes the route using a RouteInfo struct, but does not alert connected components to the route change.
+    /// Changes the route using a RouteInfo struct, but does not alert
+    /// connected components to the route change.
     ChangeRouteNoBroadcast(Route<T>),
 
     /// Retrieve the current route request
@@ -173,20 +175,21 @@ pub enum Request<T> {
 
 impl<T> Transferable for Request<T> where for<'de> T: Serialize + Deserialize<'de> {}
 
-/// The Router worker holds on to the RouterService singleton and mediates access to it.
-pub struct Router<T>
+/// The RouterAgent worker holds on to the RouterService singleton and mediates
+/// access to it.
+pub struct RouterAgent<T>
 where
     for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static,
 {
-    link: AgentLink<Router<T>>,
+    link: AgentLink<RouterAgent<T>>,
     route_service: RouterService<T>,
-    /// A list of all entities connected to the router.
-    /// When a route changes, either initiated by the browser or by the app,
-    /// the route change will be broadcast to all listening entities.
+    /// A list of all entities connected to the RouterAgent. When a route
+    /// changes, either initiated by the browser or by the app, the route
+    /// change will be broadcast to all listening entities.
     subscribers: HashSet<HandlerId>,
 }
 
-impl<T> Agent for Router<T>
+impl<T> Agent for RouterAgent<T>
 where
     for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static,
 {
@@ -200,7 +203,7 @@ where
         let mut route_service = RouterService::new();
         route_service.register_callback(callback);
 
-        Router {
+        Self {
             link,
             route_service,
             subscribers: HashSet::new(),
