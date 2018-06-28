@@ -32,16 +32,16 @@ sass-rs = "0.2.1"
 [dependencies]
 actix = { version = "0.5.8", optional = true }
 actix-web = { version = "0.6.14", optional = true, features = ["alpn"] }
-capnp = { version = "0.8.17" }
+capnp = "0.8.17"
 env_logger = { version = "0.5.10", optional = true }
-failure = {version = "0.1.1" }
+failure = "0.1.1"
 jsonwebtoken = { version = "4.0.1", optional = true }
 lazy_static = { version = "1.0.1", optional = true }
 log = { version = "0.4.2", optional = true }
 openssl = { version = "0.10.10", optional = true }
-serde = { version = "1.0.66", optional = true }
-serde_derive = { version = "1.0.66", optional = true }
-stdweb = { version = "0.4.6", optional = true }
+serde = "1.0.67"
+serde_derive = "1.0.67"
+stdweb = { version = "0.4.7", optional = true }
 time = { version = "0.1.40", optional = true }
 uuid = { version = "0.6.5", optional = true, features = ["v4"] }
 yew = { git = "https://github.com/DenisKolodin/yew", optional = true }
@@ -55,8 +55,6 @@ default = [
     "lazy_static",
     "log",
     "openssl",
-    "serde",
-    "serde_derive",
     "time",
     "uuid"
 ]
