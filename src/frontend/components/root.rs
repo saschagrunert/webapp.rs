@@ -32,6 +32,15 @@ pub struct RootComponent {
     protocol_service: ProtocolService,
     websocket_service: WebSocketService,
     router_agent: Box<Bridge<RouterAgent<()>>>,
+    child_component: ChildComponent,
+}
+
+/// Possible child components of this one
+enum ChildComponent {
+    Content,
+    Error,
+    Loading,
+    Login,
 }
 
 /// Possible authentication states
@@ -60,6 +69,7 @@ impl Component for RootComponent {
                 }),
             ).expect("No valid websocket connection"),
             router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
+            child_component: ChildComponent::Loading,
         }
     }
 
@@ -106,7 +116,15 @@ impl Component for RootComponent {
                     true
                 }
             },
-            Message::HandleRoute(_route) => {
+            Message::HandleRoute(route) => {
+                if let Some(first_segment) = route.path_segments.get(0) {
+                    self.child_component = match first_segment.as_str() {
+                        "content" => ChildComponent::Content,
+                        "login" => ChildComponent::Login,
+                        "" => ChildComponent::Loading,
+                        _ => ChildComponent::Error,
+                    }
+                }
                 true
             }
             _ => {
@@ -130,6 +148,29 @@ impl Renderable<RootComponent> for RootComponent {
             },
             AuthenticationState::UnAuthenticated => html! {
                <LoginComponent:/>
+            },
+        }
+    }
+}
+
+impl Renderable<RootComponent> for ChildComponent {
+    fn view(&self) -> Html<RootComponent> {
+        match *self {
+            ChildComponent::Loading => html! {
+                <div class="uk-position-center",>
+                    {"Loading application…"}
+                </div>
+            },
+            ChildComponent::Error => html! {
+                <div class="uk-position-center",>
+                    {"Error loading application."}
+                </div>
+            },
+            ChildComponent::Login => html! {
+               <LoginComponent:/>
+            },
+            ChildComponent::Content => html! {
+               <ContentComponent:/>
             },
         }
     }
