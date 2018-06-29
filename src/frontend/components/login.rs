@@ -95,8 +95,7 @@ impl Component for LoginComponent {
                 }
                 Ok(None) => false, // Not my response
                 Err(e) => {
-                    self.console_service
-                        .error(&format!("Unable to succeed with login response: {}", e));
+                    self.console_service.error(&format!("Unable to login: {}", e));
                     false
                 }
             },

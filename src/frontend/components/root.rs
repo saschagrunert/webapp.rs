@@ -92,9 +92,9 @@ impl Component for RootComponent {
                     true
                 }
                 Ok(None) => false, // Not my response
-                Err(_) => {
+                Err(e) => {
                     // Remote the existing cookie
-                    self.console_service.info("Login failed");
+                    self.console_service.info(&format!("Login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(Request::ChangeRoute(RouterComponent::Login.into()));

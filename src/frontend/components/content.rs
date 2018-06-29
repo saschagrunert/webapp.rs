@@ -81,7 +81,7 @@ impl Component for ContentComponent {
                         .send(Request::ChangeRoute(RouterComponent::Login.into()));
                 }
                 Ok(None) => {} // Not my response
-                Err(e) => self.console_service.error(&format!("Unable to logout: {}", e)),
+                Err(e) => self.console_service.info(&format!("Unable to logout: {}", e)),
             },
             _ => {}
         }
