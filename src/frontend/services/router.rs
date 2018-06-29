@@ -1,5 +1,6 @@
 //! Service to handle routing.
 
+use failure::Error;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt::Debug, marker::PhantomData};
 use stdweb::{
@@ -43,10 +44,10 @@ where
             let state_value: Value = event.state();
 
             if let Ok(state) = T::try_from(state_value) {
-                let location: Location = window().location().unwrap();
-                let route: String = Self::get_route_from_location(&location);
-
-                callback.emit((route.clone(), state.clone()))
+                if let Some(location) = window().location() {
+                    let route: String = Self::get_route_from_location(&location);
+                    callback.emit((route.clone(), state.clone()))
+                }
             } else {
                 eprintln!("Nothing farther back in history, not calling routing callback.");
             }
@@ -62,9 +63,9 @@ where
     }
 
     fn get_route_from_location(location: &Location) -> String {
-        let path = location.pathname().unwrap();
-        let query = location.search().unwrap();
-        let fragment = location.hash().unwrap();
+        let path = location.pathname().unwrap_or("".to_owned());
+        let query = location.search().unwrap_or("".to_owned());
+        let fragment = location.hash().unwrap_or("".to_owned());
         format!(
             "{path}{query}{fragment}",
             path = path,
@@ -79,22 +80,22 @@ where
     }
 
     /// Gets the path name of the current url.
-    pub fn get_path(&self) -> String {
-        self.location.pathname().unwrap()
+    pub fn get_path(&self) -> Result<String, Error> {
+        Ok(self.location.pathname()?)
     }
 
     /// Gets the query string of the current url.
-    pub fn get_query(&self) -> String {
-        self.location.search().unwrap()
+    pub fn get_query(&self) -> Result<String, Error> {
+        Ok(self.location.search()?)
     }
 
     /// Gets the fragment of the current url.
-    pub fn get_fragment(&self) -> String {
-        self.location.hash().unwrap()
+    pub fn get_fragment(&self) -> Result<String, Error> {
+        Ok(self.location.hash()?)
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Route<T> {
     pub path_segments: Vec<String>,
     pub query: Option<String>,
@@ -106,9 +107,10 @@ impl<T> Route<T>
 where
     T: JsSerialize + Clone + TryFrom<Value> + Default + 'static,
 {
+    /// Convert to a String
     pub fn to_route_string(&self) -> String {
         let path = self.path_segments.join("/");
-        let mut path = format!("/{}", path); // add the leading '/'
+        let mut path = format!("/{}", path);
         if let Some(ref query) = self.query {
             path = format!("{}?{}", path, query);
         }
@@ -118,14 +120,15 @@ where
         path
     }
 
-    pub fn current_route(route_service: &RouterService<T>) -> Self {
+    /// Retrieve the current route
+    pub fn current_route(route_service: &RouterService<T>) -> Result<Self, Error> {
         // guaranteed to always start with a '/'
-        let path = route_service.get_path();
+        let path = route_service.get_path()?;
         let mut path_segments: Vec<String> = path.split("/").map(String::from).collect();
         // remove empty string that is split from the first '/'
         path_segments.remove(0);
 
-        let mut query: String = route_service.get_query(); // The first character will be a '?'
+        let mut query: String = route_service.get_query()?; // The first character will be a '?'
         let query: Option<String> = if query.len() > 1 {
             query.remove(0);
             Some(query)
@@ -133,7 +136,7 @@ where
             None
         };
 
-        let mut fragment: String = route_service.get_fragment(); // The first character will be a '#'
+        let mut fragment: String = route_service.get_fragment()?; // The first character will be a '#'
         let fragment: Option<String> = if fragment.len() > 1 {
             fragment.remove(0);
             Some(fragment)
@@ -141,16 +144,16 @@ where
             None
         };
 
-        Route {
+        Ok(Route {
             path_segments,
             query,
             fragment,
             state: T::default(),
-        }
+        })
     }
 }
 
-pub enum Msg<T>
+pub enum Message<T>
 where
     T: JsSerialize + Clone + Debug + TryFrom<Value> + 'static,
 {
@@ -194,12 +197,13 @@ where
     for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static,
 {
     type Reach = Context;
-    type Message = Msg<T>;
+    type Message = Message<T>;
     type Input = Request<T>;
     type Output = Route<T>;
 
     fn create(link: AgentLink<Self>) -> Self {
-        let callback = link.send_back(|route_changed: (String, T)| Msg::BrowserNavigationRouteChanged(route_changed));
+        let callback =
+            link.send_back(|route_changed: (String, T)| Message::BrowserNavigationRouteChanged(route_changed));
         let mut route_service = RouterService::new();
         route_service.register_callback(callback);
 
@@ -212,11 +216,12 @@ where
 
     fn update(&mut self, msg: Self::Message) {
         match msg {
-            Msg::BrowserNavigationRouteChanged((_route_string, state)) => {
-                let mut route = Route::current_route(&self.route_service);
-                route.state = state;
-                for sub in self.subscribers.iter() {
-                    self.link.response(*sub, route.clone());
+            Message::BrowserNavigationRouteChanged((_route_string, state)) => {
+                if let Ok(mut route) = Route::current_route(&self.route_service) {
+                    route.state = state;
+                    for sub in self.subscribers.iter() {
+                        self.link.response(*sub, route.clone());
+                    }
                 }
             }
         }
@@ -229,10 +234,11 @@ where
                 // set the route
                 self.route_service.set_route(&route_string, route.state);
                 // get the new route. This will contain a default state object
-                let route = Route::current_route(&self.route_service);
-                // broadcast it to all listening components
-                for sub in self.subscribers.iter() {
-                    self.link.response(*sub, route.clone());
+                if let Ok(route) = Route::current_route(&self.route_service) {
+                    // broadcast it to all listening components
+                    for sub in self.subscribers.iter() {
+                        self.link.response(*sub, route.clone());
+                    }
                 }
             }
             Request::ChangeRouteNoBroadcast(route) => {
@@ -240,8 +246,9 @@ where
                 self.route_service.set_route(&route_string, route.state);
             }
             Request::GetCurrentRoute => {
-                let route = Route::current_route(&self.route_service);
-                self.link.response(who, route.clone());
+                if let Ok(route) = Route::current_route(&self.route_service) {
+                    self.link.response(who, route.clone());
+                }
             }
         }
     }

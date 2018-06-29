@@ -1,18 +1,20 @@
 //! The Login component
 
-use frontend::services::{
-    cookie::CookieService,
-    protocol::ProtocolService,
-    websocket::{WebSocketService, WebSocketStatus},
+use frontend::{
+    routes::RouterComponent,
+    services::{
+        cookie::CookieService,
+        protocol::ProtocolService,
+        router::{Request, Route, RouterAgent},
+        websocket::WebSocketService,
+    },
 };
-use yew::{
-    prelude::*,
-    services::{ConsoleService, Task},
-};
+use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
 pub struct LoginComponent {
+    router_agent: Box<Bridge<RouterAgent<()>>>,
     username: String,
     password: String,
     button_disabled: bool,
@@ -22,15 +24,14 @@ pub struct LoginComponent {
     websocket_service: WebSocketService,
 }
 
-#[derive(Debug)]
 /// Available message types to process
 pub enum Message {
+    HandleRoute(Route<()>),
     LoginRequest,
     LoginResponse(Vec<u8>),
     UpdateUsername(String),
     UpdatePassword(String),
-    WebSocketConnected,
-    WebSocketFailure,
+    WebSocketIgnore,
 }
 
 impl Component for LoginComponent {
@@ -39,22 +40,17 @@ impl Component for LoginComponent {
 
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        // Create the websocket service
-        let callback = link.send_back(|data| Message::LoginResponse(data));
-        let notification = link.send_back(|data| match data {
-            WebSocketStatus::Opened => Message::WebSocketConnected,
-            _ => Message::WebSocketFailure,
-        });
-
-        // Create the component
         Self {
+            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
             username: String::new(),
             password: String::new(),
             button_disabled: true,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
-            websocket_service: WebSocketService::new_with_callbacks(callback, notification)
-                .expect("No valid websocket connection"),
+            websocket_service: WebSocketService::new(
+                link.send_back(|data| Message::LoginResponse(data)),
+                link.send_back(|_| Message::WebSocketIgnore),
+            ),
             protocol_service: ProtocolService::new(),
         }
     }
@@ -71,8 +67,8 @@ impl Component for LoginComponent {
                 .write_login_credential_request(&self.username, &self.password)
             {
                 Ok(data) => {
-                    // Remove the current session cookie
-                    self.cookie_service.remove(SESSION_COOKIE);
+                    // Disable user interaction
+                    self.button_disabled = true;
 
                     // Send the request
                     self.websocket_service.send(data);
@@ -85,14 +81,19 @@ impl Component for LoginComponent {
                 }
             },
             Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
-                Ok(token) => {
+                Ok(Some(token)) => {
                     self.console_service.info("Login succeed");
 
                     // Set the retrieved session cookie
                     self.cookie_service.set(SESSION_COOKIE, &token);
 
+                    // Route to the next component
+                    self.router_agent
+                        .send(Request::ChangeRoute(RouterComponent::Content.into()));
+
                     true
                 }
+                Ok(None) => false, // Not my response
                 Err(e) => {
                     self.console_service
                         .error(&format!("Unable to succeed with login response: {}", e));
@@ -101,27 +102,22 @@ impl Component for LoginComponent {
             },
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
-                self.button_disabled =
-                    !self.websocket_service.is_active() || self.username.is_empty() || self.password.is_empty();
+                self.update_button_state();
                 true
             }
             Message::UpdatePassword(new_password) => {
                 self.password = new_password;
-                self.button_disabled =
-                    !self.websocket_service.is_active() || self.username.is_empty() || self.password.is_empty();
+                self.update_button_state();
                 true
             }
-            Message::WebSocketConnected => {
-                self.console_service.info("Websocket connected");
-                self.button_disabled = self.username.is_empty() || self.password.is_empty();
-                true
-            }
-            Message::WebSocketFailure => {
-                self.console_service.warn("Lost websocket connection");
-                self.button_disabled = true;
-                true
-            }
+            _ => true,
         }
+    }
+}
+
+impl LoginComponent {
+    fn update_button_state(&mut self) {
+        self.button_disabled = self.username.is_empty() || self.password.is_empty();
     }
 }
 

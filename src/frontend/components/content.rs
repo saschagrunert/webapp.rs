@@ -1,15 +1,20 @@
 //! The Main Content component
 
-use frontend::services::{
-    cookie::CookieService,
-    protocol::ProtocolService,
-    websocket::{WebSocketService, WebSocketStatus},
+use frontend::{
+    routes::RouterComponent,
+    services::{
+        cookie::CookieService,
+        protocol::ProtocolService,
+        router::{Request, Route, RouterAgent},
+        websocket::WebSocketService,
+    },
 };
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
 pub struct ContentComponent {
+    router_agent: Box<Bridge<RouterAgent<()>>>,
     cookie_service: CookieService,
     console_service: ConsoleService,
     protocol_service: ProtocolService,
@@ -17,13 +22,12 @@ pub struct ContentComponent {
     button_disabled: bool,
 }
 
-#[derive(Debug)]
 /// Available message types to process
 pub enum Message {
+    HandleRoute(Route<()>),
     LogoutRequest,
     LogoutResponse(Vec<u8>),
-    WebSocketConnected,
-    WebSocketFailure,
+    WebSocketIgnore,
 }
 
 impl Component for ContentComponent {
@@ -32,20 +36,16 @@ impl Component for ContentComponent {
 
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let callback = link.send_back(|data| Message::LogoutResponse(data));
-        let notification = link.send_back(|data| match data {
-            WebSocketStatus::Opened => Message::WebSocketConnected,
-            _ => Message::WebSocketFailure,
-        });
-
-        // Create the component
         Self {
+            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
             protocol_service: ProtocolService::new(),
-            websocket_service: WebSocketService::new_with_callbacks(callback, notification)
-                .expect("No valid websocket connection"),
-            button_disabled: true,
+            websocket_service: WebSocketService::new(
+                link.send_back(|data| Message::LogoutResponse(data)),
+                link.send_back(|_| Message::WebSocketIgnore),
+            ),
+            button_disabled: false,
         }
     }
 
@@ -61,6 +61,9 @@ impl Component for ContentComponent {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
                     if let Ok(data) = self.protocol_service.write_logout_request(&token) {
+                        // Disable user interaction
+                        self.button_disabled = true;
+
                         // Send the request
                         self.websocket_service.send(data);
                     } else {
@@ -71,17 +74,16 @@ impl Component for ContentComponent {
                 }
             }
             Message::LogoutResponse(mut response) => match self.protocol_service.read_logout_response(&mut response) {
-                Ok(()) => self.cookie_service.remove(SESSION_COOKIE),
+                Ok(Some(())) => {
+                    self.console_service.log("Got valid logout response");
+                    self.cookie_service.remove(SESSION_COOKIE);
+                    self.router_agent
+                        .send(Request::ChangeRoute(RouterComponent::Login.into()));
+                }
+                Ok(None) => {} // Not my response
                 Err(e) => self.console_service.error(&format!("Unable to logout: {}", e)),
             },
-            Message::WebSocketConnected => {
-                self.console_service.info("Websocket connected");
-                self.button_disabled = false;
-            }
-            Message::WebSocketFailure => {
-                self.console_service.warn("Lost websocket connection");
-                self.button_disabled = true;
-            }
+            _ => {}
         }
         true
     }

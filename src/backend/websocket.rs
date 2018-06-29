@@ -25,12 +25,7 @@ impl StreamHandler<Message, ProtocolError> for WebSocket {
     fn handle(&mut self, msg: Message, ctx: &mut Self::Context) {
         match msg {
             Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
-                warn!("Unable to send succeeding response: {}", e);
-                // Try to send the error response
-                match self.create_error_response(&e.to_string()) {
-                    Ok(d) => ctx.binary(d),
-                    Err(e) => error!("Unable to send error: {}", e),
-                }
+                warn!("Unable to send response: {}", e);
             },
             Message::Close(reason) => {
                 info!("Closing websocket connection: {:?}", reason);
@@ -106,29 +101,12 @@ impl WebSocket {
             }
             Ok(request::Logout(token)) => {
                 ctx.state().store.remove(token?)?;
-                message.init_root::<response::Builder>().set_logout(());
+                message.init_root::<response::Builder>().init_logout().set_success(());
                 write_message(&mut response_data, &message)?;
                 ctx.binary(response_data);
                 Ok(())
             }
             Err(e) => Err(e.into()),
         }
-    }
-
-    /// Create an error response from a given description string
-    fn create_error_response(&self, description: &str) -> Result<Vec<u8>, Error> {
-        let mut message = Builder::new_default();
-
-        // Create the message
-        message
-            .init_root::<response::Builder>()
-            .init_error()
-            .set_description(description);
-
-        // Write the message into a buffer
-        let mut data = Vec::new();
-        write_message(&mut data, &message)?;
-
-        Ok(data)
     }
 }

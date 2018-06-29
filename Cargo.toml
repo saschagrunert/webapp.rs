@@ -36,11 +36,11 @@ capnp = "0.8.17"
 env_logger = { version = "0.5.10", optional = true }
 failure = "0.1.1"
 jsonwebtoken = { version = "4.0.1", optional = true }
-lazy_static = { version = "1.0.1", optional = true }
+lazy_static = "1.0.1"
 log = { version = "0.4.2", optional = true }
 openssl = { version = "0.10.10", optional = true }
-serde = "1.0.67"
-serde_derive = "1.0.67"
+serde = "1.0.68"
+serde_derive = "1.0.68"
 stdweb = { version = "0.4.7", optional = true }
 time = { version = "0.1.40", optional = true }
 uuid = { version = "0.6.5", optional = true, features = ["v4"] }
@@ -52,7 +52,6 @@ default = [
     "actix-web",
     "env_logger",
     "jsonwebtoken",
-    "lazy_static",
     "log",
     "openssl",
     "time",

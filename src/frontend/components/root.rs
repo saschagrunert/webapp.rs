@@ -1,19 +1,18 @@
 //! The Root component
 
 use frontend::{
-    components::content::ContentComponent,
-    components::login::LoginComponent,
+    components::{content::ContentComponent, login::LoginComponent},
+    routes::RouterComponent,
     services::{
         cookie::CookieService,
         protocol::ProtocolService,
-        router::{Route, RouterAgent},
+        router::{Request, Route, RouterAgent},
         websocket::{WebSocketService, WebSocketStatus},
     },
 };
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
-#[derive(Debug)]
 /// Available message types to process
 pub enum Message {
     HandleRoute(Route<()>),
@@ -25,29 +24,12 @@ pub enum Message {
 
 /// Data Model for the Root Component
 pub struct RootComponent {
-    authentication_state: AuthenticationState,
-    initial_message: String,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
+    child_component: RouterComponent,
     cookie_service: CookieService,
     console_service: ConsoleService,
     protocol_service: ProtocolService,
     websocket_service: WebSocketService,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
-    child_component: ChildComponent,
-}
-
-/// Possible child components of this one
-enum ChildComponent {
-    Content,
-    Error,
-    Loading,
-    Login,
-}
-
-/// Possible authentication states
-enum AuthenticationState {
-    Unknown,
-    Authenticated,
-    UnAuthenticated,
 }
 
 impl Component for RootComponent {
@@ -56,20 +38,18 @@ impl Component for RootComponent {
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
-            authentication_state: AuthenticationState::Unknown,
-            initial_message: "Loading application…".to_owned(),
+            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
+            child_component: RouterComponent::Loading,
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             protocol_service: ProtocolService::new(),
-            websocket_service: WebSocketService::new_with_callbacks(
+            websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::LoginResponse(data)),
                 link.send_back(|data| match data {
                     WebSocketStatus::Opened => Message::WebSocketConnected,
                     _ => Message::WebSocketFailure,
                 }),
-            ).expect("No valid websocket connection"),
-            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
-            child_component: ChildComponent::Loading,
+            ),
         }
     }
 
@@ -90,45 +70,44 @@ impl Component for RootComponent {
                         }
                         Err(_) => {
                             self.cookie_service.remove(SESSION_COOKIE);
-                            self.authentication_state = AuthenticationState::UnAuthenticated;
+                            self.router_agent
+                                .send(Request::ChangeRoute(RouterComponent::Login.into()));
                             true
                         }
                     }
                 } else {
-                    self.console_service.info("No token found");
-                    self.authentication_state = AuthenticationState::UnAuthenticated;
+                    self.console_service.info("No token found, routing to login");
+                    self.router_agent
+                        .send(Request::ChangeRoute(RouterComponent::Login.into()));
                     true
                 }
             }
             Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
-                Ok(token) => {
+                Ok(Some(token)) => {
                     // Set the retrieved session cookie
                     self.console_service.info("Login succeed");
                     self.cookie_service.set(SESSION_COOKIE, &token);
-                    self.authentication_state = AuthenticationState::Authenticated;
+                    self.router_agent
+                        .send(Request::ChangeRoute(RouterComponent::Content.into()));
                     true
                 }
+                Ok(None) => false, // Not my response
                 Err(_) => {
                     // Remote the existing cookie
                     self.console_service.info("Login failed");
                     self.cookie_service.remove(SESSION_COOKIE);
-                    self.authentication_state = AuthenticationState::UnAuthenticated;
+                    self.router_agent
+                        .send(Request::ChangeRoute(RouterComponent::Login.into()));
                     true
                 }
             },
             Message::HandleRoute(route) => {
-                if let Some(first_segment) = route.path_segments.get(0) {
-                    self.child_component = match first_segment.as_str() {
-                        "content" => ChildComponent::Content,
-                        "login" => ChildComponent::Login,
-                        "" => ChildComponent::Loading,
-                        _ => ChildComponent::Error,
-                    }
-                }
+                self.child_component = route.into();
                 true
             }
             _ => {
-                self.initial_message = "Error loading application.".to_owned();
+                self.router_agent
+                    .send(Request::ChangeRoute(RouterComponent::Error.into()));
                 true
             }
         }
@@ -137,39 +116,25 @@ impl Component for RootComponent {
 
 impl Renderable<RootComponent> for RootComponent {
     fn view(&self) -> Html<Self> {
-        match self.authentication_state {
-            AuthenticationState::Unknown => html! {
-                <div class="uk-position-center",>
-                    {&self.initial_message}
-                </div>
-            },
-            AuthenticationState::Authenticated => html! {
-               <ContentComponent:/>
-            },
-            AuthenticationState::UnAuthenticated => html! {
-               <LoginComponent:/>
-            },
-        }
+        self.child_component.view()
     }
 }
 
-impl Renderable<RootComponent> for ChildComponent {
+impl Renderable<RootComponent> for RouterComponent {
     fn view(&self) -> Html<RootComponent> {
         match *self {
-            ChildComponent::Loading => html! {
-                <div class="uk-position-center",>
-                    {"Loading application…"}
-                </div>
+            RouterComponent::Loading => html! {
+                <div class="uk-position-center", uk-spinner="",></div>
             },
-            ChildComponent::Error => html! {
+            RouterComponent::Error => html! {
                 <div class="uk-position-center",>
                     {"Error loading application."}
                 </div>
             },
-            ChildComponent::Login => html! {
+            RouterComponent::Login => html! {
                <LoginComponent:/>
             },
-            ChildComponent::Content => html! {
+            RouterComponent::Content => html! {
                <ContentComponent:/>
             },
         }

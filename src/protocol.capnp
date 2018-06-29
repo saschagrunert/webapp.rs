@@ -21,16 +21,21 @@ struct Request {
 
 struct Response {
     union {
-        error  @0 :Error;
-        login  @1 :Login;
-        logout @2 :Void;
-    }
-
-    struct Error {
-        description @0 :Text;
+        login  @0 :Login;
+        logout @1 :Logout;
     }
 
     struct Login {
-        token @0 :Text;
+        union {
+            token @0 :Text;
+            error @1 :Text;
+        }
+    }
+
+    struct Logout {
+        union {
+            success @0 :Void;
+            error   @1 :Text;
+        }
     }
 }

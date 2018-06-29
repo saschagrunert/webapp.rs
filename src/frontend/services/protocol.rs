@@ -79,32 +79,28 @@ impl ProtocolService {
     }
 
     // Get a login response for given bytes
-    pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<String, Error> {
-        let reader = self.read(data)?;
-        let response = reader.get_root::<response::Reader>()?;
-        match response.which()? {
-            response::Login(data) => Ok(data?.get_token()?.to_owned()),
-            response::Error(data) => Err(ProtocolError::Response {
-                description: data?.get_description()?.to_owned(),
-            }.into()),
-            _ => Err(ProtocolError::Response {
-                description: "Retrieved wrong response".to_owned(),
-            }.into()),
+    pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<Option<String>, Error> {
+        match self.read(data)?.get_root::<response::Reader>()?.which()? {
+            response::Login(data) => match data?.which()? {
+                response::login::Token(token) => Ok(Some(token?.to_owned())),
+                response::login::Error(error) => Err(ProtocolError::Response {
+                    description: error?.to_owned(),
+                }.into()),
+            },
+            _ => Ok(None),
         }
     }
 
     // Get a logout response for given bytes
-    pub fn read_logout_response(&mut self, data: &mut [u8]) -> Result<(), Error> {
-        let reader = self.read(data)?;
-        let response = reader.get_root::<response::Reader>()?;
-        match response.which()? {
-            response::Logout(_) => Ok(()),
-            response::Error(data) => Err(ProtocolError::Response {
-                description: data?.get_description()?.to_owned(),
-            }.into()),
-            _ => Err(ProtocolError::Response {
-                description: "Retrieved wrong response".to_owned(),
-            }.into()),
+    pub fn read_logout_response(&mut self, data: &mut [u8]) -> Result<Option<()>, Error> {
+        match self.read(data)?.get_root::<response::Reader>()?.which()? {
+            response::Logout(data) => match data?.which()? {
+                response::logout::Success(_) => Ok(Some(())),
+                response::logout::Error(error) => Err(ProtocolError::Response {
+                    description: error?.to_owned(),
+                }.into()),
+            },
+            _ => Ok(None),
         }
     }
 }
