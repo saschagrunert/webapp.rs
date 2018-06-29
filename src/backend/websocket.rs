@@ -81,13 +81,22 @@ impl WebSocket {
                         debug!("Token {} wants to be renewed", token);
 
                         // Try to verify and create a new token
-                        let new_token = ctx.state().store.verify(token)?;
-
-                        // Create the response
-                        message
-                            .init_root::<response::Builder>()
-                            .init_login()
-                            .set_token(&new_token);
+                        match ctx.state().store.verify(token) {
+                            Ok(new_token) => {
+                                // Create the success response
+                                message
+                                    .init_root::<response::Builder>()
+                                    .init_login()
+                                    .set_token(&new_token);
+                            }
+                            Err(e) => {
+                                // Create the failure response
+                                message
+                                    .init_root::<response::Builder>()
+                                    .init_login()
+                                    .set_error(&e.to_string());
+                            }
+                        }
 
                         // Write the message into a buffer
                         write_message(&mut response_data, &message)?;
