@@ -63,8 +63,5 @@ pub mod protocol_capnp {
     include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
 }
 
-/// The global API url for websocket communication
-pub const API_URL: &str = "wss://saschagrunert.de:30000/ws";
-
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";

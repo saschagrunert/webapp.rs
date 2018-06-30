@@ -9,11 +9,10 @@ use stdweb::{
     },
 };
 use yew::{callback::Callback, services::Task};
-use API_URL;
 
 lazy_static! {
     /// Create a single websocket connection per application instance
-    static ref WEBSOCKET: WebSocket = WebSocket::new(API_URL).expect("Unable to connect to websocket");
+    static ref WEBSOCKET: WebSocket = WebSocket::new(env!("WS_URL")).expect("Unable to connect to websocket");
 }
 
 /// A status of a websocket connection. Used for status notification.

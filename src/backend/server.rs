@@ -54,7 +54,7 @@ impl Server {
         server::new(move || {
             App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
-                .resource("/ws", |r| {
+                .resource(env!("WS_PATH"), |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
                 .handler("/", fs::StaticFiles::new("static").index_file("index.html"))

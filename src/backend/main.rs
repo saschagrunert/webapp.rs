@@ -9,10 +9,9 @@ use webapp::Server;
 
 fn main() -> Result<(), Error> {
     // Initialize the logger
-    std::env::set_var("RUST_LOG", "actix_web=info,webapp=trace");
     env_logger::init();
 
     // Create and start the server
-    let server = Server::new("0.0.0.0:30000")?;
+    let server = Server::new(env!("SERVER_URL"))?;
     exit(server.start());
 }
