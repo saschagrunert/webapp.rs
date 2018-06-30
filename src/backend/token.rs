@@ -53,9 +53,9 @@ impl TokenStore {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 /// A web token
-pub struct Token {
+struct Token {
     /// The subject of the token
     sub: String,
 
@@ -86,5 +86,27 @@ impl Token {
         let data = decode::<Token>(token, SECRET.as_ref(), &Validation::default())
             .map_err(|_| Error::from(ServerError::VerifyToken))?;
         Self::create(&data.claims.sub, DEFAULT_TOKEN_VALIDITY)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn succeed_to_create_a_token() {
+        assert!(Token::create("", 1).is_ok());
+    }
+
+    #[test]
+    fn succeed_to_verify_a_token() {
+        let t = Token::create("", 1).unwrap();
+        assert!(Token::verify(&t).is_ok());
+    }
+
+    #[test]
+    fn fail_to_verify_a_token() {
+        let t = Token::create("", -1).unwrap();
+        assert!(Token::verify(&t).is_err());
     }
 }
