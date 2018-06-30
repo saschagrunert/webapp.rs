@@ -44,7 +44,7 @@ impl ProtocolService {
     }
 
     /// Create a new login request from a given username and password
-    pub fn write_login_credential_request(&mut self, username: &str, password: &str) -> Result<&[u8], Error> {
+    pub fn write_request_login_credential(&mut self, username: &str, password: &str) -> Result<&[u8], Error> {
         {
             // Set the request parameters
             let mut creds = self
@@ -60,7 +60,7 @@ impl ProtocolService {
     }
 
     /// Create a new login request from a given token
-    pub fn write_login_token_request(&mut self, token: &str) -> Result<&[u8], Error> {
+    pub fn write_request_login_token(&mut self, token: &str) -> Result<&[u8], Error> {
         // Set the request parameters
         self.builder
             .init_root::<request::Builder>()
@@ -71,7 +71,7 @@ impl ProtocolService {
     }
 
     /// Create a logout request from a fiven token
-    pub fn write_logout_request(&mut self, token: &str) -> Result<&[u8], Error> {
+    pub fn write_request_logout(&mut self, token: &str) -> Result<&[u8], Error> {
         // Set the request parameters
         self.builder.init_root::<request::Builder>().set_logout(token);
 
@@ -79,7 +79,7 @@ impl ProtocolService {
     }
 
     // Get a login response for given bytes
-    pub fn read_login_response(&mut self, data: &mut [u8]) -> Result<Option<String>, Error> {
+    pub fn read_response_login(&mut self, data: &mut [u8]) -> Result<Option<String>, Error> {
         match self.read(data)?.get_root::<response::Reader>()?.which()? {
             response::Login(data) => match data?.which()? {
                 response::login::Token(token) => Ok(Some(token?.to_owned())),
@@ -92,7 +92,7 @@ impl ProtocolService {
     }
 
     // Get a logout response for given bytes
-    pub fn read_logout_response(&mut self, data: &mut [u8]) -> Result<Option<()>, Error> {
+    pub fn read_response_logout(&mut self, data: &mut [u8]) -> Result<Option<()>, Error> {
         match self.read(data)?.get_root::<response::Reader>()?.which()? {
             response::Logout(data) => match data?.which()? {
                 response::logout::Success(_) => Ok(Some(())),

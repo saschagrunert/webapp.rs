@@ -64,7 +64,7 @@ impl Component for LoginComponent {
         match msg {
             Message::LoginRequest => match self
                 .protocol_service
-                .write_login_credential_request(&self.username, &self.password)
+                .write_request_login_credential(&self.username, &self.password)
             {
                 Ok(data) => {
                     // Disable user interaction
@@ -80,7 +80,7 @@ impl Component for LoginComponent {
                     false
                 }
             },
-            Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
+            Message::LoginResponse(mut response) => match self.protocol_service.read_response_login(&mut response) {
                 Ok(Some(token)) => {
                     self.console_service.info("Login succeed");
 

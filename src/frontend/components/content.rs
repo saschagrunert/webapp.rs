@@ -60,7 +60,7 @@ impl Component for ContentComponent {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
-                    if let Ok(data) = self.protocol_service.write_logout_request(&token) {
+                    if let Ok(data) = self.protocol_service.write_request_logout(&token) {
                         // Disable user interaction
                         self.button_disabled = true;
 
@@ -73,7 +73,7 @@ impl Component for ContentComponent {
                     self.console_service.error("No session cookie found");
                 }
             }
-            Message::LogoutResponse(mut response) => match self.protocol_service.read_logout_response(&mut response) {
+            Message::LogoutResponse(mut response) => match self.protocol_service.read_response_logout(&mut response) {
                 Ok(Some(())) => {
                     self.console_service.log("Got valid logout response");
                     self.cookie_service.remove(SESSION_COOKIE);

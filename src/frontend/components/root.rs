@@ -62,7 +62,7 @@ impl Component for RootComponent {
             Message::WebSocketConnected => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match self.protocol_service.write_login_token_request(&token) {
+                    match self.protocol_service.write_request_login_token(&token) {
                         Ok(data) => {
                             self.console_service.info("Token found, trying to authenticate");
                             self.websocket_service.send(data);
@@ -82,7 +82,7 @@ impl Component for RootComponent {
                     true
                 }
             }
-            Message::LoginResponse(mut response) => match self.protocol_service.read_login_response(&mut response) {
+            Message::LoginResponse(mut response) => match self.protocol_service.read_response_login(&mut response) {
                 Ok(Some(token)) => {
                     // Set the retrieved session cookie
                     self.console_service.info("Login succeed");
