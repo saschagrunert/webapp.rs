@@ -10,6 +10,17 @@ feature set of this applicaion:
 
 - [cargo-web](https://github.com/koute/cargo-web)
 - [Cap'n Proto](https://capnproto.org)
+- [docker](https://docker.com)
 
-The app consist of a frontend and a backend. The backend can be started via
-`make backend`, whereas the frontend can be tested with `make frontend`.
+The app consist of a frontend and a backend. For getting started with hacking,
+the backend can be started via `make backend`, whereas the frontend can be
+tested with `make frontend`. You can adapt the environment variables `API_URL`
+and `API_PORT` if needed:
+
+```console
+make backend API_URL=localhost API_PORT=30000
+```
+
+## Contributing
+You want to contribute to this project? Wow, thanks! So please just fork it and
+send me a pull request.
