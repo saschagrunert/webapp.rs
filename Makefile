@@ -11,6 +11,7 @@ API_URL = saschagrunert.de
 WS_PATH = /ws
 WS_URL = "wss://$(API_URL):$(API_PORT)$(WS_PATH)"
 SERVER_URL = "$(API_URL):$(API_PORT)"
+STATIC_PATH = static
 
 .PHONY: frontend frontend_deploy backend
 
@@ -35,7 +36,8 @@ frontend_deploy:
 backend:
 	WS_PATH=$(WS_PATH) \
 	SERVER_URL=$(SERVER_URL) \
-    RUST_LOG=actix_web=info,webapp=trace \
+	STATIC_PATH=$(STATIC_PATH) \
+	RUST_LOG=actix_web=info,webapp=trace \
 	cargo run \
 		$(BACKEND_ARGS) \
 		--bin backend

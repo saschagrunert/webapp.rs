@@ -57,7 +57,7 @@ impl Server {
                 .resource(env!("WS_PATH"), |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .handler("/", fs::StaticFiles::new("static").index_file("index.html"))
+                .handler("/", fs::StaticFiles::new(env!("STATIC_PATH")).index_file("index.html"))
         }).bind_ssl(addr, builder)?
             .shutdown_timeout(0)
             .start();
