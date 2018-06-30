@@ -6,7 +6,7 @@ and frontend within Rust.
 
 ## Build
 The following build dependencies needs to be fulfilled to support the full
-feature set of this applicaion:
+feature set of this application:
 
 - [cargo-web](https://github.com/koute/cargo-web)
 - [Cap'n Proto](https://capnproto.org)
@@ -19,6 +19,19 @@ and `API_PORT` if needed:
 
 ```console
 make backend API_URL=localhost API_PORT=30000
+```
+
+## Deploy
+To deploy the application as a docker image, simply run:
+
+```console
+make deploy
+```
+
+After the build finished, the application can be tested via:
+
+```console
+make run
 ```
 
 ## Contributing

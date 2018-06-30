@@ -37,7 +37,7 @@ env_logger = { version = "0.5.10", optional = true }
 failure = "0.1.1"
 jsonwebtoken = { version = "4.0.1", optional = true }
 lazy_static = "1.0.1"
-log = { version = "0.4.2", optional = true }
+log = { version = "0.4.3", optional = true }
 openssl = { version = "0.10.10", optional = true }
 serde = "1.0.68"
 serde_derive = "1.0.68"
