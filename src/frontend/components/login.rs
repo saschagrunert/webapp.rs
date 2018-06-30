@@ -17,6 +17,7 @@ pub struct LoginComponent {
     router_agent: Box<Bridge<RouterAgent<()>>>,
     username: String,
     password: String,
+    error: String,
     button_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
@@ -44,6 +45,7 @@ impl Component for LoginComponent {
             router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
             username: String::new(),
             password: String::new(),
+            error: String::new(),
             button_disabled: true,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
@@ -96,6 +98,7 @@ impl Component for LoginComponent {
                 Ok(None) => false, // Not my response
                 Err(e) => {
                     self.console_service.error(&format!("Unable to login: {}", e));
+                    self.error = "Authentication failed".to_owned();
                     self.button_disabled = false;
                     true
                 }
@@ -145,6 +148,9 @@ impl Renderable<LoginComponent> for LoginComponent {
                                 type="submit",
                                 disabled=self.button_disabled,
                                 onclick=|_| Message::LoginRequest,>{"Login"}</button>
+                        <span class="uk-margin-small-left uk-text-warning uk-text-right",>
+                            {&self.error}
+                        </span>
                     </fieldset>
                 </form>
             </div>
