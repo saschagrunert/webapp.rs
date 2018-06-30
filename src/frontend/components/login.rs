@@ -96,7 +96,8 @@ impl Component for LoginComponent {
                 Ok(None) => false, // Not my response
                 Err(e) => {
                     self.console_service.error(&format!("Unable to login: {}", e));
-                    false
+                    self.button_disabled = false;
+                    true
                 }
             },
             Message::UpdateUsername(new_username) => {
