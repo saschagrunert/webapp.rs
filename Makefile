@@ -38,11 +38,17 @@ backend:
 		--bin backend
 
 deploy:
+	# Deploy the frontend
 	WS_URL=$(WS_URL) \
 	cargo web deploy $(FRONTENT_ARGS)
+	# Fix applications path to JavaScript file
+	mkdir target/deploy/js
+	mv target/deploy/app.js ./target/deploy/js
+	# Build the docker image for static linking
 	if [[ "$(shell docker images -q webapp-build:latest 2> /dev/null)" == "" ]]; then \
 		docker build -f Dockerfile.build -t webapp-build . ;\
 	fi
+	# Build the backend
 	docker run --rm -it -v $(PWD):/home/rust/src \
 		-e WS_PATH=$(WS_PATH) \
 		-e SERVER_URL=$(SERVER_URL) \
@@ -51,6 +57,7 @@ deploy:
 		cargo build \
 			$(BACKEND_ARGS) \
 			--bin backend
+	# Create the docker image from the executable
 	docker build --no-cache \
 		-f Dockerfile.webapp \
 		--build-arg STATIC_PATH=$(STATIC_PATH) \
