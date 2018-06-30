@@ -13,7 +13,7 @@ WS_URL = "wss://$(API_URL):$(API_PORT)$(WS_PATH)"
 SERVER_URL = "$(API_URL):$(API_PORT)"
 STATIC_PATH = static
 
-.PHONY: backend deploy frontend
+.PHONY: backend deploy frontend run
 
 ifndef VERBOSE
 .SILENT:
