@@ -54,10 +54,13 @@ impl Server {
         server::new(move || {
             App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
-                .resource(env!("WS_PATH"), |r| {
+                .resource(option_env!("WS_PATH").unwrap_or("/ws"), |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .handler("/", fs::StaticFiles::new(env!("STATIC_PATH")).index_file("index.html"))
+                .handler(
+                    "/",
+                    fs::StaticFiles::new(option_env!("STATIC_PATH").unwrap_or("static")).index_file("index.html"),
+                )
         }).bind_ssl(addr, builder)?
             .shutdown_timeout(0)
             .start();
