@@ -36,10 +36,20 @@ impl Component for ContentComponent {
 
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+        // Guard the authentication
+        let router_agent = RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route)));
+        let cookie_service = CookieService::new();
+        let mut console_service = ConsoleService::new();
+        if cookie_service.get(SESSION_COOKIE).is_err() {
+            console_service.log("No session token found, routing back to login");
+            router_agent.send(Request::ChangeRoute(RouterComponent::Login.into()));
+        }
+
+        // Create the component
         Self {
-            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
-            cookie_service: CookieService::new(),
-            console_service: ConsoleService::new(),
+            router_agent,
+            cookie_service,
+            console_service,
             protocol_service: ProtocolService::new(),
             websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::LogoutResponse(data)),
