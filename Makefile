@@ -65,4 +65,7 @@ deploy:
 		-t webapp .
 
 run:
-	docker run --hostname $(API_URL) -p $(API_PORT):$(API_PORT) -it webapp
+	docker run \
+		--hostname $(API_URL) \
+		-p $(API_PORT):$(API_PORT) \
+		-it webapp
