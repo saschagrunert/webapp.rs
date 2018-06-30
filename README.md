@@ -9,8 +9,8 @@ The following build dependencies needs to be fulfilled to support the full
 feature set of this application:
 
 - [cargo-web](https://github.com/koute/cargo-web)
-- [Cap'n Proto](https://capnproto.org)
-- [docker](https://docker.com)
+- [capnproto](https://github.com/capnproto/capnproto)
+- [docker](https://github.com/docker/docker-ce)
 
 The app consist of a frontend and a backend. For getting started with hacking,
 the backend can be started via `make backend`, whereas the frontend can be
