@@ -31,9 +31,8 @@ before_script:
   - sudo apt-get install -qq libssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
-  - cargo build --bin backend
   - cargo build --bin backend --release
-  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app; fi
+  - then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app
   - cargo test --features=frontend
 
 notifications:
