@@ -12,8 +12,7 @@ use yew::{callback::Callback, services::Task};
 
 lazy_static! {
     /// Create a single websocket connection per application instance
-    static ref WEBSOCKET: WebSocket = WebSocket::new(option_env!("WS_URL").unwrap_or(""))
-                                        .expect("Unable to connect to websocket");
+    static ref WEBSOCKET: WebSocket = WebSocket::new(env!("WS_URL")).expect("Unable to connect to websocket");
 }
 
 /// A status of a websocket connection. Used for status notification.

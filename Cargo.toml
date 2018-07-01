@@ -28,6 +28,9 @@ path = "src/backend/main.rs"
 capnpc = "0.8.9"
 failure = "0.1.1"
 sass-rs = "0.2.1"
+serde = "1.0.69"
+serde_derive = "1.0.69"
+toml = "0.4.6"
 
 [dev-dependencies]
 futures = "0.1.21"

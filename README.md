@@ -28,12 +28,6 @@ To deploy the application as a docker image, simply run:
 make deploy
 ```
 
-After the build finished, the application can be tested via:
-
-```console
-make run
-```
-
 ## Contributing
 You want to contribute to this project? Wow, thanks! So please just fork it and
 send me a pull request.

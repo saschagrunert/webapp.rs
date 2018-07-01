@@ -1,14 +1,20 @@
 extern crate capnpc;
 extern crate failure;
 extern crate sass_rs;
+extern crate toml;
+
+#[macro_use]
+extern crate serde_derive;
 
 use capnpc::CompilerCommand;
 use failure::Error;
 use sass_rs::{compile_file, Options, OutputStyle};
-use std::env;
-use std::fs::{copy, write};
-use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::{
+    env,
+    fs::{copy, read_to_string, write},
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
 const TAG: &str = "v3.0.0-rc.6";
@@ -17,6 +23,31 @@ const SCSS_FILE: &str = "style.scss";
 const CAPNP_FILE: &str = "protocol.capnp";
 
 pub fn main() -> Result<(), Error> {
+    // Prepeare UIKit and build the complete style
+    prepare_style()?;
+
+    // Compile capnp protocol definition
+    prepare_capnp()?;
+
+    // Prepare the global project configuration
+    prepare_config()?;
+
+    Ok(())
+}
+
+fn run<F>(name: &str, mut configure: F) -> Result<(), Error>
+where
+    F: FnMut(&mut Command) -> &mut Command,
+{
+    let mut command = Command::new(name);
+    let configured = configure(&mut command);
+    if !configured.status()?.success() {
+        panic!("failed to execute {:?}", configured);
+    }
+    Ok(())
+}
+
+fn prepare_style() -> Result<(), Error> {
     // Prepare the directory
     let out_dir = env::var("OUT_DIR")?;
     let mut target = PathBuf::from(out_dir);
@@ -53,7 +84,10 @@ pub fn main() -> Result<(), Error> {
         }
     }
 
-    // Compile capnp protocol definition
+    Ok(())
+}
+
+fn prepare_capnp() -> Result<(), Error> {
     CompilerCommand::new()
         .file(PathBuf::from("src").join(CAPNP_FILE))
         .run()?;
@@ -61,14 +95,36 @@ pub fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn run<F>(name: &str, mut configure: F) -> Result<(), Error>
-where
-    F: FnMut(&mut Command) -> &mut Command,
-{
-    let mut command = Command::new(name);
-    let configured = configure(&mut command);
-    if !configured.status()?.success() {
-        panic!("failed to execute {:?}", configured);
-    }
+#[derive(Deserialize)]
+struct Config {
+    server: Server,
+    websocket: WebSocket,
+}
+
+#[derive(Deserialize)]
+struct Server {
+    ip: String,
+    port: String,
+    static_path: String,
+}
+
+#[derive(Deserialize)]
+struct WebSocket {
+    path: String,
+    protocol: String,
+}
+
+fn prepare_config() -> Result<(), Error> {
+    let config_string = read_to_string("Config.toml")?;
+    let config: Config = toml::from_str(&config_string)?;
+
+    println!("cargo:rustc-env=SERVER_URL={}:{}", config.server.ip, config.server.port);
+    println!("cargo:rustc-env=STATIC_PATH={}", config.server.static_path);
+    println!(
+        "cargo:rustc-env=WS_URL={}://{}:{}/{}",
+        config.websocket.protocol, config.server.ip, config.server.port, config.websocket.path
+    );
+    println!("cargo:rustc-env=WS_PATH={}", config.websocket.path);
+
     Ok(())
 }

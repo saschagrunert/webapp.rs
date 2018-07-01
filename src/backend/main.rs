@@ -12,6 +12,6 @@ fn main() -> Result<(), Error> {
     env_logger::init();
 
     // Create and start the server
-    let server = Server::new(option_env!("SERVER_URL").unwrap_or("0.0.0.0:30000"))?;
+    let server = Server::new(env!("SERVER_URL"))?;
     exit(server.start());
 }
