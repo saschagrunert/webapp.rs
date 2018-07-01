@@ -5,9 +5,6 @@ rust:
   - stable
   - beta
   - nightly
-matrix:
-  allow_failures:
-    - rust: nightly
 
 cache:
   cargo: true
@@ -32,7 +29,7 @@ before_script:
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
   - cargo build --bin backend --release
-  - then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app
+  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app; fi
   - cargo test --features=frontend
 
 notifications:
