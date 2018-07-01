@@ -70,7 +70,8 @@ impl WebSocket {
                         }
 
                         // Send the response to the websocket
-                        Ok(self.send(ctx))
+                        self.send(ctx);
+                        Ok(())
                     }
                     Ok(request::login::Token(d)) => {
                         // Create an error response if needed
@@ -83,7 +84,8 @@ impl WebSocket {
                         }
 
                         // Send the response to the websocket
-                        Ok(self.send(ctx))
+                        self.send(ctx);
+                        Ok(())
                     }
                     Err(e) => Err(e.into()),
                 }
@@ -98,7 +100,8 @@ impl WebSocket {
                 }
 
                 // Send the response to the websocket
-                Ok(self.send(ctx))
+                self.send(ctx);
+                Ok(())
             }
             Err(e) => Err(e.into()),
         }
