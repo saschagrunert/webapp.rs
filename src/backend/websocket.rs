@@ -49,19 +49,6 @@ impl WebSocket {
         }
     }
 
-    fn write(&mut self) -> Result<&[u8], Error> {
-        // Clear the data before serialization
-        self.data.clear();
-
-        // Serialize and return
-        write_message(&mut self.data, &self.builder)?;
-        Ok(&self.data)
-    }
-
-    fn send(&self, ctx: &mut WebsocketContext<Self, State>) {
-        ctx.binary(self.data.clone());
-    }
-
     fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
         // Try to read the message
         let reader = read_message(&mut data.as_ref(), ReaderOptions::new())?;
@@ -115,6 +102,19 @@ impl WebSocket {
             }
             Err(e) => Err(e.into()),
         }
+    }
+
+    fn write(&mut self) -> Result<&[u8], Error> {
+        // Clear the data before serialization
+        self.data.clear();
+
+        // Serialize and return
+        write_message(&mut self.data, &self.builder)?;
+        Ok(&self.data)
+    }
+
+    fn send(&self, ctx: &mut WebsocketContext<Self, State>) {
+        ctx.binary(self.data.clone());
     }
 
     fn handle_request_login_credentials(
