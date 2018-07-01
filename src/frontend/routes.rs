@@ -3,6 +3,7 @@
 use frontend::services::router::Route;
 use std::convert::Into;
 
+#[derive(Debug, PartialEq)]
 /// Possible child components of this one
 pub enum RouterComponent {
     Content,
@@ -43,5 +44,64 @@ impl<T> Into<RouterComponent> for Route<T> {
             },
             _ => RouterComponent::Error,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn succeed_to_convert_content() {
+        let sut: Route<()> = Route {
+            fragment: Some("content".to_owned()),
+            ..Default::default()
+        };
+        let cmp: RouterComponent = sut.clone().into();
+        assert_eq!(cmp, RouterComponent::Content);
+        assert_eq!(sut, RouterComponent::Content.into());
+    }
+
+    #[test]
+    fn succeed_to_convert_loading() {
+        let sut: Route<()> = Route {
+            fragment: Some("loading".to_owned()),
+            ..Default::default()
+        };
+        let cmp: RouterComponent = sut.clone().into();
+        assert_eq!(cmp, RouterComponent::Loading);
+        assert_eq!(sut, RouterComponent::Loading.into());
+    }
+
+    #[test]
+    fn succeed_to_convert_login() {
+        let sut: Route<()> = Route {
+            fragment: Some("login".to_owned()),
+            ..Default::default()
+        };
+        let cmp: RouterComponent = sut.clone().into();
+        assert_eq!(cmp, RouterComponent::Login);
+        assert_eq!(sut, RouterComponent::Login.into());
+    }
+
+    #[test]
+    fn succeed_to_convert_error() {
+        let sut: Route<()> = Route {
+            fragment: Some("error".to_owned()),
+            ..Default::default()
+        };
+        let cmp: RouterComponent = sut.clone().into();
+        assert_eq!(cmp, RouterComponent::Error);
+        assert_eq!(sut, RouterComponent::Error.into());
+    }
+
+    #[test]
+    fn succeed_to_convert_unknown() {
+        let sut: Route<()> = Route {
+            fragment: Some("new_route".to_owned()),
+            ..Default::default()
+        };
+        let cmp: RouterComponent = sut.into();
+        assert_eq!(cmp, RouterComponent::Error);
     }
 }
