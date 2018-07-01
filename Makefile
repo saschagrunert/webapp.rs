@@ -42,5 +42,7 @@ deploy:
 			--bin backend
 	# Create the docker image from the executable
 	docker build --no-cache \
+		--build-arg STATIC_PATH=$(shell sed -ne 's/^static_path.*"\(.*\)"/\1/p' Config.toml) \
+		--build-arg API_PORT=$(shell sed -ne 's/^port.*"\(.*\)"/\1/p' Config.toml) \
 		-f Dockerfile.webapp \
 		-t webapp .
