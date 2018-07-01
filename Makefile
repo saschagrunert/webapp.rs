@@ -20,7 +20,6 @@ frontend:
 		--host 0.0.0.0
 
 backend:
-	RUST_LOG=actix_web=info,webapp=trace \
 	cargo run \
 		$(BACKEND_ARGS) \
 		--bin backend

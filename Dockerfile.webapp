@@ -6,6 +6,9 @@ COPY target/x86_64-unknown-linux-musl/release/backend /
 # Copy the TLS certificates
 COPY tls /tls
 
+# Copy the configuration
+COPY Config.toml /
+
 # Copy the static files
 ARG STATIC_PATH=static
 ENV STATIC_PATH ${STATIC_PATH}
@@ -15,9 +18,6 @@ COPY target/deploy /${STATIC_PATH}
 ARG API_PORT=443
 ENV API_PORT ${API_PORT}
 EXPOSE ${API_PORT}
-
-# Set the logging behavior
-ENV RUST_LOG=actix_web=info,webapp=info
 
 # Run the application by default
 CMD ["/backend"]

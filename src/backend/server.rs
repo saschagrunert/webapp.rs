@@ -38,7 +38,7 @@ pub struct State {
 
 impl Server {
     /// Create a new server instance
-    pub fn new(addr: &str) -> Result<Self, Error> {
+    pub fn new(addr: &str, ws_path: String, static_path: String) -> Result<Self, Error> {
         // Build a new actor system
         let runner = actix::System::new("ws");
 
@@ -54,10 +54,10 @@ impl Server {
         server::new(move || {
             App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
-                .resource(&format!("/{}", env!("WS_PATH")), |r| {
+                .resource(&format!("/{}", ws_path), |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .handler("/", fs::StaticFiles::new(env!("STATIC_PATH")).index_file("index.html"))
+                .handler("/", fs::StaticFiles::new(&static_path).index_file("index.html"))
         }).bind_ssl(addr, builder)?
             .shutdown_timeout(0)
             .start();
@@ -77,11 +77,11 @@ mod tests {
 
     #[test]
     fn succeed_to_create_a_server() {
-        assert!(Server::new("0.0.0.0:31313").is_ok());
+        assert!(Server::new("0.0.0.0:31313", "/ws".to_owned(), "static".to_owned()).is_ok());
     }
 
     #[test]
     fn fail_to_create_a_server_with_wrong_addr() {
-        assert!(Server::new("").is_err());
+        assert!(Server::new("", "".to_owned(), "".to_owned()).is_err());
     }
 }

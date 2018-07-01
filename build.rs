@@ -105,7 +105,6 @@ struct Config {
 struct Server {
     ip: String,
     port: String,
-    static_path: String,
 }
 
 #[derive(Deserialize)]
@@ -115,16 +114,13 @@ struct WebSocket {
 }
 
 fn prepare_config() -> Result<(), Error> {
-    let config_string = read_to_string("Config.toml")?;
-    let config: Config = toml::from_str(&config_string)?;
+    let config: Config = toml::from_str(&read_to_string("Config.toml")?)?;
 
-    println!("cargo:rustc-env=SERVER_URL={}:{}", config.server.ip, config.server.port);
-    println!("cargo:rustc-env=STATIC_PATH={}", config.server.static_path);
+    // Set the websocket path directly within the build target
     println!(
         "cargo:rustc-env=WS_URL={}://{}:{}/{}",
         config.websocket.protocol, config.server.ip, config.server.port, config.websocket.path
     );
-    println!("cargo:rustc-env=WS_PATH={}", config.websocket.path);
 
     Ok(())
 }
