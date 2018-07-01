@@ -22,7 +22,7 @@ pub struct TokenStore(Arc<RwLock<HashSet<String>>>);
 
 impl TokenStore {
     /// Insert a new token
-    pub fn create(&self, username: &str) -> Result<String, Error> {
+    pub fn insert(&self, username: &str) -> Result<String, Error> {
         let token = Token::create(username, DEFAULT_TOKEN_VALIDITY)?;
         debug!("New token: {}", token);
         self.0
@@ -100,13 +100,39 @@ mod tests {
 
     #[test]
     fn succeed_to_verify_a_token() {
-        let t = Token::create("", 1).unwrap();
-        assert!(Token::verify(&t).is_ok());
+        let sut = Token::create("", 1).unwrap();
+        assert!(Token::verify(&sut).is_ok());
     }
 
     #[test]
     fn fail_to_verify_a_token() {
-        let t = Token::create("", -1).unwrap();
-        assert!(Token::verify(&t).is_err());
+        let sut = Token::create("", -1).unwrap();
+        assert!(Token::verify(&sut).is_err());
+    }
+
+    #[test]
+    fn succeed_to_insert_token_in_store() {
+        let sut = TokenStore::default();
+        assert!(sut.insert("").is_ok());
+    }
+
+    #[test]
+    fn succeed_to_verify_token_in_store() {
+        let sut = TokenStore::default();
+        let token = sut.insert("").unwrap();
+        assert!(sut.verify(&token).is_ok());
+    }
+
+    #[test]
+    fn fail_to_verify_token_in_store() {
+        let sut = TokenStore::default();
+        assert!(sut.verify("").is_err());
+    }
+
+    #[test]
+    fn succeed_to_remove_token_from_store() {
+        let sut = TokenStore::default();
+        let token = sut.insert("").unwrap();
+        assert!(sut.remove(&token).is_ok());
     }
 }

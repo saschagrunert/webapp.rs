@@ -71,7 +71,7 @@ impl WebSocket {
         match request.which() {
             Ok(request::Login(data)) => {
                 // Check if its a credential or token login type
-                match data?.which() {
+                match data.which() {
                     Ok(request::login::Credentials(d)) => {
                         // Create an error response if needed
                         if let Err(e) = self.handle_request_login_credentials(d, ctx) {
@@ -119,12 +119,11 @@ impl WebSocket {
 
     fn handle_request_login_credentials(
         &mut self,
-        data: Result<request::login::credentials::Reader, capnp::Error>,
+        data: request::login::credentials::Reader,
         ctx: &mut WebsocketContext<Self, State>,
     ) -> Result<&[u8], Error> {
-        let value = data?;
-        let username = value.get_username()?;
-        let password = value.get_password()?;
+        let username = data.get_username()?;
+        let password = data.get_password()?;
         debug!("User {} is trying to login", username);
 
         // Error if username and password are invalid
@@ -134,7 +133,7 @@ impl WebSocket {
         }
 
         // Create a new token
-        let token = ctx.state().store.create(username)?;
+        let token = ctx.state().store.insert(username)?;
 
         // Create the response
         self.builder

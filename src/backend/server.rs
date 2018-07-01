@@ -73,3 +73,18 @@ impl Server {
         self.runner.run()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn succeed_to_create_a_server() {
+        assert!(Server::new("0.0.0.0:31313").is_ok());
+    }
+
+    #[test]
+    fn fail_to_create_a_server_with_wrong_addr() {
+        assert!(Server::new("").is_err());
+    }
+}

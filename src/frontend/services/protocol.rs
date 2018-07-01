@@ -81,7 +81,7 @@ impl ProtocolService {
     // Get a login response for given bytes
     pub fn read_response_login(&mut self, data: &mut [u8]) -> Result<Option<String>, Error> {
         match self.read(data)?.get_root::<response::Reader>()?.which()? {
-            response::Login(data) => match data?.which()? {
+            response::Login(data) => match data.which()? {
                 response::login::Token(token) => Ok(Some(token?.to_owned())),
                 response::login::Error(error) => Err(ProtocolError::Response {
                     description: error?.to_owned(),
@@ -94,7 +94,7 @@ impl ProtocolService {
     // Get a logout response for given bytes
     pub fn read_response_logout(&mut self, data: &mut [u8]) -> Result<Option<()>, Error> {
         match self.read(data)?.get_root::<response::Reader>()?.which()? {
-            response::Logout(data) => match data?.which()? {
+            response::Logout(data) => match data.which()? {
                 response::logout::Success(_) => Ok(Some(())),
                 response::logout::Error(error) => Err(ProtocolError::Response {
                     description: error?.to_owned(),

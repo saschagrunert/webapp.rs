@@ -2,40 +2,26 @@
 
 struct Request {
     union {
-        login  @0 :Login;   # The login credentials or a token
-        logout @1 :Text;    # The session token
-    }
-
-    struct Login {
-        union {
-            credentials @0 :Credentials;
-            token       @1 :Text;
+        login :union {
+            credentials :group {
+                username @0 :Text;
+                password @1 :Text;
+            }
+            token @2 :Text;
         }
-
-        struct Credentials {
-            username @0 :Text;
-            password @1 :Text;
-        }
+        logout @3 :Text; # The session token
     }
 }
 
 struct Response {
     union {
-        login  @0 :Login;
-        logout @1 :Logout;
-    }
-
-    struct Login {
-        union {
+        login :union {
             token @0 :Text;
             error @1 :Text;
         }
-    }
-
-    struct Logout {
-        union {
-            success @0 :Void;
-            error   @1 :Text;
+        logout: union {
+            success @2 :Void;
+            error @3 :Text;
         }
     }
 }
