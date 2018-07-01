@@ -23,7 +23,6 @@ install:
   - cd ../
 
 before_script:
-  - pip install 'travis-cargo<0.2' --user --verbose
   - export PATH=$HOME/.local/bin:$PATH
   - export PATH=$HOME/Library/Python/2.7/bin:$PATH
   - ./ci/install_cargo_web
@@ -34,8 +33,8 @@ script:
   - export CARGO_TARGET_DIR=`pwd`/target
   - cargo build --bin backend
   - cargo build --bin backend --release
-  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --bin=frontend --features=frontend; fi
-  - travis-cargo test
+  - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app; fi
+  - cargo test --features=frontend
 
 notifications:
   email:
