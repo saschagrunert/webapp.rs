@@ -1,11 +1,6 @@
 [server]
 ip = "0.0.0.0"
 port = "443"
-static_path = "static"
-
-[websocket]
-path = "ws"
-protocol = "wss"
 
 [log]
 actix_web = "debug"

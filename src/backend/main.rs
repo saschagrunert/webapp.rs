@@ -14,7 +14,6 @@ use webapp::Server;
 #[derive(Deserialize)]
 struct Config {
     server: ServerConfig,
-    websocket: WebSocketConfig,
     log: LogConfig,
 }
 
@@ -22,12 +21,6 @@ struct Config {
 struct ServerConfig {
     ip: String,
     port: String,
-    static_path: String,
-}
-
-#[derive(Deserialize)]
-struct WebSocketConfig {
-    path: String,
 }
 
 #[derive(Deserialize)]
@@ -52,7 +45,7 @@ fn main() -> Result<(), Error> {
 
     // Create and start the server
     let server_url = format!("{}:{}", config.server.ip, config.server.port);
-    let server = Server::new(&server_url, config.websocket.path, config.server.static_path)?;
+    let server = Server::new(&server_url)?;
 
     // Start the server
     exit(server.start());

@@ -98,7 +98,6 @@ fn prepare_capnp() -> Result<(), Error> {
 #[derive(Deserialize)]
 struct Config {
     server: Server,
-    websocket: WebSocket,
 }
 
 #[derive(Deserialize)]
@@ -107,19 +106,13 @@ struct Server {
     port: String,
 }
 
-#[derive(Deserialize)]
-struct WebSocket {
-    path: String,
-    protocol: String,
-}
-
 fn prepare_config() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string("Config.toml")?)?;
 
     // Set the websocket path directly within the build target
     println!(
-        "cargo:rustc-env=WS_URL={}://{}:{}/{}",
-        config.websocket.protocol, config.server.ip, config.server.port, config.websocket.path
+        "cargo:rustc-env=WS_URL=wss://{}:{}/ws",
+        config.server.ip, config.server.port
     );
 
     Ok(())
