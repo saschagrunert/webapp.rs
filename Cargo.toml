@@ -1,10 +1,10 @@
 [package]
-authors = ["Sascha Grunert <mail@saschagruenrt.de>"]
+authors = ["Sascha Grunert <mail@saschagrunert.de>"]
 categories = ["web-programming"]
 description = "A web application completely written in Rust"
 documentation = "https://docs.rs/webapp"
 homepage = "https://github.com/saschagrunert/webapp.rs"
-keywords = ["web", "app", "website", "webapp"]
+keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
 license = "MIT"
 name = "webapp"
 readme = "README.md"
@@ -12,8 +12,7 @@ repository = "https://github.com/saschagrunert/webapp.rs"
 version = "0.3.0"
 
 [badges]
-travis-ci = { repository = "saschagrunert/git-journal", branch = "master" }
-appveyor = { repository = "saschagrunert/git-journal", branch = "master", service = "github" }
+travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
 
 [[bin]]
 name = "app"
