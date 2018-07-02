@@ -14,15 +14,10 @@ GENERAL_ARGS += -v
 endif
 
 frontend:
-	cargo web start \
-		$(FRONTENT_ARGS) \
-		--auto-reload \
-		--host 0.0.0.0
+	cargo web start $(FRONTENT_ARGS) --auto-reload --host 0.0.0.0
 
 backend:
-	cargo run \
-		$(BACKEND_ARGS) \
-		--bin backend
+	cargo run $(BACKEND_ARGS) --bin backend
 
 deploy:
 	# Deploy the frontend

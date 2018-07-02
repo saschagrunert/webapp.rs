@@ -1,11 +1,10 @@
+#[macro_use]
+extern crate serde_derive;
 extern crate env_logger;
 extern crate failure;
 extern crate log;
 extern crate toml;
 extern crate webapp;
-
-#[macro_use]
-extern crate serde_derive;
 
 use failure::Error;
 use std::{env::set_var, fs::read_to_string, process::exit};
