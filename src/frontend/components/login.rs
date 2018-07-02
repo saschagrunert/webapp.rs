@@ -97,7 +97,7 @@ impl Component for LoginComponent {
                 }
                 Ok(None) => false, // Not my response
                 Err(e) => {
-                    self.console_service.error(&format!("Unable to login: {}", e));
+                    self.console_service.warn(&format!("Unable to login: {}", e));
                     self.error = "Authentication failed".to_owned();
                     self.button_disabled = false;
                     true
