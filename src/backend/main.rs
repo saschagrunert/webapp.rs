@@ -20,6 +20,7 @@ struct Config {
 struct ServerConfig {
     ip: String,
     port: String,
+    tls: bool,
 }
 
 #[derive(Deserialize)]
@@ -44,7 +45,7 @@ fn main() -> Result<(), Error> {
 
     // Create and start the server
     let server_url = format!("{}:{}", config.server.ip, config.server.port);
-    let server = Server::new(&server_url)?;
+    let server = Server::new(&server_url, config.server.tls)?;
 
     // Start the server
     exit(server.start());

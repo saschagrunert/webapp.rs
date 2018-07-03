@@ -104,15 +104,17 @@ struct Config {
 struct Server {
     ip: String,
     port: String,
+    tls: bool,
 }
 
 fn prepare_config() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string("Config.toml")?)?;
 
     // Set the websocket path directly within the build target
+    let ws_prot = if config.server.tls { "wss" } else { "ws" };
     println!(
-        "cargo:rustc-env=WS_URL=wss://{}:{}/ws",
-        config.server.ip, config.server.port
+        "cargo:rustc-env=WS_URL={}://{}:{}/ws",
+        ws_prot, config.server.ip, config.server.port
     );
 
     Ok(())

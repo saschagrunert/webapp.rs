@@ -38,29 +38,32 @@ pub struct State {
 
 impl Server {
     /// Create a new server instance
-    pub fn new(addr: &str) -> Result<Self, Error> {
+    pub fn new(addr: &str, use_tls: bool) -> Result<Self, Error> {
         // Build a new actor system
         let runner = actix::System::new("ws");
-
-        // Load the SSL Certificate
-        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
-        builder.set_private_key_file("tls/key.pem", SslFiletype::PEM)?;
-        builder.set_certificate_chain_file("tls/crt.pem")?;
 
         // Create a default app state
         let state = State::default();
 
         // Create the server
-        server::new(move || {
+        let server = server::new(move || {
             App::with_state(state.clone())
                 .middleware(middleware::Logger::default())
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
                 .handler("/", fs::StaticFiles::new("static").index_file("index.html"))
-        }).bind_ssl(addr, builder)?
-            .shutdown_timeout(0)
-            .start();
+        });
+
+        // Load the SSL Certificate if needed
+        if use_tls {
+            let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
+            builder.set_private_key_file("tls/key.pem", SslFiletype::PEM)?;
+            builder.set_certificate_chain_file("tls/crt.pem")?;
+            server.bind_ssl(addr, builder)?.shutdown_timeout(0).start();
+        } else {
+            server.bind(addr)?.shutdown_timeout(0).start();
+        }
 
         Ok(Server { runner })
     }
@@ -77,11 +80,11 @@ mod tests {
 
     #[test]
     fn succeed_to_create_a_server() {
-        assert!(Server::new("0.0.0.0:31313").is_ok());
+        assert!(Server::new("0.0.0.0:31313", false).is_ok());
     }
 
     #[test]
     fn fail_to_create_a_server_with_wrong_addr() {
-        assert!(Server::new("").is_err());
+        assert!(Server::new("", false).is_err());
     }
 }
