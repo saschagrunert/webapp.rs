@@ -2,9 +2,12 @@
 
 use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App};
-use backend::{token::TokenStore, websocket::WebSocket};
+use backend::{database::executor::DatabaseExecutor, token::TokenStore, websocket::WebSocket};
+use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
+use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use r2d2::Pool;
 
 #[derive(Debug, Fail)]
 pub enum ServerError {
@@ -30,8 +33,11 @@ pub struct Server {
 }
 
 /// Shared mutable application state
-#[derive(Clone, Debug, Default)]
+#[derive(Clone)]
 pub struct State {
+    // The database connection
+    pub database: Addr<Syn, DatabaseExecutor>,
+
     /// The tokens stored for authentication
     pub store: TokenStore,
 }
@@ -42,8 +48,16 @@ impl Server {
         // Build a new actor system
         let runner = actix::System::new("ws");
 
+        // Start database executor actors
+        let manager = ConnectionManager::<SqliteConnection>::new("webapp.db");
+        let pool = Pool::builder().build(manager)?;
+        let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
+
         // Create a default app state
-        let state = State::default();
+        let state = State {
+            database: db_addr.clone(),
+            store: Default::default(),
+        };
 
         // Create the server
         let server = server::new(move || {

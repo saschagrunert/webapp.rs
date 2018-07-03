@@ -38,12 +38,15 @@ futures = "0.1.21"
 actix = { version = "0.5.8", optional = true }
 actix-web = { version = "0.6.14", optional = true, features = ["alpn"] }
 capnp = "0.8.17"
+diesel = { version = "1.3.2", optional = true, features = ["r2d2", "sqlite"] }
 env_logger = { version = "0.5.10", optional = true }
 failure = "0.1.1"
 jsonwebtoken = { version = "4.0.1", optional = true }
 lazy_static = "1.0.1"
 log = { version = "0.4.3", optional = true }
 openssl = { version = "0.10.10", optional = true }
+num_cpus = { version = "1.0.0", optional = true }
+r2d2 = { version = "0.8.2", optional = true }
 serde = "1.0.69"
 serde_derive = "1.0.69"
 stdweb = { version = "0.4.7", optional = true }
@@ -56,10 +59,13 @@ yew = { git = "https://github.com/DenisKolodin/yew", optional = true }
 default = [
     "actix",
     "actix-web",
+    "diesel",
     "env_logger",
     "jsonwebtoken",
     "log",
+    "num_cpus",
     "openssl",
+    "r2d2",
     "time",
     "toml",
     "uuid"

@@ -21,13 +21,23 @@ extern crate actix_web;
 
 #[cfg(feature = "default")]
 #[macro_use]
+extern crate diesel;
+
+#[cfg(feature = "default")]
+#[macro_use]
 extern crate log;
 
 #[cfg(feature = "default")]
 extern crate jsonwebtoken;
 
 #[cfg(feature = "default")]
+extern crate num_cpus;
+
+#[cfg(feature = "default")]
 extern crate openssl;
+
+#[cfg(feature = "default")]
+extern crate r2d2;
 
 #[cfg(feature = "default")]
 extern crate time;

@@ -16,8 +16,8 @@ lazy_static! {
 
 const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
 
-/// Generic multi processing ready token storage type
 #[derive(Clone, Debug, Default)]
+/// Generic multi processing ready token storage type
 pub struct TokenStore(Arc<RwLock<HashSet<String>>>);
 
 impl TokenStore {
