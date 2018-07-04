@@ -1,16 +1,19 @@
 //! Everything related to database handling
 
 use actix::prelude::*;
-use actix_web::error::{Error, ErrorInternalServerError};
-use backend::database::{models, schema};
+use backend::{
+    database::{models, schema::sessions::dsl::*},
+    server::ServerError,
+};
 use diesel::{
-    self,
+    insert_into,
     prelude::*,
     r2d2::{ConnectionManager, Pool},
 };
+use failure::Error;
 
 /// The database executor actor
-pub struct DatabaseExecutor(pub Pool<ConnectionManager<SqliteConnection>>);
+pub struct DatabaseExecutor(pub Pool<ConnectionManager<PgConnection>>);
 
 impl Actor for DatabaseExecutor {
     type Context = SyncContext<Self>;
@@ -29,22 +32,10 @@ impl Handler<CreateSession> for DatabaseExecutor {
     type Result = Result<models::Session, Error>;
 
     fn handle(&mut self, msg: CreateSession, _: &mut Self::Context) -> Self::Result {
-        use self::schema::sessions::dsl::*;
-
         let new_session = models::NewSession { id: &msg.id };
-
-        let connection: &SqliteConnection = &self.0.get().unwrap();
-
-        diesel::insert_into(sessions)
-            .values(&new_session)
-            .execute(connection)
-            .map_err(|_| ErrorInternalServerError("Error inserting session"))?;
-
-        let mut items = sessions
-            .filter(id.eq(&msg.id))
-            .load::<models::Session>(connection)
-            .map_err(|_| ErrorInternalServerError("Error loading session"))?;
-
-        Ok(items.pop().unwrap())
+        let connection = &self.0.get()?;
+        insert_into(sessions).values(&new_session).execute(connection)?;
+        let mut items = sessions.filter(id.eq(&msg.id)).load(connection)?;
+        items.pop().ok_or(ServerError::Internal.into())
     }
 }

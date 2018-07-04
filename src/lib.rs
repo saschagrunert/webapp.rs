@@ -73,5 +73,7 @@ pub mod protocol_capnp {
     include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
 }
 
+pub mod config;
+
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";

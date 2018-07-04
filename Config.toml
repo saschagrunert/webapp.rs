@@ -6,3 +6,9 @@ tls = true
 [log]
 actix_web = "debug"
 webapp = "trace"
+
+[postgres]
+host = "localhost"
+username = "username"
+password = "password"
+database = "database"

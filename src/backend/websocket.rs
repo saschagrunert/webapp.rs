@@ -189,6 +189,7 @@ impl WebSocket {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     extern crate futures;
@@ -396,3 +397,4 @@ mod tests {
         assert!(srv.execute(reader.into_future()).is_err());
     }
 }
+*/

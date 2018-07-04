@@ -10,16 +10,14 @@ feature set of this application:
 
 - [cargo-web](https://github.com/koute/cargo-web)
 - [capnproto](https://github.com/capnproto/capnproto)
+- [diesel_cli](https://github.com/diesel-rs/diesel)
 - [docker](https://github.com/docker/docker-ce)
+- [postgresql (libpg)](https://www.postgresql.org/)
 
 The app consist of a frontend and a backend. For getting started with hacking,
 the backend can be started via `make backend`, whereas the frontend can be
-tested with `make frontend`. You can adapt the environment variables `API_URL`
-and `API_PORT` if needed:
-
-```console
-make backend API_URL=localhost API_PORT=30000
-```
+tested with `make frontend`. You can adapt the application configuration
+within `Config.toml` if needed.
 
 ## Deploy
 To deploy the application as a docker image, simply run:

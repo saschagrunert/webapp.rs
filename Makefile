@@ -5,7 +5,15 @@ FRONTENT_ARGS = $(FRONTEND_TARGET) --no-default-features --features=frontend
 BACKEND_TARGET = $(GENERAL_ARGS)
 BACKEND_ARGS = $(BACKEND_TARGET)
 
-.PHONY: backend deploy frontend
+# Application configuration
+CONFIG_FILE = Config.toml
+API_PORT := $(shell sed -ne 's/^port.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+PG_HOST := $(shell sed -ne 's/^host.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+PG_USERNAME := $(shell sed -ne 's/^username.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+PG_PASSWORD := $(shell sed -ne 's/^password.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+PG_DATABASE := $(shell sed -ne 's/^database.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+
+.PHONY: backend deploy frontend startdb stopdb blubb
 
 ifndef VERBOSE
 .SILENT:
@@ -16,7 +24,7 @@ endif
 frontend:
 	cargo web start $(FRONTENT_ARGS) --auto-reload --host 0.0.0.0
 
-backend:
+backend: startdb
 	cargo run $(BACKEND_ARGS) --bin backend
 
 deploy:
@@ -37,6 +45,22 @@ deploy:
 			--bin backend
 	# Create the docker image from the executable
 	docker build --no-cache \
-		--build-arg API_PORT=$(shell sed -ne 's/^port.*"\(.*\)"/\1/p' Config.toml) \
+		--build-arg API_PORT=$(API_PORT) \
 		-f Dockerfile.webapp \
 		-t webapp .
+
+startdb:
+	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \
+		docker run --rm --name postgres \
+			-e POSTGRES_USER=$(PG_USERNAME) \
+			-e POSTGRES_PASSWORD=$(PG_PASSWORD) \
+			-e POSTGRES_DB=$(PG_DATABASE) \
+			-p 5432:5432 \
+			-d postgres ;\
+		sleep 3 ;\
+		diesel migration run --database-url \
+			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
+	fi
+
+stopdb:
+	docker stop postgres
