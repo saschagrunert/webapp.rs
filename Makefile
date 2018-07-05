@@ -6,14 +6,17 @@ BACKEND_TARGET = $(GENERAL_ARGS)
 BACKEND_ARGS = $(BACKEND_TARGET)
 
 # Application configuration
-CONFIG_FILE = Config.toml
-API_PORT := $(shell sed -ne 's/^port.*"\(.*\)"/\1/p' $(CONFIG_FILE))
-PG_HOST := $(shell sed -ne 's/^host.*"\(.*\)"/\1/p' $(CONFIG_FILE))
-PG_USERNAME := $(shell sed -ne 's/^username.*"\(.*\)"/\1/p' $(CONFIG_FILE))
-PG_PASSWORD := $(shell sed -ne 's/^password.*"\(.*\)"/\1/p' $(CONFIG_FILE))
-PG_DATABASE := $(shell sed -ne 's/^database.*"\(.*\)"/\1/p' $(CONFIG_FILE))
+define get_config_value
+	$(shell sed -ne 's/^$(1).*"\(.*\)"/\1/p' Config.toml)
+endef
 
-.PHONY: backend deploy frontend startdb stopdb blubb
+API_PORT := $(strip $(call get_config_value,port))
+PG_HOST := $(strip $(call get_config_value,host))
+PG_USERNAME := $(strip $(call get_config_value,username))
+PG_PASSWORD := $(strip $(call get_config_value,password))
+PG_DATABASE := $(strip $(call get_config_value,database))
+
+.PHONY: backend deploy frontend startdb stopdb
 
 ifndef VERBOSE
 .SILENT:

@@ -2,7 +2,7 @@
 
 use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App};
-use backend::{database::executor::DatabaseExecutor, token::TokenStore, websocket::WebSocket};
+use backend::{database::executor::DatabaseExecutor, websocket::WebSocket};
 use config::Config;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
@@ -21,14 +21,11 @@ pub enum ServerError {
     #[fail(display = "unable to verify token")]
     VerifyToken,
 
-    #[fail(display = "unable to update token")]
+    #[fail(display = "unable to insert token into database")]
+    InsertToken,
+
+    #[fail(display = "unable to update token within database")]
     UpdateToken,
-
-    #[fail(display = "unable to remove token")]
-    RemoveToken,
-
-    #[fail(display = "internal server error")]
-    Internal,
 }
 
 /// The server instance
@@ -37,18 +34,14 @@ pub struct Server {
 }
 
 /// Shared mutable application state
-#[derive(Clone)]
 pub struct State {
     // The database connection
     pub database: Addr<Syn, DatabaseExecutor>,
-
-    /// The tokens stored for authentication
-    pub store: TokenStore,
 }
 
 impl Server {
     /// Create a new server instance
-    pub fn new(config: Config) -> Result<Self, Error> {
+    pub fn new(config: &Config) -> Result<Self, Error> {
         // Build a new actor system
         let runner = actix::System::new("ws");
 
@@ -61,16 +54,11 @@ impl Server {
         let pool = Pool::builder().build(manager)?;
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
 
-        // Create a default app state
-        let state = State {
-            database: db_addr,
-            store: Default::default(),
-        };
-
         // Create the server
         let server = server::new(move || {
-            App::with_state(state.clone())
-                .middleware(middleware::Logger::default())
+            App::with_state(State {
+                database: db_addr.clone(),
+            }).middleware(middleware::Logger::default())
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
@@ -99,22 +87,31 @@ impl Server {
     }
 }
 
-/*
 #[cfg(test)]
 mod tests {
+    extern crate toml;
+
     use super::*;
+    use std::fs::read_to_string;
+    use CONFIG_FILENAME;
 
     #[test]
     fn succeed_to_create_a_server() {
-        let mut config = Config::default();
-        config.server.ip = "0.0.0.0".to_owned();
-        config.server.port = "31313".to_owned();
-        assert!(Server::new(config).is_ok());
+        let config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        assert!(Server::new(&config).is_ok());
     }
 
     #[test]
     fn fail_to_create_a_server_with_wrong_addr() {
-        assert!(Server::new(Default::default()).is_err());
+        let mut config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        config.server.ip = "".to_owned();
+        assert!(Server::new(&config).is_err());
+    }
+
+    #[test]
+    fn fail_to_create_a_server_with_wrong_port() {
+        let mut config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        config.server.port = "10".to_owned();
+        assert!(Server::new(&config).is_err());
     }
 }
-*/

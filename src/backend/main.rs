@@ -5,11 +5,11 @@ extern crate webapp;
 
 use failure::Error;
 use std::{env::set_var, fs::read_to_string, process::exit};
-use webapp::{config::Config, Server};
+use webapp::{config::Config, Server, CONFIG_FILENAME};
 
 fn main() -> Result<(), Error> {
     // Parse the configuration
-    let config_string = read_to_string("Config.toml")?;
+    let config_string = read_to_string(CONFIG_FILENAME)?;
     let config: Config = toml::from_str(&config_string)?;
 
     // Set the logging verbosity
@@ -22,7 +22,7 @@ fn main() -> Result<(), Error> {
     env_logger::init();
 
     // Create and start the server
-    let server = Server::new(config)?;
+    let server = Server::new(&config)?;
 
     // Start the server
     exit(server.start());

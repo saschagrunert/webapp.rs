@@ -5,7 +5,11 @@ use actix_web::{
     ws::{Message, ProtocolError, WebsocketContext},
     Binary,
 };
-use backend::server::{ServerError, State};
+use backend::{
+    database::executor::{CreateSession, DeleteSession, UpdateSession},
+    server::{ServerError, State},
+    token::Token,
+};
 use capnp::{
     self,
     message::{Builder, HeapAllocator, ReaderOptions},
@@ -13,6 +17,7 @@ use capnp::{
     text,
 };
 use failure::Error;
+use futures::Future;
 use protocol_capnp::{request, response};
 
 /// The actual websocket
@@ -136,13 +141,19 @@ impl WebSocket {
         }
 
         // Create a new token
-        let token = ctx.state().store.insert(username)?;
+        let token = ctx
+            .state()
+            .database
+            .send(CreateSession {
+                id: Token::create(username)?,
+            })
+            .wait()??;
 
         // Create the response
         self.builder
             .init_root::<response::Builder>()
             .init_login()
-            .set_token(&token);
+            .set_token(&token.id);
 
         // Write the message into a buffer
         self.write()
@@ -158,13 +169,20 @@ impl WebSocket {
         debug!("Token {} wants to be renewed", token);
 
         // Try to verify and create a new token
-        let new_token = ctx.state().store.verify(token)?;
+        let new_token = ctx
+            .state()
+            .database
+            .send(UpdateSession {
+                old_id: token.to_owned(),
+                new_id: Token::verify(token)?,
+            })
+            .wait()??;
 
         // Create the response
         self.builder
             .init_root::<response::Builder>()
             .init_login()
-            .set_token(&new_token);
+            .set_token(&new_token.id);
 
         // Write the message into a buffer
         self.write()
@@ -176,7 +194,10 @@ impl WebSocket {
         ctx: &mut WebsocketContext<Self, State>,
     ) -> Result<&[u8], Error> {
         // Remove the token from the internal storage
-        ctx.state().store.remove(data?)?;
+        ctx.state()
+            .database
+            .send(DeleteSession { id: data?.to_owned() })
+            .wait()??;
 
         // Create the response
         self.builder
@@ -189,20 +210,47 @@ impl WebSocket {
     }
 }
 
-/*
 #[cfg(test)]
 mod tests {
+    /*
     extern crate futures;
+    extern crate toml;
 
     use self::futures::Stream;
     use super::*;
     use actix_web::{test::TestServer, ws};
+    use backend::database::executor::DatabaseExecutor;
+    use config::Config;
+    use diesel::{prelude::*, r2d2::ConnectionManager};
+    use r2d2::Pool;
+    use std::fs::read_to_string;
+    use CONFIG_FILENAME;
+
+    pub fn create_server() -> (TestServer, Pool<ConnectionManager<PgConnection>>) {
+        let config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        let database_url = format!(
+            "postgres://{}:{}@{}/{}",
+            config.postgres.username, config.postgres.password, config.postgres.host, config.postgres.database,
+        );
+        let manager = ConnectionManager::<PgConnection>::new(database_url);
+        let pool = Pool::builder().max_size(1).build(manager).unwrap();
+        let pool1 = pool.clone();
+
+        let srv = TestServer::build_with_state(move || build_app_state(pool1.clone()))
+            .start(move |app| app.handler(|req| ws::start(req, WebSocket::new())));
+
+        (srv, pool)
+    }
+
+    pub fn build_app_state(pool: Pool<ConnectionManager<PgConnection>>) -> State {
+        let addr = SyncArbiter::start(3, move || DatabaseExecutor(pool.clone()));
+        State { database: addr.clone() }
+    }
 
     #[test]
     fn succeed_to_login_with_username_and_password() {
         // Given
-        let mut srv = TestServer::build_with_state(State::default)
-            .start(move |app| app.handler(|req| ws::start(req, WebSocket::new())));
+        let (mut srv, _pool) = create_server();
         let (reader, mut writer) = srv.ws().unwrap();
 
         // When
@@ -232,8 +280,9 @@ mod tests {
             _ => panic!("Wrong message type"),
         }
     }
+    */
 
-    #[test]
+    /* #[test]
     fn fail_to_login_with_wrong_username_and_password() {
         // Given
         let mut srv = TestServer::build_with_state(State::default)
@@ -395,6 +444,5 @@ mod tests {
 
         // Then
         assert!(srv.execute(reader.into_future()).is_err());
-    }
+    } */
 }
-*/

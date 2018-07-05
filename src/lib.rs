@@ -24,6 +24,9 @@ extern crate actix_web;
 extern crate diesel;
 
 #[cfg(feature = "default")]
+extern crate futures;
+
+#[cfg(feature = "default")]
 #[macro_use]
 extern crate log;
 
@@ -77,3 +80,6 @@ pub mod config;
 
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";
+
+/// The global config file name
+pub const CONFIG_FILENAME: &str = "Config.toml";
