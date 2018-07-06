@@ -1,6 +1,6 @@
 //! Configruation related structures
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 /// The global configuration
 pub struct Config {
     /// The server configuration
@@ -13,7 +13,7 @@ pub struct Config {
     pub postgres: PostgresConfig,
 }
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 /// The server configuration
 pub struct ServerConfig {
     /// The server IP address
@@ -26,7 +26,7 @@ pub struct ServerConfig {
     pub tls: bool,
 }
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 /// The logger configuration
 pub struct LogConfig {
     /// The logging level of actix-web
@@ -36,7 +36,7 @@ pub struct LogConfig {
     pub webapp: String,
 }
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 /// The database configuration
 pub struct PostgresConfig {
     /// The full host to the database

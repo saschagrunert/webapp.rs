@@ -32,8 +32,12 @@ serde_derive = "1.0.69"
 toml = "0.4.6"
 
 [dev-dependencies]
+capnp = "0.8.17"
 futures = "0.1.21"
+lazy_static = "1.0.1"
 toml = "0.4.6"
+tungstenite = { version = "0.5.4", default-features = false }
+url = "1.7.1"
 
 [dependencies]
 actix = { version = "0.5.8", optional = true }
