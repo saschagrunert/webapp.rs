@@ -280,8 +280,8 @@ mod tests {
             _ => panic!("Wrong message type"),
         }
     }
-    */
-    /* #[test]
+
+    #[test]
     fn fail_to_login_with_wrong_username_and_password() {
         // Given
         let mut srv = TestServer::build_with_state(State::default)
@@ -443,5 +443,6 @@ mod tests {
 
         // Then
         assert!(srv.execute(reader.into_future()).is_err());
-    } */
+    }
 }
+*/
