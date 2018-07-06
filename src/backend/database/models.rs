@@ -2,13 +2,8 @@
 
 use backend::database::schema::sessions;
 
-#[derive(Serialize, Queryable)]
+#[derive(Insertable, Serialize, Queryable)]
+#[table_name = "sessions"]
 pub struct Session {
     pub id: String,
-}
-
-#[derive(Insertable)]
-#[table_name = "sessions"]
-pub struct NewSession<'a> {
-    pub id: &'a str,
 }

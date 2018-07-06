@@ -210,9 +210,9 @@ impl WebSocket {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
-    /*
     extern crate futures;
     extern crate toml;
 
@@ -243,7 +243,7 @@ mod tests {
     }
 
     pub fn build_app_state(pool: Pool<ConnectionManager<PgConnection>>) -> State {
-        let addr = SyncArbiter::start(3, move || DatabaseExecutor(pool.clone()));
+        let addr = SyncArbiter::start(4, move || DatabaseExecutor(pool.clone()));
         State { database: addr.clone() }
     }
 
@@ -281,7 +281,6 @@ mod tests {
         }
     }
     */
-
     /* #[test]
     fn fail_to_login_with_wrong_username_and_password() {
         // Given
