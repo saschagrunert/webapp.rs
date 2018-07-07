@@ -20,6 +20,7 @@ before_script:
   - sudo apt-get install -qq libssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
   - ./ci/install_cargo_web
   - ./ci/install_capnp
+  - rustup target add wasm32-unknown-emscripten
   - psql -c "CREATE DATABASE database;" -U postgres
   - psql -c "CREATE USER username WITH PASSWORD 'password';" -U postgres
   - cargo install diesel_cli --no-default-features --features "postgres"
