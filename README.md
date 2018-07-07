@@ -21,10 +21,12 @@ within `Config.toml` if needed.
 
 ## Run
 If both, the backend and frontend are running, you can visit the web application
-at `http://localhost:8000`. Modern browsers will block the connection to the
-backend via the self-signed TLS certificate, so you need to allow it by manually
-visiting `https://localhost:30433/ws` and accepting the certificate exception.
-After the successful loading of the application you should see an authentication
+at [`http://127.0.0.1:8000`](http://127.0.0.1:8000). Modern browsers will block
+the connection to the backend via the self-signed TLS certificate, so you need
+to allow it by manually visiting
+[`https://127.0.0.1:30433/ws`](https://127.0.0.1:30433/ws) and accepting the
+certificate exception.  After the successful loading of the application you
+should see an authentication
 screen like this:
 
 ![authentication screen](.github/authentication_screen.png "Authentication Screen")
@@ -59,7 +61,8 @@ via:
 make run
 ```
 
-The application should now be accesible at `https://localhost:30443`.
+The application should now be accesible at
+[`https://127.0.0.1:30443`](https://127.0.0.1:30443).
 
 ## Contributing
 You want to contribute to this project? Wow, thanks! So please just fork it and
