@@ -1,8 +1,14 @@
 [server]
-ip = "0.0.0.0"
-port = "443"
-tls = true
+ip = "127.0.0.1"
+port = "30443"
+tls = false
 
 [log]
 actix_web = "debug"
 webapp = "trace"
+
+[postgres]
+host = "127.0.0.1"
+username = "username"
+password = "password"
+database = "database"

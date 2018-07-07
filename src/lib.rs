@@ -21,13 +21,26 @@ extern crate actix_web;
 
 #[cfg(feature = "default")]
 #[macro_use]
+extern crate diesel;
+
+#[cfg(feature = "default")]
+extern crate futures;
+
+#[cfg(feature = "default")]
+#[macro_use]
 extern crate log;
 
 #[cfg(feature = "default")]
 extern crate jsonwebtoken;
 
 #[cfg(feature = "default")]
+extern crate num_cpus;
+
+#[cfg(feature = "default")]
 extern crate openssl;
+
+#[cfg(feature = "default")]
+extern crate r2d2;
 
 #[cfg(feature = "default")]
 extern crate time;
@@ -63,5 +76,10 @@ pub mod protocol_capnp {
     include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
 }
 
+pub mod config;
+
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";
+
+/// The global config file name
+pub const CONFIG_FILENAME: &str = "Config.toml";

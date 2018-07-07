@@ -1,37 +1,15 @@
-#[macro_use]
-extern crate serde_derive;
 extern crate env_logger;
 extern crate failure;
-extern crate log;
 extern crate toml;
 extern crate webapp;
 
 use failure::Error;
 use std::{env::set_var, fs::read_to_string, process::exit};
-use webapp::Server;
-
-#[derive(Deserialize)]
-struct Config {
-    server: ServerConfig,
-    log: LogConfig,
-}
-
-#[derive(Deserialize)]
-struct ServerConfig {
-    ip: String,
-    port: String,
-    tls: bool,
-}
-
-#[derive(Deserialize)]
-struct LogConfig {
-    actix_web: String,
-    webapp: String,
-}
+use webapp::{config::Config, Server, CONFIG_FILENAME};
 
 fn main() -> Result<(), Error> {
     // Parse the configuration
-    let config_string = read_to_string("Config.toml")?;
+    let config_string = read_to_string(CONFIG_FILENAME)?;
     let config: Config = toml::from_str(&config_string)?;
 
     // Set the logging verbosity
@@ -44,8 +22,7 @@ fn main() -> Result<(), Error> {
     env_logger::init();
 
     // Create and start the server
-    let server_url = format!("{}:{}", config.server.ip, config.server.port);
-    let server = Server::new(&server_url, config.server.tls)?;
+    let server = Server::new(&config)?;
 
     // Start the server
     exit(server.start());

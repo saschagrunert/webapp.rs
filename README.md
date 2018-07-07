@@ -10,16 +10,40 @@ feature set of this application:
 
 - [cargo-web](https://github.com/koute/cargo-web)
 - [capnproto](https://github.com/capnproto/capnproto)
+- [diesel_cli](https://github.com/diesel-rs/diesel)
 - [docker](https://github.com/docker/docker-ce)
+- [postgresql (libpg)](https://www.postgresql.org/)
 
 The app consist of a frontend and a backend. For getting started with hacking,
-the backend can be started via `make backend`, whereas the frontend can be
-tested with `make frontend`. You can adapt the environment variables `API_URL`
-and `API_PORT` if needed:
+the backend can tested via `make backend`, whereas the frontend can be
+tested with `make frontend`. You can adapt the application configuration
+within `Config.toml` if needed.
 
-```console
-make backend API_URL=localhost API_PORT=30000
-```
+## Run
+If both, the backend and frontend are running, you can visit the web application
+at `http://localhost:8000`. Modern browsers will block the connection to the
+backend via the self-signed TLS certificate, so you need to allow it by manually
+visiting `https://localhost:30433/ws` and accepting the certificate exception.
+After the successful loading of the application you should see an authentication
+screen like this:
+
+![authentication screen](.github/authentication_screen.png "Authentication Screen")
+
+Now you are able to login with a matching username and password combination like
+`me` (username) and `me` (password). There is currently no further user
+authentication yet, but non matching combination will result in an
+authentication failure. After the successfully login you should be able to see
+the content of the application:
+
+![content screen](.github/content_screen.png "Content Screen")
+
+The authentication should persist, even after a manual page reload. Logging out
+of the application via the logout button should also work as intended.
+
+### Control Flow
+The complete control flow of the application looks like this:
+
+![control screen](.github/flow_chart.png "Control Flow")
 
 ## Deploy
 To deploy the application as a docker image, simply run:
@@ -27,6 +51,15 @@ To deploy the application as a docker image, simply run:
 ```console
 make deploy
 ```
+
+After that you can run the application side by side with a PostgreSQL container
+via:
+
+```console
+make run
+```
+
+The application should now be accesible at `https://localhost:30443`.
 
 ## Contributing
 You want to contribute to this project? Wow, thanks! So please just fork it and
