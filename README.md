@@ -15,9 +15,19 @@ feature set of this application:
 - [postgresql (libpg)](https://www.postgresql.org/)
 
 The app consist of a frontend and a backend. For getting started with hacking,
-the backend can be started via `make backend`, whereas the frontend can be
+the backend can tested via `make backend`, whereas the frontend can be
 tested with `make frontend`. You can adapt the application configuration
 within `Config.toml` if needed.
+
+## Run
+If both, the backend and frontend are running, you can visit the webapp at
+`http://localhost:8000`. Browsers will block the connection to the backend via
+the self-signed TLS certificate, so you need to allow it by manually visiting
+`https://localhost:30433/ws` and accepting the certificate exception. After
+successfully loading of the application you should see an authentication box
+like this:
+
+![auth screen](.github/auth_screen.png "Authentication Screen")
 
 ## Deploy
 To deploy the application as a docker image, simply run:

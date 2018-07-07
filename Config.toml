@@ -1,7 +1,7 @@
 [server]
-ip = "0.0.0.0"
-port = "30000"
-tls = false
+ip = "localhost"
+port = "30443"
+tls = true
 
 [log]
 actix_web = "debug"

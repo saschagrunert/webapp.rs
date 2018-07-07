@@ -30,6 +30,7 @@ fn create_testserver() -> WebSocket<TcpStream> {
     let mut port = PORT.lock().unwrap();
     *port += 1;
     config.server.port = port.to_string();
+    config.server.tls = false;
     let ws_url = format!("ws://{}:{}/ws", config.server.ip, config.server.port);
     thread::spawn(move || Server::new(&config).unwrap().start());
 
