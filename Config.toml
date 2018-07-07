@@ -1,6 +1,6 @@
 [server]
 ip = "127.0.0.1"
-port = "30443"
+port = "30080"
 tls = false
 
 [log]
