@@ -10,8 +10,8 @@ services:
   - docker
   - postgresql
 cache:
-  cargo: true
   apt: true
+  cargo: true
 before_script:
   - export PATH=$HOME/.local/bin:$PATH
   - export PATH=$HOME/Library/Python/2.7/bin:$PATH
@@ -20,7 +20,6 @@ before_script:
   - sudo apt-get install -qq libssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
   - ./ci/install_cargo_web
   - ./ci/install_capnp
-  - rustup target add wasm32-unknown-emscripten
   - psql -c "CREATE DATABASE database;" -U postgres
   - psql -c "CREATE USER username WITH PASSWORD 'password';" -U postgres
   - cargo install diesel_cli --no-default-features --features "postgres"
@@ -29,7 +28,7 @@ script:
   - export CARGO_TARGET_DIR=`pwd`/target
   - cargo build --bin backend --release
   - if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then cargo web build --target wasm32-unknown-unknown --release --no-default-features --features=frontend --bin=app; fi
-  - cargo test --features=frontend
+  - cargo test
 notifications:
   email:
     on_success: never
