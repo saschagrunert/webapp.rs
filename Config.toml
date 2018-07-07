@@ -1,14 +1,14 @@
 [server]
-ip = "saschagrunert.de"
+ip = "127.0.0.1"
 port = "30443"
-tls = true
+tls = false
 
 [log]
 actix_web = "debug"
 webapp = "trace"
 
 [postgres]
-host = "localhost"
+host = "127.0.0.1"
 username = "username"
 password = "password"
 database = "database"

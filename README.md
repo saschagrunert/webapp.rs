@@ -27,7 +27,7 @@ visiting `https://localhost:30433/ws` and accepting the certificate exception.
 After the successful loading of the application you should see an authentication
 screen like this:
 
-![authentication screen](.github/auth_screen.png "Authentication Screen")
+![authentication screen](.github/authentication_screen.png "Authentication Screen")
 
 Now you are able to login with a matching username and password combination like
 `me` (username) and `me` (password). There is currently no further user
@@ -52,11 +52,14 @@ To deploy the application as a docker image, simply run:
 make deploy
 ```
 
-After that you can run the application via docker:
+After that you can run the application side by side with a PostgreSQL container
+via:
 
 ```console
-docker run -p 30443:30443 -it webapp
+make run
 ```
+
+The application should now be accesible at `https://localhost:30443`.
 
 ## Contributing
 You want to contribute to this project? Wow, thanks! So please just fork it and

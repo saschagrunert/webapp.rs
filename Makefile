@@ -10,22 +10,20 @@ define get_config_value
 	$(shell sed -ne 's/^$(1).*"\(.*\)"/\1/p' Config.toml)
 endef
 
+API_HOST := $(strip $(call get_config_value,ip))
 API_PORT := $(strip $(call get_config_value,port))
 PG_HOST := $(strip $(call get_config_value,host))
 PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
 
-.PHONY: backend deploy frontend startdb stopdb
+.PHONY: backend deploy frontend run startdb stopdb
 
 ifndef VERBOSE
 .SILENT:
 else
 GENERAL_ARGS += -v
 endif
-
-frontend:
-	cargo web start $(FRONTENT_ARGS) --auto-reload --host 0.0.0.0
 
 backend: startdb
 	cargo run $(BACKEND_ARGS) --bin backend
@@ -52,6 +50,15 @@ deploy:
 		-f Dockerfile.webapp \
 		-t webapp .
 
+frontend:
+	cargo web start $(FRONTENT_ARGS) --auto-reload --host 0.0.0.0
+
+run: startdb
+	docker run --rm \
+		--name webapp \
+		--network="host" \
+		-d webapp
+
 startdb:
 	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \
 		docker run --rm --name postgres \
@@ -60,7 +67,7 @@ startdb:
 			-e POSTGRES_DB=$(PG_DATABASE) \
 			-p 5432:5432 \
 			-d postgres ;\
-		sleep 3 ;\
+		sleep 5 ;\
 		diesel migration run --database-url \
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
 	fi
