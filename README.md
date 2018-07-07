@@ -56,7 +56,7 @@ via:
 make run
 ```
 
-The application should now be accesible at
+The application should now be accessible at
 [`http://127.0.0.1:30080`](http://127.0.0.1:30080).
 
 ## Contributing
