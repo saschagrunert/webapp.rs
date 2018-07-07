@@ -17,7 +17,10 @@ feature set of this application:
 The app consist of a frontend and a backend. For getting started with hacking,
 the backend can tested via `make backend`, whereas the frontend can be
 tested with `make frontend`. You can adapt the application configuration
-within `Config.toml` if needed.
+within `Config.toml` if needed. The basic frontend to backend technology stack
+looks like this:
+
+![tech stack](.github/tech_stack.png "Technology Stack")
 
 ## Run
 If both, the backend and frontend are running, you can visit the web application

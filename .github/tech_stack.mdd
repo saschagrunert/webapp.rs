@@ -1,0 +1,8 @@
+graph TD
+F[Frontend] --> Yew
+F --> C[Cap'n Proto]
+B[Backend] --> actix-web
+B --> C
+B --> D[Diesel]
+D --> r2d2
+D --> PostgreSQL
