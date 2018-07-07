@@ -1,5 +1,5 @@
 [server]
-ip = "localhost"
+ip = "saschagrunert.de"
 port = "30443"
 tls = true
 

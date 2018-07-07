@@ -1,0 +1,67 @@
+sequenceDiagram
+    participant R as RootComponent
+    participant L as LoginComponent
+    participant C as ContentComponent
+    participant B as Actix Web Backend
+    participant D as PostgresSQL Databass
+
+    alt successful login with session cookie token available
+        activate R
+        R ->> B: login token request
+        deactivate R
+        activate B
+        B ->> B: verify token
+        B ->> D: update token
+        deactivate B
+        activate D
+        D ->> B: token
+        deactivate D
+        activate B
+        B ->> R: new token
+        deactivate B
+        activate R
+        R -->> C: route to
+        deactivate R
+    else failed login with session cookie token available
+        activate R
+        R ->> B: login token request
+        deactivate R
+        activate B
+        B ->> B: verify token
+        B ->> R: token verification failed
+        deactivate B
+        activate R
+        R -->> L: route to
+        deactivate R
+    else successful login without session token available
+        activate R
+        R -->> L: route to
+        deactivate R
+        activate L
+        L ->> B: login credentials request
+        deactivate L
+        activate B
+        B ->> B: verify username / password
+        B ->> D: insert token
+        deactivate B
+        activate D
+        D ->> B: token
+        deactivate D
+        activate B
+        B ->> L: token
+        deactivate B
+        activate L
+        L -->> C: route to
+        deactivate L
+    else failed login without session token available
+        activate R
+        R -->> L: route to
+        deactivate R
+        activate L
+        L ->> B: login credentials request
+        deactivate L
+        activate B
+        B ->> B: verify username / password
+        B ->> L: wrong username / password
+        deactivate B
+    end

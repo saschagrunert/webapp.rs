@@ -20,20 +20,42 @@ tested with `make frontend`. You can adapt the application configuration
 within `Config.toml` if needed.
 
 ## Run
-If both, the backend and frontend are running, you can visit the webapp at
-`http://localhost:8000`. Browsers will block the connection to the backend via
-the self-signed TLS certificate, so you need to allow it by manually visiting
-`https://localhost:30433/ws` and accepting the certificate exception. After
-successfully loading of the application you should see an authentication box
-like this:
+If both, the backend and frontend are running, you can visit the web application
+at `http://localhost:8000`. Modern browsers will block the connection to the
+backend via the self-signed TLS certificate, so you need to allow it by manually
+visiting `https://localhost:30433/ws` and accepting the certificate exception.
+After the successful loading of the application you should see an authentication
+screen like this:
 
-![auth screen](.github/auth_screen.png "Authentication Screen")
+![authentication screen](.github/auth_screen.png "Authentication Screen")
+
+Now you are able to login with a matching username and password combination like
+`me` (username) and `me` (password). There is currently no further user
+authentication yet, but non matching combination will result in an
+authentication failure. After the successfully login you should be able to see
+the content of the application:
+
+![content screen](.github/content_screen.png "Content Screen")
+
+The authentication should persist, even after a manual page reload. Logging out
+of the application via the logout button should also work as intended.
+
+### Control Flow
+The complete control flow of the application looks like this:
+
+![control screen](.github/flow_chart.png "Control Flow")
 
 ## Deploy
 To deploy the application as a docker image, simply run:
 
 ```console
 make deploy
+```
+
+After that you can run the application via docker:
+
+```console
+docker run -p 30443:30443 -it webapp
 ```
 
 ## Contributing
