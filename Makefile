@@ -1,7 +1,7 @@
 # Compiler configuration
 GENERAL_ARGS = --release
 FRONTEND_TARGET = $(GENERAL_ARGS) --target wasm32-unknown-unknown
-FRONTENT_ARGS = $(FRONTEND_TARGET) --no-default-features --features=frontend
+FRONTEND_ARGS = $(FRONTEND_TARGET) --no-default-features --features=frontend
 BACKEND_TARGET = $(GENERAL_ARGS)
 BACKEND_ARGS = $(BACKEND_TARGET)
 
@@ -30,7 +30,7 @@ backend: startdb
 
 deploy:
 	# Deploy the frontend
-	cargo web deploy $(FRONTENT_ARGS)
+	cargo web deploy $(FRONTEND_ARGS)
 	# Fix applications path to JavaScript file
 	mkdir target/deploy/js
 	mv target/deploy/app.js ./target/deploy/js
