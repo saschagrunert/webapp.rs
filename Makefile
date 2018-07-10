@@ -51,7 +51,7 @@ deploy:
 		-t webapp .
 
 frontend:
-	cargo web start $(FRONTENT_ARGS) --auto-reload --host 0.0.0.0
+	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
 
 run: startdb
 	docker run --rm \
