@@ -41,7 +41,7 @@ url = "1.7.1"
 
 [dependencies]
 actix = { version = "0.5.8", optional = true }
-actix-web = { version = "0.6.14", optional = true, features = ["alpn"] }
+actix-web = { version = "0.6.15", optional = true, features = ["alpn"] }
 capnp = "0.8.17"
 diesel = { version = "1.3.2", optional = true, features = ["r2d2", "postgres"] }
 env_logger = { version = "0.5.10", optional = true }
