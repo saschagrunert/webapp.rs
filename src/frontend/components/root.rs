@@ -126,16 +126,19 @@ impl Renderable<RootComponent> for RouterComponent {
             RouterComponent::Loading => html! {
                 <div class="uk-position-center", uk-spinner="",></div>
             },
+            RouterComponent::Login => html! {
+               <LoginComponent:/>
+            },
+            RouterComponent::Register => html! {
+                {"Nothing to see here"}
+            },
+            RouterComponent::Content => html! {
+               <ContentComponent:/>
+            },
             RouterComponent::Error => html! {
                 <div class="uk-position-center",>
                     {"Error loading application."}
                 </div>
-            },
-            RouterComponent::Login => html! {
-               <LoginComponent:/>
-            },
-            RouterComponent::Content => html! {
-               <ContentComponent:/>
             },
         }
     }
