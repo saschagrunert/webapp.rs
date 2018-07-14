@@ -3,7 +3,6 @@
 use frontend::services::router::Route;
 use std::convert::Into;
 
-#[macro_export]
 macro_rules! routes {
     ($($x:tt),*) => {
         #[derive(Debug, PartialEq)]
