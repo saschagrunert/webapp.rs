@@ -33,7 +33,7 @@ toml = "0.4.6"
 
 [dev-dependencies]
 capnp = "0.8.17"
-futures = "0.1.22"
+futures = "0.1.23"
 lazy_static = "1.0.1"
 toml = "0.4.6"
 tungstenite = { version = "0.5.4", default-features = false }
@@ -46,7 +46,7 @@ capnp = "0.8.17"
 diesel = { version = "1.3.2", optional = true, features = ["r2d2", "postgres"] }
 env_logger = { version = "0.5.10", optional = true }
 failure = "0.1.1"
-futures = { version = "0.1.22", optional = true }
+futures = { version = "0.1.23", optional = true }
 jsonwebtoken = { version = "4.0.1", optional = true }
 lazy_static = "1.0.1"
 log = { version = "0.4.3", optional = true }
