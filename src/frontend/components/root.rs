@@ -1,7 +1,7 @@
 //! The Root component
 
 use frontend::{
-    components::{content::ContentComponent, login::LoginComponent},
+    components::{content::ContentComponent, login::LoginComponent, register::RegisterComponent},
     routes::RouterComponent,
     services::{
         cookie::CookieService,
@@ -129,7 +129,7 @@ impl Renderable<RootComponent> for RouterComponent {
                <LoginComponent:/>
             },
             RouterComponent::Register => html! {
-                {"Nothing to see here"}
+               <RegisterComponent:/>
             },
             RouterComponent::Content => html! {
                <ContentComponent:/>

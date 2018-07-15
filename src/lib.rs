@@ -1,5 +1,6 @@
-#![deny(missing_docs)]
 //! The main library interface
+#![deny(missing_docs)]
+#![recursion_limit = "128"]
 
 extern crate capnp;
 extern crate serde;

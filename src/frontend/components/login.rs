@@ -17,7 +17,6 @@ pub struct LoginComponent {
     router_agent: Box<Bridge<RouterAgent<()>>>,
     username: String,
     password: String,
-    error: String,
     button_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
@@ -45,7 +44,6 @@ impl Component for LoginComponent {
             router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
             username: String::new(),
             password: String::new(),
-            error: String::new(),
             button_disabled: true,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
@@ -99,7 +97,7 @@ impl Component for LoginComponent {
                 Ok(None) => false, // Not my response
                 Err(e) => {
                     self.console_service.warn(&format!("Unable to login: {}", e));
-                    self.error = "Authentication failed".to_owned();
+                    js! {UIkit.notification({message: "Authentication failed", status: "warning"})};
                     self.button_disabled = false;
                     true
                 }
@@ -116,7 +114,8 @@ impl Component for LoginComponent {
             }
             Message::RegisterRequest => {
                 // Route to the register component
-                self.router_agent.send(Request::ChangeRoute(RouterComponent::Register.into()));
+                self.router_agent
+                    .send(Request::ChangeRoute(RouterComponent::Register.into()));
                 true
             }
         }
@@ -135,30 +134,23 @@ impl Renderable<LoginComponent> for LoginComponent {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <form onsubmit="return false",>
                     <fieldset class="uk-fieldset",>
-                        <legend class="uk-legend",>{"Authentication"}</legend>
-                        <div class="uk-margin",>
-                            <input class="uk-input",
-                                   placeholder="Username",
-                                   value=&self.username,
-                                   oninput=|e| Message::UpdateUsername(e.value), />
-                        </div>
-                        <div class="uk-margin",>
-                            <input class="uk-input",
-                                   type="password",
-                                   placeholder="Password",
-                                   value=&self.password,
-                                   oninput=|e| Message::UpdatePassword(e.value), />
-                        </div>
-                        <button class="uk-button uk-button-default",
-                                type="submit",
-                                disabled=self.button_disabled,
-                                onclick=|_| Message::LoginRequest,>{"Login"}</button>
-                        <button class="uk-button uk-button-default",
-                                type="register",
-                                onclick=|_| Message::RegisterRequest,>{"Register"}</button>
-                        <span class="uk-margin-small-left uk-text-warning uk-text-right",>
-                            {&self.error}
-                        </span>
+                        <legend class="uk-legend",>{"Login"}</legend>
+                        <input class="uk-input uk-margin",
+                            placeholder="Username",
+                            value=&self.username,
+                            oninput=|e| Message::UpdateUsername(e.value), />
+                        <input class="uk-input uk-margin-bottom",
+                            type="password",
+                            placeholder="Password",
+                            value=&self.password,
+                            oninput=|e| Message::UpdatePassword(e.value), />
+                        <button class="uk-button uk-button-primary uk-width-1-2",
+                            type="submit",
+                            disabled=self.button_disabled,
+                            onclick=|_| Message::LoginRequest,>{"Login"}</button>
+                        <button class="uk-button uk-button-default uk-width-1-2",
+                            type="register",
+                            onclick=|_| Message::RegisterRequest,>{"Register"}</button>
                     </fieldset>
                 </form>
             </div>
