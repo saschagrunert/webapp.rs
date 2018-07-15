@@ -5,7 +5,7 @@ use frontend::{
     services::{
         cookie::CookieService,
         protocol::ProtocolService,
-        router::{Request, Route, RouterAgent},
+        router::{Request, RouterAgent},
         websocket::WebSocketService,
     },
 };
@@ -27,12 +27,12 @@ pub struct LoginComponent {
 
 /// Available message types to process
 pub enum Message {
-    HandleRoute(Route<()>),
+    Ignore,
     LoginRequest,
     LoginResponse(Vec<u8>),
-    UpdateUsername(String),
+    RegisterRequest,
     UpdatePassword(String),
-    WebSocketIgnore,
+    UpdateUsername(String),
 }
 
 impl Component for LoginComponent {
@@ -42,7 +42,7 @@ impl Component for LoginComponent {
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
-            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
+            router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
             username: String::new(),
             password: String::new(),
             error: String::new(),
@@ -51,7 +51,7 @@ impl Component for LoginComponent {
             console_service: ConsoleService::new(),
             websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::LoginResponse(data)),
-                link.send_back(|_| Message::WebSocketIgnore),
+                link.send_back(|_| Message::Ignore),
             ),
             protocol_service: ProtocolService::new(),
         }
@@ -64,6 +64,7 @@ impl Component for LoginComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Message::Ignore => true,
             Message::LoginRequest => match self
                 .protocol_service
                 .write_request_login_credential(&self.username, &self.password)
@@ -89,7 +90,7 @@ impl Component for LoginComponent {
                     // Set the retrieved session cookie
                     self.cookie_service.set(SESSION_COOKIE, &token);
 
-                    // Route to the next component
+                    // Route to the content component
                     self.router_agent
                         .send(Request::ChangeRoute(RouterComponent::Content.into()));
 
@@ -113,7 +114,11 @@ impl Component for LoginComponent {
                 self.update_button_state();
                 true
             }
-            _ => true,
+            Message::RegisterRequest => {
+                // Route to the register component
+                self.router_agent.send(Request::ChangeRoute(RouterComponent::Register.into()));
+                true
+            }
         }
     }
 }
@@ -148,6 +153,9 @@ impl Renderable<LoginComponent> for LoginComponent {
                                 type="submit",
                                 disabled=self.button_disabled,
                                 onclick=|_| Message::LoginRequest,>{"Login"}</button>
+                        <button class="uk-button uk-button-default",
+                                type="register",
+                                onclick=|_| Message::RegisterRequest,>{"Register"}</button>
                         <span class="uk-margin-small-left uk-text-warning uk-text-right",>
                             {&self.error}
                         </span>

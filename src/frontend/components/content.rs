@@ -5,7 +5,7 @@ use frontend::{
     services::{
         cookie::CookieService,
         protocol::ProtocolService,
-        router::{Request, Route, RouterAgent},
+        router::{Request, RouterAgent},
         websocket::WebSocketService,
     },
 };
@@ -24,10 +24,9 @@ pub struct ContentComponent {
 
 /// Available message types to process
 pub enum Message {
-    HandleRoute(Route<()>),
+    Ignore,
     LogoutRequest,
     LogoutResponse(Vec<u8>),
-    WebSocketIgnore,
 }
 
 impl Component for ContentComponent {
@@ -37,7 +36,7 @@ impl Component for ContentComponent {
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Guard the authentication
-        let mut router_agent = RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route)));
+        let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
         let mut console_service = ConsoleService::new();
         if cookie_service.get(SESSION_COOKIE).is_err() {
@@ -53,7 +52,7 @@ impl Component for ContentComponent {
             protocol_service: ProtocolService::new(),
             websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::LogoutResponse(data)),
-                link.send_back(|_| Message::WebSocketIgnore),
+                link.send_back(|_| Message::Ignore),
             ),
             button_disabled: false,
         }
@@ -66,6 +65,7 @@ impl Component for ContentComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Message::Ignore => {}
             Message::LogoutRequest => {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
@@ -93,7 +93,6 @@ impl Component for ContentComponent {
                 Ok(None) => {} // Not my response
                 Err(e) => self.console_service.info(&format!("Unable to logout: {}", e)),
             },
-            _ => {}
         }
         true
     }

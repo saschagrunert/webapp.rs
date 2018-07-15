@@ -16,7 +16,6 @@ use SESSION_COOKIE;
 /// Available message types to process
 pub enum Message {
     HandleRoute(Route<()>),
-    LoginRequest(String),
     LoginResponse(Vec<u8>),
     WebSocketConnected,
     WebSocketFailure,
@@ -105,7 +104,7 @@ impl Component for RootComponent {
                 self.child_component = route.into();
                 true
             }
-            _ => {
+            Message::WebSocketFailure => {
                 self.router_agent
                     .send(Request::ChangeRoute(RouterComponent::Error.into()));
                 true
