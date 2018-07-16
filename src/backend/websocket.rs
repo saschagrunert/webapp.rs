@@ -83,7 +83,7 @@ impl WebSocket {
 
     /// Serialize the data and send it to the websocket
     fn send(&self, context: &mut WebsocketContext<Self, State>, response: &Response) -> Result<(), Error> {
-        context.binary(to_vec_packed(&response)?);
+        context.binary(to_vec_packed(response)?);
         Ok(())
     }
 
