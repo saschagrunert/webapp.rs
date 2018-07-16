@@ -16,7 +16,7 @@ pub enum Request {
 
 impl Request {
     /// Consume the object into a vector
-    pub fn to_vec(self) -> Option<Vec<u8>> {
+    pub fn to_vec_packed(&self) -> Option<Vec<u8>> {
         to_vec_packed(&self).ok()
     }
 }

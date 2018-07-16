@@ -66,7 +66,7 @@ impl Component for LoginComponent {
                 match protocol::Request::Login(Login::Credentials {
                     username: self.username.to_owned(),
                     password: self.password.to_owned(),
-                }).to_vec()
+                }).to_vec_packed()
                 {
                     Some(data) => {
                         // Disable user interaction

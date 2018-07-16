@@ -59,14 +59,14 @@ impl WebSocket {
                         let response = Response::Login(self.handle_request_login_credentials(&u, &p, context));
 
                         // Send the response to the websocket
-                        self.send(context, response)?;
+                        self.send(context, &response)?;
                         Ok(())
                     }
                     Login::Session(s) => {
                         let response = Response::Login(self.handle_request_login_token(&s, context));
 
                         // Send the response to the websocket
-                        self.send(context, response)?;
+                        self.send(context, &response)?;
                         Ok(())
                     }
                 }
@@ -75,14 +75,14 @@ impl WebSocket {
                 let response = Response::Logout(self.handle_request_logout(s, context));
 
                 // Send the response to the websocket
-                self.send(context, response)?;
+                self.send(context, &response)?;
                 Ok(())
             }
         }
     }
 
     /// Serialize the data and send it to the websocket
-    fn send(&self, context: &mut WebsocketContext<Self, State>, response: Response) -> Result<(), Error> {
+    fn send(&self, context: &mut WebsocketContext<Self, State>, response: &Response) -> Result<(), Error> {
         context.binary(to_vec_packed(&response)?);
         Ok(())
     }

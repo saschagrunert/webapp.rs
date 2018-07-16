@@ -35,7 +35,7 @@ impl Token {
             iat: get_time().sec,
             jti: Uuid::new_v4().to_string(),
         };
-        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ResponseError::CreateToken.into())
+        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ResponseError::CreateToken)
     }
 
     /// Verify the validity of a token and get a new one
