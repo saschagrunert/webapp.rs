@@ -13,7 +13,7 @@ use backend::{
 use failure::Error;
 use futures::Future;
 use protocol::{Login, Request, Response, ResponseError, Session};
-use serde_cbor::{from_slice, to_vec};
+use serde_cbor::{from_slice, ser::to_vec_packed};
 
 /// The actual websocket
 pub struct WebSocket;
@@ -24,14 +24,14 @@ impl Actor for WebSocket {
 
 /// Handler for `Message`
 impl StreamHandler<Message, ProtocolError> for WebSocket {
-    fn handle(&mut self, msg: Message, ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: Message, context: &mut Self::Context) {
         match msg {
-            Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, ctx) {
+            Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, context) {
                 warn!("Unable to send response: {}", e);
             },
             Message::Close(reason) => {
                 info!("Closing websocket connection: {:?}", reason);
-                ctx.stop();
+                context.stop();
             }
             e => warn!("Got invalid message: {:?}", e),
         }
@@ -43,7 +43,7 @@ impl WebSocket {
         Self {}
     }
 
-    fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
+    fn handle_request(&mut self, data: &Binary, context: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
         // Try to read the message
         let request: Request = from_slice(data.as_ref())?;
 
@@ -56,34 +56,34 @@ impl WebSocket {
                         username: u,
                         password: p,
                     } => {
-                        let response = Response::Login(self.handle_request_login_credentials(&u, &p, ctx));
+                        let response = Response::Login(self.handle_request_login_credentials(&u, &p, context));
 
                         // Send the response to the websocket
-                        self.send(ctx, response)?;
+                        self.send(context, response)?;
                         Ok(())
                     }
                     Login::Session(s) => {
-                        let response = Response::Login(self.handle_request_login_token(&s, ctx));
+                        let response = Response::Login(self.handle_request_login_token(&s, context));
 
                         // Send the response to the websocket
-                        self.send(ctx, response)?;
+                        self.send(context, response)?;
                         Ok(())
                     }
                 }
             }
             Request::Logout(s) => {
-                let response = Response::Logout(self.handle_request_logout(s, ctx));
+                let response = Response::Logout(self.handle_request_logout(s, context));
 
                 // Send the response to the websocket
-                self.send(ctx, response)?;
+                self.send(context, response)?;
                 Ok(())
             }
         }
     }
 
     /// Serialize the data and send it to the websocket
-    fn send(&self, ctx: &mut WebsocketContext<Self, State>, response: Response) -> Result<(), Error> {
-        ctx.binary(to_vec(&response)?);
+    fn send(&self, context: &mut WebsocketContext<Self, State>, response: Response) -> Result<(), Error> {
+        context.binary(to_vec_packed(&response)?);
         Ok(())
     }
 
@@ -91,7 +91,7 @@ impl WebSocket {
         &mut self,
         username: &str,
         password: &str,
-        ctx: &mut WebsocketContext<Self, State>,
+        context: &mut WebsocketContext<Self, State>,
     ) -> Result<Session, ResponseError> {
         debug!("User {} is trying to login", username);
 
@@ -102,7 +102,7 @@ impl WebSocket {
         }
 
         // Create a new session
-        let session = ctx
+        let session = context
             .state()
             .database
             .send(CreateSession(Token::create(username)?))
@@ -116,12 +116,12 @@ impl WebSocket {
     fn handle_request_login_token(
         &mut self,
         session: &Session,
-        ctx: &mut WebsocketContext<Self, State>,
+        context: &mut WebsocketContext<Self, State>,
     ) -> Result<Session, ResponseError> {
         debug!("Session token {} wants to be renewed", session.token);
 
         // Try to verify and create a new session
-        let new_session = ctx
+        let new_session = context
             .state()
             .database
             .send(UpdateSession {
@@ -138,16 +138,16 @@ impl WebSocket {
     fn handle_request_logout(
         &mut self,
         session: Session,
-        ctx: &mut WebsocketContext<Self, State>,
+        context: &mut WebsocketContext<Self, State>,
     ) -> Result<(), ResponseError> {
         // Remove the session from the internal storage
-        ctx.state()
+        context
+            .state()
             .database
             .send(DeleteSession(session.token))
             .wait()
             .map_err(|_| ResponseError::Database)??;
 
-        // Create the response
         Ok(())
     }
 }

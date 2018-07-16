@@ -2,9 +2,9 @@
 
 #[cfg(feature = "default")]
 use backend::database::schema::sessions;
-use serde_cbor::to_vec;
+use serde_cbor::ser::to_vec_packed;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// All possible request variants
 pub enum Request {
     /// Possible variants of a login request
@@ -17,11 +17,11 @@ pub enum Request {
 impl Request {
     /// Consume the object into a vector
     pub fn to_vec(self) -> Option<Vec<u8>> {
-        to_vec(&self).ok()
+        to_vec_packed(&self).ok()
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Possible login request variants
 pub enum Login {
     /// A credentials based request
@@ -37,7 +37,7 @@ pub enum Login {
     Session(Session),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// All possible response variants
 pub enum Response {
     /// A login response which returns a session on success
@@ -81,7 +81,7 @@ pub enum ResponseError {
 
 #[cfg_attr(feature = "default", derive(Insertable, Queryable))]
 #[cfg_attr(feature = "default", table_name = "sessions")]
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// A session representation
 pub struct Session {
     /// The actual session token
