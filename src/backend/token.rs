@@ -1,8 +1,7 @@
 //! Everything related to web token handling
 
-use backend::server::ServerError;
-use failure::Error;
 use jsonwebtoken::{decode, encode, Header, Validation};
+use protocol::ResponseError;
 use time::get_time;
 use uuid::Uuid;
 
@@ -28,7 +27,7 @@ pub struct Token {
 
 impl Token {
     /// Create a new default token for a given username and a validity in seconds
-    pub fn create(username: &str) -> Result<String, Error> {
+    pub fn create(username: &str) -> Result<String, ResponseError> {
         const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
         let claim = Token {
             sub: username.to_owned(),
@@ -36,13 +35,13 @@ impl Token {
             iat: get_time().sec,
             jti: Uuid::new_v4().to_string(),
         };
-        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ServerError::CreateToken.into())
+        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ResponseError::CreateToken.into())
     }
 
     /// Verify the validity of a token and get a new one
-    pub fn verify(token: &str) -> Result<String, Error> {
-        let data = decode::<Token>(token, SECRET.as_ref(), &Validation::default())
-            .map_err(|_| Error::from(ServerError::VerifyToken))?;
+    pub fn verify(token: &str) -> Result<String, ResponseError> {
+        let data =
+            decode::<Token>(token, SECRET.as_ref(), &Validation::default()).map_err(|_| ResponseError::VerifyToken)?;
         Self::create(&data.claims.sub)
     }
 }

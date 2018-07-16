@@ -2,8 +2,8 @@
 #![deny(missing_docs)]
 #![recursion_limit = "128"]
 
-extern crate capnp;
 extern crate serde;
+extern crate serde_cbor;
 
 #[macro_use]
 extern crate serde_derive;
@@ -69,15 +69,8 @@ mod frontend;
 #[cfg(feature = "frontend")]
 pub use frontend::components::root::RootComponent;
 
-pub mod protocol_capnp {
-    #![allow(dead_code)]
-    #![allow(missing_docs)]
-    #![allow(unknown_lints)]
-    #![allow(clippy)]
-    include!(concat!(env!("OUT_DIR"), "/src/protocol_capnp.rs"));
-}
-
 pub mod config;
+pub mod protocol;
 
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";

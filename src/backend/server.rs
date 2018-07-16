@@ -10,24 +10,6 @@ use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
 
-#[derive(Debug, Fail)]
-pub enum ServerError {
-    #[fail(display = "wrong username or password")]
-    WrongUsernamePassword,
-
-    #[fail(display = "unable to create token")]
-    CreateToken,
-
-    #[fail(display = "unable to verify token")]
-    VerifyToken,
-
-    #[fail(display = "unable to insert token into database")]
-    InsertToken,
-
-    #[fail(display = "unable to update token within database")]
-    UpdateToken,
-}
-
 /// The server instance
 pub struct Server {
     runner: SystemRunner,

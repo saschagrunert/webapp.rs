@@ -7,24 +7,16 @@ use actix_web::{
 };
 use backend::{
     database::executor::{CreateSession, DeleteSession, UpdateSession},
-    server::{ServerError, State},
+    server::State,
     token::Token,
-};
-use capnp::{
-    self,
-    message::{Builder, HeapAllocator, ReaderOptions},
-    serialize_packed::{read_message, write_message},
-    text,
 };
 use failure::Error;
 use futures::Future;
-use protocol_capnp::{request, response};
+use protocol::{Login, Request, Response, ResponseError, Session};
+use serde_cbor::{from_slice, to_vec};
 
 /// The actual websocket
-pub struct WebSocket {
-    builder: Builder<HeapAllocator>,
-    data: Vec<u8>,
-}
+pub struct WebSocket;
 
 impl Actor for WebSocket {
     type Context = WebsocketContext<Self, State>;
@@ -48,164 +40,114 @@ impl StreamHandler<Message, ProtocolError> for WebSocket {
 
 impl WebSocket {
     pub fn new() -> Self {
-        Self {
-            builder: Builder::new_default(),
-            data: Vec::new(),
-        }
+        Self {}
     }
 
     fn handle_request(&mut self, data: &Binary, ctx: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
         // Try to read the message
-        let reader = read_message(&mut data.as_ref(), ReaderOptions::new())?;
-        let request = reader.get_root::<request::Reader>()?;
+        let request: Request = from_slice(data.as_ref())?;
 
         // Check the request type
-        match request.which() {
-            Ok(request::Login(data)) => {
+        match request {
+            Request::Login(login) => {
                 // Check if its a credential or token login type
-                match data.which() {
-                    Ok(request::login::Credentials(d)) => {
-                        // Create an error response if needed
-                        if let Err(e) = self.handle_request_login_credentials(d, ctx) {
-                            self.builder
-                                .init_root::<response::Builder>()
-                                .init_login()
-                                .set_error(&e.to_string());
-                            self.write()?;
-                        }
+                match login {
+                    Login::Credentials {
+                        username: u,
+                        password: p,
+                    } => {
+                        let response = Response::Login(self.handle_request_login_credentials(&u, &p, ctx));
 
                         // Send the response to the websocket
-                        self.send(ctx);
+                        self.send(ctx, response)?;
                         Ok(())
                     }
-                    Ok(request::login::Token(d)) => {
-                        // Create an error response if needed
-                        if let Err(e) = self.handle_request_login_token(d, ctx) {
-                            self.builder
-                                .init_root::<response::Builder>()
-                                .init_login()
-                                .set_error(&e.to_string());
-                            self.write()?;
-                        }
+                    Login::Session(s) => {
+                        let response = Response::Login(self.handle_request_login_token(&s, ctx));
 
                         // Send the response to the websocket
-                        self.send(ctx);
+                        self.send(ctx, response)?;
                         Ok(())
                     }
-                    Err(e) => Err(e.into()),
                 }
             }
-            Ok(request::Logout(d)) => {
-                if let Err(e) = self.handle_request_logout(d, ctx) {
-                    self.builder
-                        .init_root::<response::Builder>()
-                        .init_logout()
-                        .set_error(&e.to_string());
-                    self.write()?;
-                }
+            Request::Logout(s) => {
+                let response = Response::Logout(self.handle_request_logout(s, ctx));
 
                 // Send the response to the websocket
-                self.send(ctx);
+                self.send(ctx, response)?;
                 Ok(())
             }
-            Err(e) => Err(e.into()),
         }
     }
 
-    fn write(&mut self) -> Result<&[u8], Error> {
-        // Clear the data before serialization
-        self.data.clear();
-
-        // Serialize and return
-        write_message(&mut self.data, &self.builder)?;
-        Ok(&self.data)
-    }
-
-    fn send(&self, ctx: &mut WebsocketContext<Self, State>) {
-        ctx.binary(self.data.clone());
+    /// Serialize the data and send it to the websocket
+    fn send(&self, ctx: &mut WebsocketContext<Self, State>, response: Response) -> Result<(), Error> {
+        ctx.binary(to_vec(&response)?);
+        Ok(())
     }
 
     fn handle_request_login_credentials(
         &mut self,
-        data: request::login::credentials::Reader,
+        username: &str,
+        password: &str,
         ctx: &mut WebsocketContext<Self, State>,
-    ) -> Result<&[u8], Error> {
-        let username = data.get_username()?;
-        let password = data.get_password()?;
+    ) -> Result<Session, ResponseError> {
         debug!("User {} is trying to login", username);
 
         // Error if username and password are invalid
         if username.is_empty() || password.is_empty() || username != password {
             debug!("Wrong username or password");
-            return Err(ServerError::WrongUsernamePassword.into());
+            return Err(ResponseError::WrongUsernamePassword);
         }
 
-        // Create a new token
-        let token = ctx
+        // Create a new session
+        let session = ctx
             .state()
             .database
-            .send(CreateSession {
-                id: Token::create(username)?,
-            })
-            .wait()??;
+            .send(CreateSession(Token::create(username)?))
+            .wait()
+            .map_err(|_| ResponseError::Database)??;
 
-        // Create the response
-        self.builder
-            .init_root::<response::Builder>()
-            .init_login()
-            .set_token(&token.id);
-
-        // Write the message into a buffer
-        self.write()
+        // Return the session
+        Ok(session)
     }
 
     fn handle_request_login_token(
         &mut self,
-        data: Result<text::Reader, capnp::Error>,
+        session: &Session,
         ctx: &mut WebsocketContext<Self, State>,
-    ) -> Result<&[u8], Error> {
-        // Read the data
-        let token = data?;
-        debug!("Token {} wants to be renewed", token);
+    ) -> Result<Session, ResponseError> {
+        debug!("Session token {} wants to be renewed", session.token);
 
-        // Try to verify and create a new token
-        let new_token = ctx
+        // Try to verify and create a new session
+        let new_session = ctx
             .state()
             .database
             .send(UpdateSession {
-                old_id: token.to_owned(),
-                new_id: Token::verify(token)?,
+                old_token: session.token.to_owned(),
+                new_token: Token::verify(&session.token)?,
             })
-            .wait()??;
+            .wait()
+            .map_err(|_| ResponseError::Database)??;
 
-        // Create the response
-        self.builder
-            .init_root::<response::Builder>()
-            .init_login()
-            .set_token(&new_token.id);
-
-        // Write the message into a buffer
-        self.write()
+        // Return the new session
+        Ok(new_session)
     }
 
     fn handle_request_logout(
         &mut self,
-        data: Result<text::Reader, capnp::Error>,
+        session: Session,
         ctx: &mut WebsocketContext<Self, State>,
-    ) -> Result<&[u8], Error> {
-        // Remove the token from the internal storage
+    ) -> Result<(), ResponseError> {
+        // Remove the session from the internal storage
         ctx.state()
             .database
-            .send(DeleteSession { id: data?.to_owned() })
-            .wait()??;
+            .send(DeleteSession(session.token))
+            .wait()
+            .map_err(|_| ResponseError::Database)??;
 
         // Create the response
-        self.builder
-            .init_root::<response::Builder>()
-            .init_logout()
-            .set_success(());
-
-        // Write the message into a buffer
-        self.write()
+        Ok(())
     }
 }

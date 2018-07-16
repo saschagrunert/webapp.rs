@@ -4,11 +4,12 @@ use frontend::{
     routes::RouterComponent,
     services::{
         cookie::CookieService,
-        protocol::ProtocolService,
-        router::{Request, RouterAgent},
+        router::{self, RouterAgent},
         websocket::WebSocketService,
     },
 };
+use protocol::{self, Login, Response, Session};
+use serde_cbor::from_slice;
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -20,7 +21,6 @@ pub struct LoginComponent {
     button_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
-    protocol_service: ProtocolService,
     websocket_service: WebSocketService,
 }
 
@@ -51,7 +51,6 @@ impl Component for LoginComponent {
                 link.send_back(|data| Message::LoginResponse(data)),
                 link.send_back(|_| Message::Ignore),
             ),
-            protocol_service: ProtocolService::new(),
         }
     }
 
@@ -63,26 +62,25 @@ impl Component for LoginComponent {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Message::Ignore => true,
-            Message::LoginRequest => match self
-                .protocol_service
-                .write_request_login_credential(&self.username, &self.password)
-            {
-                Ok(data) => {
-                    // Disable user interaction
-                    self.button_disabled = true;
+            Message::LoginRequest => {
+                match protocol::Request::Login(Login::Credentials {
+                    username: self.username.to_owned(),
+                    password: self.password.to_owned(),
+                }).to_vec()
+                {
+                    Some(data) => {
+                        // Disable user interaction
+                        self.button_disabled = true;
 
-                    // Send the request
-                    self.websocket_service.send(data);
-                    false
-                }
-                Err(e) => {
-                    self.console_service
-                        .error(&format!("Unable to create login credential request: {}", e));
-                    false
-                }
-            },
-            Message::LoginResponse(mut response) => match self.protocol_service.read_response_login(&mut response) {
-                Ok(Some(token)) => {
+                        // Send the request
+                        self.websocket_service.send(&data);
+                    }
+                    None => self.console_service.error("Unable to create login credential request"),
+                };
+                false
+            }
+            Message::LoginResponse(response) => match from_slice(&response) {
+                Ok(Response::Login(Ok(Session { token }))) => {
                     self.console_service.info("Login succeed");
 
                     // Set the retrieved session cookie
@@ -90,17 +88,17 @@ impl Component for LoginComponent {
 
                     // Route to the content component
                     self.router_agent
-                        .send(Request::ChangeRoute(RouterComponent::Content.into()));
+                        .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
 
                     true
                 }
-                Ok(None) => false, // Not my response
-                Err(e) => {
+                Ok(Response::Login(Err(e))) => {
                     self.console_service.warn(&format!("Unable to login: {}", e));
                     js! {UIkit.notification({message: "Authentication failed", status: "warning"})};
                     self.button_disabled = false;
                     true
                 }
+                _ => false, // Not my response
             },
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
@@ -115,7 +113,7 @@ impl Component for LoginComponent {
             Message::RegisterRequest => {
                 // Route to the register component
                 self.router_agent
-                    .send(Request::ChangeRoute(RouterComponent::Register.into()));
+                    .send(router::Request::ChangeRoute(RouterComponent::Register.into()));
                 true
             }
         }

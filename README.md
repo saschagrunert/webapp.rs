@@ -10,7 +10,6 @@ The following build dependencies needs to be fulfilled to support the full
 feature set of this application:
 
 - [cargo-web](https://github.com/koute/cargo-web)
-- [capnproto](https://github.com/capnproto/capnproto)
 - [diesel_cli](https://github.com/diesel-rs/diesel)
 - [docker](https://github.com/docker/docker-ce)
 - [postgresql (libpg)](https://www.postgresql.org/)

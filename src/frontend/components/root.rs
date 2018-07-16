@@ -5,11 +5,12 @@ use frontend::{
     routes::RouterComponent,
     services::{
         cookie::CookieService,
-        protocol::ProtocolService,
-        router::{Request, Route, RouterAgent},
+        router::{self, Route, RouterAgent},
         websocket::{WebSocketService, WebSocketStatus},
     },
 };
+use protocol::{self, Login, Session};
+use serde_cbor::from_slice;
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -27,7 +28,6 @@ pub struct RootComponent {
     child_component: RouterComponent,
     cookie_service: CookieService,
     console_service: ConsoleService,
-    protocol_service: ProtocolService,
     websocket_service: WebSocketService,
 }
 
@@ -41,7 +41,6 @@ impl Component for RootComponent {
             child_component: RouterComponent::Loading,
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
-            protocol_service: ProtocolService::new(),
             websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::LoginResponse(data)),
                 link.send_back(|data| match data {
@@ -61,44 +60,44 @@ impl Component for RootComponent {
             Message::WebSocketConnected => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match self.protocol_service.write_request_login_token(&token) {
-                        Ok(data) => {
+                    match protocol::Request::Login(Login::Session(Session { token: token })).to_vec() {
+                        Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
-                            self.websocket_service.send(data);
+                            self.websocket_service.send(&data);
                             false
                         }
-                        Err(_) => {
+                        None => {
                             self.cookie_service.remove(SESSION_COOKIE);
                             self.router_agent
-                                .send(Request::ChangeRoute(RouterComponent::Login.into()));
+                                .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                             true
                         }
                     }
                 } else {
                     self.console_service.info("No token found, routing to login");
                     self.router_agent
-                        .send(Request::ChangeRoute(RouterComponent::Login.into()));
+                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                     true
                 }
             }
-            Message::LoginResponse(mut response) => match self.protocol_service.read_response_login(&mut response) {
-                Ok(Some(token)) => {
+            Message::LoginResponse(response) => match from_slice(&response) {
+                Ok(protocol::Response::Login(Ok(Session { token }))) => {
                     // Set the retrieved session cookie
                     self.console_service.info("Login succeed");
                     self.cookie_service.set(SESSION_COOKIE, &token);
                     self.router_agent
-                        .send(Request::ChangeRoute(RouterComponent::Content.into()));
+                        .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                     true
                 }
-                Ok(None) => false, // Not my response
-                Err(e) => {
+                Ok(protocol::Response::Login(Err(e))) => {
                     // Remote the existing cookie
                     self.console_service.info(&format!("Login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
-                        .send(Request::ChangeRoute(RouterComponent::Login.into()));
+                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                     true
                 }
+                _ => false, // Not my response
             },
             Message::HandleRoute(route) => {
                 self.child_component = route.into();
@@ -106,7 +105,7 @@ impl Component for RootComponent {
             }
             Message::WebSocketFailure => {
                 self.router_agent
-                    .send(Request::ChangeRoute(RouterComponent::Error.into()));
+                    .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 true
             }
         }
