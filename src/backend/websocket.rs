@@ -13,7 +13,7 @@ use backend::{
 use failure::Error;
 use futures::Future;
 use protocol::{Login, Request, Response, ResponseError, Session};
-use serde_cbor::{from_slice, ser::to_vec_packed};
+use serde_cbor::{from_slice, to_vec};
 
 /// The actual websocket
 pub struct WebSocket;
@@ -83,7 +83,7 @@ impl WebSocket {
 
     /// Serialize the data and send it to the websocket
     fn send(&self, context: &mut WebsocketContext<Self, State>, response: &Response) -> Result<(), Error> {
-        context.binary(to_vec_packed(response)?);
+        context.binary(to_vec(response)?);
         Ok(())
     }
 

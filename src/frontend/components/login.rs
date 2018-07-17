@@ -19,6 +19,7 @@ pub struct LoginComponent {
     username: String,
     password: String,
     button_disabled: bool,
+    input_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
     websocket_service: WebSocketService,
@@ -45,6 +46,7 @@ impl Component for LoginComponent {
             username: String::new(),
             password: String::new(),
             button_disabled: true,
+            input_disabled: false,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
             websocket_service: WebSocketService::new(
@@ -66,18 +68,23 @@ impl Component for LoginComponent {
                 match protocol::Request::Login(Login::Credentials {
                     username: self.username.to_owned(),
                     password: self.password.to_owned(),
-                }).to_vec_packed()
+                }).to_vec()
                 {
                     Some(data) => {
                         // Disable user interaction
                         self.button_disabled = true;
+                        self.input_disabled = true;
 
                         // Send the request
                         self.websocket_service.send(&data);
+
+                        true
                     }
-                    None => self.console_service.error("Unable to create login credential request"),
-                };
-                false
+                    None => {
+                        self.console_service.error("Unable to create login credential request");
+                        false
+                    }
+                }
             }
             Message::LoginResponse(response) => match from_slice(&response) {
                 Ok(Response::Login(Ok(Session { token }))) => {
@@ -96,6 +103,7 @@ impl Component for LoginComponent {
                     self.console_service.warn(&format!("Unable to login: {}", e));
                     js! {UIkit.notification({message: "Authentication failed", status: "warning"})};
                     self.button_disabled = false;
+                    self.input_disabled = false;
                     true
                 }
                 _ => false, // Not my response
@@ -135,11 +143,13 @@ impl Renderable<LoginComponent> for LoginComponent {
                         <legend class="uk-legend",>{"Login"}</legend>
                         <input class="uk-input uk-margin",
                             placeholder="Username",
+                            disabled=self.input_disabled,
                             value=&self.username,
                             oninput=|e| Message::UpdateUsername(e.value), />
                         <input class="uk-input uk-margin-bottom",
                             type="password",
                             placeholder="Password",
+                            disabled=self.input_disabled,
                             value=&self.password,
                             oninput=|e| Message::UpdatePassword(e.value), />
                         <button class="uk-button uk-button-primary uk-width-1-2",
@@ -148,6 +158,7 @@ impl Renderable<LoginComponent> for LoginComponent {
                             onclick=|_| Message::LoginRequest,>{"Login"}</button>
                         <button class="uk-button uk-button-default uk-width-1-2",
                             type="register",
+                            disabled=self.input_disabled,
                             onclick=|_| Message::RegisterRequest,>{"Register"}</button>
                     </fieldset>
                 </form>

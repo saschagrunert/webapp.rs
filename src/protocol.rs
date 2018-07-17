@@ -2,7 +2,7 @@
 
 #[cfg(feature = "default")]
 use backend::database::schema::sessions;
-use serde_cbor::ser::to_vec_packed;
+use serde_cbor::to_vec;
 
 #[derive(Debug, Deserialize, Serialize)]
 /// All possible request variants
@@ -16,8 +16,8 @@ pub enum Request {
 
 impl Request {
     /// Consume the object into a vector
-    pub fn to_vec_packed(&self) -> Option<Vec<u8>> {
-        to_vec_packed(&self).ok()
+    pub fn to_vec(&self) -> Option<Vec<u8>> {
+        to_vec(self).ok()
     }
 }
 

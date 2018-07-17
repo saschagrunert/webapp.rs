@@ -69,7 +69,7 @@ impl Component for ContentComponent {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
-                    match protocol::Request::Logout(Session { token: token }).to_vec_packed() {
+                    match protocol::Request::Logout(Session { token: token }).to_vec() {
                         Some(data) => {
                             // Disable user interaction
                             self.button_disabled = true;
