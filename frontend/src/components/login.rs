@@ -154,14 +154,16 @@ impl Renderable<LoginComponent> for LoginComponent {
                             disabled=self.input_disabled,
                             value=&self.password,
                             oninput=|e| Message::UpdatePassword(e.value), />
-                        <button class="uk-button uk-button-primary uk-width-1-2",
-                            type="submit",
-                            disabled=self.button_disabled,
-                            onclick=|_| Message::LoginRequest,>{"Login"}</button>
-                        <button class="uk-button uk-button-default uk-width-1-2",
-                            type="register",
-                            disabled=self.input_disabled,
-                            onclick=|_| Message::RegisterRequest,>{"Register"}</button>
+                        <div class="uk-button-group",>
+                            <button class="uk-button uk-button-primary",
+                                type="submit",
+                                disabled=self.button_disabled,
+                                onclick=|_| Message::LoginRequest,>{"Login"}</button>
+                            <button class="uk-button uk-button-default",
+                                type="register",
+                                disabled=self.input_disabled,
+                                onclick=|_| Message::RegisterRequest,>{"Register"}</button>
+                        </div>
                     </fieldset>
                 </form>
             </div>
