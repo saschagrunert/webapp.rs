@@ -1,15 +1,14 @@
 //! The Login component
 
-use frontend::{
-    routes::RouterComponent,
-    services::{
-        cookie::CookieService,
-        router::{self, RouterAgent},
-        websocket::WebSocketService,
-    },
-};
-use protocol::{self, Login, Response, Session};
+use routes::RouterComponent;
 use serde_cbor::from_slice;
+use services::{
+    cookie::CookieService,
+    router::{self, RouterAgent},
+    uikit::{NotificationStatus, UIkitService},
+    websocket::WebSocketService,
+};
+use webapp::protocol::{self, Login, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -22,6 +21,7 @@ pub struct LoginComponent {
     input_disabled: bool,
     cookie_service: CookieService,
     console_service: ConsoleService,
+    uikit_service: UIkitService,
     websocket_service: WebSocketService,
 }
 
@@ -29,10 +29,10 @@ pub struct LoginComponent {
 pub enum Message {
     Ignore,
     LoginRequest,
-    LoginResponse(Vec<u8>),
     RegisterRequest,
     UpdatePassword(String),
     UpdateUsername(String),
+    WebSocketResponse(Vec<u8>),
 }
 
 impl Component for LoginComponent {
@@ -49,8 +49,9 @@ impl Component for LoginComponent {
             input_disabled: false,
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
+            uikit_service: UIkitService::new(),
             websocket_service: WebSocketService::new(
-                link.send_back(|data| Message::LoginResponse(data)),
+                link.send_back(|data| Message::WebSocketResponse(data)),
                 link.send_back(|_| Message::Ignore),
             ),
         }
@@ -86,7 +87,7 @@ impl Component for LoginComponent {
                     }
                 }
             }
-            Message::LoginResponse(response) => match from_slice(&response) {
+            Message::WebSocketResponse(response) => match from_slice(&response) {
                 Ok(Response::Login(Ok(Session { token }))) => {
                     self.console_service.info("Login succeed");
 
@@ -101,7 +102,8 @@ impl Component for LoginComponent {
                 }
                 Ok(Response::Login(Err(e))) => {
                     self.console_service.warn(&format!("Unable to login: {}", e));
-                    js! {UIkit.notification({message: "Authentication failed", status: "warning"})};
+                    self.uikit_service
+                        .notify("Authentication failed", NotificationStatus::Warning);
                     self.button_disabled = false;
                     self.input_disabled = false;
                     true

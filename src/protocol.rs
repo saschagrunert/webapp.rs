@@ -1,7 +1,7 @@
 //! The main protocol handling
 
-#[cfg(feature = "default")]
-use backend::database::schema::sessions;
+#[cfg(feature = "db")]
+use schema::sessions;
 use serde_cbor::to_vec;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -40,6 +40,9 @@ pub enum Login {
 #[derive(Debug, Deserialize, Serialize)]
 /// All possible response variants
 pub enum Response {
+    /// A generic error from the server, which is not recoverable
+    Error,
+
     /// A login response which returns a session on success
     Login(Result<Session, ResponseError>),
 
@@ -79,8 +82,8 @@ pub enum ResponseError {
     DeleteSession,
 }
 
-#[cfg_attr(feature = "default", derive(Insertable, Queryable))]
-#[cfg_attr(feature = "default", table_name = "sessions")]
+#[cfg_attr(feature = "db", derive(Insertable, Queryable))]
+#[cfg_attr(feature = "db", table_name = "sessions")]
 #[derive(Debug, Deserialize, Serialize)]
 /// A session representation
 pub struct Session {

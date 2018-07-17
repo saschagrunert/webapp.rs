@@ -1,14 +1,16 @@
 //! Everything related to database handling
 
 use actix::prelude::*;
-use backend::database::schema::sessions::dsl::*;
 use diesel::{
     delete, insert_into,
     prelude::*,
     r2d2::{ConnectionManager, Pool},
     update,
 };
-use protocol::{ResponseError, Session};
+use webapp::{
+    protocol::{ResponseError, Session},
+    schema::sessions::dsl::*,
+};
 
 /// The database executor actor
 pub struct DatabaseExecutor(pub Pool<ConnectionManager<PgConnection>>);
@@ -39,7 +41,10 @@ impl Handler<CreateSession> for DatabaseExecutor {
 
 /// The update session message
 pub struct UpdateSession {
+    /// The old session token
     pub old_token: String,
+
+    /// The new session token
     pub new_token: String,
 }
 

@@ -1,6 +1,6 @@
 //! All available routes within this application
 
-use frontend::services::router::Route;
+use services::router::Route;
 use std::convert::Into;
 
 macro_rules! routes {

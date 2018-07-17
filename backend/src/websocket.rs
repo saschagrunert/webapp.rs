@@ -5,15 +5,13 @@ use actix_web::{
     ws::{Message, ProtocolError, WebsocketContext},
     Binary,
 };
-use backend::{
-    database::executor::{CreateSession, DeleteSession, UpdateSession},
-    server::State,
-    token::Token,
-};
+use database::{CreateSession, DeleteSession, UpdateSession};
 use failure::Error;
 use futures::Future;
-use protocol::{Login, Request, Response, ResponseError, Session};
 use serde_cbor::{from_slice, to_vec};
+use server::State;
+use token::Token;
+use webapp::protocol::{Login, Request, Response, ResponseError, Session};
 
 /// The actual websocket
 pub struct WebSocket;
@@ -27,13 +25,22 @@ impl StreamHandler<Message, ProtocolError> for WebSocket {
     fn handle(&mut self, msg: Message, context: &mut Self::Context) {
         match msg {
             Message::Binary(bin) => if let Err(e) = self.handle_request(&bin, context) {
-                warn!("Unable to send response: {}", e);
+                // If anything in request handling went wrong
+                warn!("Unable to send response: {}: Sending generic error", e);
+                if let Err(e) = self.send(context, &Response::Error) {
+                    // Rare case that it is impossible to send the generic server error
+                    warn!("Unable to send generic error: {}: closing connection", e);
+                    context.stop();
+                }
             },
             Message::Close(reason) => {
                 info!("Closing websocket connection: {:?}", reason);
                 context.stop();
             }
-            e => warn!("Got invalid message: {:?}", e),
+            e => {
+                warn!("Got invalid message: {:?}: closing connection", e);
+                context.stop();
+            }
         }
     }
 }

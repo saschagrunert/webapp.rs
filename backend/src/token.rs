@@ -1,9 +1,9 @@
 //! Everything related to web token handling
 
 use jsonwebtoken::{decode, encode, Header, Validation};
-use protocol::ResponseError;
 use time::get_time;
 use uuid::Uuid;
+use webapp::protocol::ResponseError;
 
 lazy_static! {
     static ref SECRET: String = Uuid::new_v4().to_string();

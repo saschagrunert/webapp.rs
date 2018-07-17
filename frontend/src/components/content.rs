@@ -1,15 +1,13 @@
 //! The Main Content component
 
-use frontend::{
-    routes::RouterComponent,
-    services::{
-        cookie::CookieService,
-        router::{self, RouterAgent},
-        websocket::WebSocketService,
-    },
-};
-use protocol::{self, Response, Session};
+use routes::RouterComponent;
 use serde_cbor::from_slice;
+use services::{
+    cookie::CookieService,
+    router::{self, RouterAgent},
+    websocket::WebSocketService,
+};
+use webapp::protocol::{self, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -26,7 +24,7 @@ pub struct ContentComponent {
 pub enum Message {
     Ignore,
     LogoutRequest,
-    LogoutResponse(Vec<u8>),
+    WebSocketResponse(Vec<u8>),
 }
 
 impl Component for ContentComponent {
@@ -50,7 +48,7 @@ impl Component for ContentComponent {
             cookie_service,
             console_service,
             websocket_service: WebSocketService::new(
-                link.send_back(|data| Message::LogoutResponse(data)),
+                link.send_back(|data| Message::WebSocketResponse(data)),
                 link.send_back(|_| Message::Ignore),
             ),
             button_disabled: false,
@@ -87,7 +85,7 @@ impl Component for ContentComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
             }
-            Message::LogoutResponse(response) => match from_slice(&response) {
+            Message::WebSocketResponse(response) => match from_slice(&response) {
                 Ok(Response::Logout(Ok(()))) => {
                     self.console_service.log("Got valid logout response");
                     self.cookie_service.remove(SESSION_COOKIE);
@@ -108,8 +106,8 @@ impl Renderable<ContentComponent> for ContentComponent {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <h1 class="uk-card-title",>{"Content"}</h1>
                 <button disabled=self.button_disabled,
-                        class="uk-button uk-button-default",
-                        onclick=|_| Message::LogoutRequest,>{"Logout"}</button>
+                    class="uk-button uk-button-default",
+                    onclick=|_| Message::LogoutRequest,>{"Logout"}</button>
             </div>
         }
     }

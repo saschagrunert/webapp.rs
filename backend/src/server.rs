@@ -2,13 +2,14 @@
 
 use actix::{prelude::*, SystemRunner};
 use actix_web::{fs, http, middleware, server, ws, App};
-use backend::{database::executor::DatabaseExecutor, websocket::WebSocket};
-use config::Config;
+use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
+use webapp::config::Config;
+use websocket::WebSocket;
 
 /// The server instance
 pub struct Server {
@@ -17,7 +18,7 @@ pub struct Server {
 
 /// Shared mutable application state
 pub struct State {
-    // The database connection
+    /// The database connection
     pub database: Addr<Syn, DatabaseExecutor>,
 }
 
@@ -44,7 +45,7 @@ impl Server {
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .handler("/", fs::StaticFiles::new("static").index_file("index.html"))
+                .handler("/", fs::StaticFiles::new(".").index_file("index.html"))
         });
 
         // Create the server url from the given configuration
@@ -75,24 +76,27 @@ mod tests {
 
     use super::*;
     use std::fs::read_to_string;
-    use CONFIG_FILENAME;
+    use webapp::CONFIG_FILENAME;
+
+    fn get_config() -> Config {
+        toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME)).unwrap()).unwrap()
+    }
 
     #[test]
     fn succeed_to_create_a_server() {
-        let config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
-        assert!(Server::new(&config).is_ok());
+        assert!(Server::new(&get_config()).is_ok());
     }
 
     #[test]
     fn fail_to_create_a_server_with_wrong_addr() {
-        let mut config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        let mut config = get_config();
         config.server.ip = "".to_owned();
         assert!(Server::new(&config).is_err());
     }
 
     #[test]
     fn fail_to_create_a_server_with_wrong_port() {
-        let mut config: Config = toml::from_str(&read_to_string(CONFIG_FILENAME).unwrap()).unwrap();
+        let mut config = get_config();
         config.server.port = "10".to_owned();
         assert!(Server::new(&config).is_err());
     }

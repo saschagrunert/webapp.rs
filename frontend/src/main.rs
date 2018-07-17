@@ -1,7 +1,7 @@
-extern crate webapp;
+extern crate webapp_frontend;
 extern crate yew;
 
-use webapp::RootComponent;
+use webapp_frontend::RootComponent;
 use yew::prelude::*;
 
 fn main() {

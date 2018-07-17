@@ -2,10 +2,12 @@ extern crate env_logger;
 extern crate failure;
 extern crate toml;
 extern crate webapp;
+extern crate webapp_backend;
 
 use failure::Error;
 use std::{env::set_var, fs::read_to_string, process::exit};
-use webapp::{config::Config, Server, CONFIG_FILENAME};
+use webapp::{config::Config, CONFIG_FILENAME};
+use webapp_backend::Server;
 
 fn main() -> Result<(), Error> {
     // Parse the configuration

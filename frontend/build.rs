@@ -62,7 +62,7 @@ fn prepare_style() -> Result<(), Error> {
     // Copy the scss file into the output directory
     target.pop();
     target.push(SCSS_FILE);
-    copy(format!("src/frontend/{}", SCSS_FILE), &target)?;
+    copy(format!("src/{}", SCSS_FILE), &target)?;
 
     // Build the file
     let mut options = Options::default();
@@ -94,7 +94,7 @@ struct Server {
 }
 
 fn prepare_config() -> Result<(), Error> {
-    let config: Config = toml::from_str(&read_to_string("Config.toml")?)?;
+    let config: Config = toml::from_str(&read_to_string("../Config.toml")?)?;
 
     // Set the websocket path directly within the build target
     let ws_prot = if config.server.tls { "wss" } else { "ws" };
