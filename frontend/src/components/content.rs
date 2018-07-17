@@ -17,7 +17,7 @@ pub struct ContentComponent {
     cookie_service: CookieService,
     console_service: ConsoleService,
     websocket_service: WebSocketService,
-    button_disabled: bool,
+    logout_button_disabled: bool,
 }
 
 /// Available message types to process
@@ -25,6 +25,7 @@ pub enum Message {
     Ignore,
     LogoutRequest,
     WebSocketResponse(Vec<u8>),
+    WebSocketError,
 }
 
 impl Component for ContentComponent {
@@ -49,9 +50,9 @@ impl Component for ContentComponent {
             console_service,
             websocket_service: WebSocketService::new(
                 link.send_back(|data| Message::WebSocketResponse(data)),
-                link.send_back(|_| Message::Ignore),
+                link.send_back(|_| Message::WebSocketError),
             ),
-            button_disabled: false,
+            logout_button_disabled: false,
         }
     }
 
@@ -63,6 +64,7 @@ impl Component for ContentComponent {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Message::Ignore => {}
+            Message::WebSocketError => self.logout_button_disabled = true,
             Message::LogoutRequest => {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
@@ -70,7 +72,7 @@ impl Component for ContentComponent {
                     match protocol::Request::Logout(Session { token: token }).to_vec() {
                         Some(data) => {
                             // Disable user interaction
-                            self.button_disabled = true;
+                            self.logout_button_disabled = true;
 
                             // Send the request
                             self.websocket_service.send(&data);
@@ -105,7 +107,7 @@ impl Renderable<ContentComponent> for ContentComponent {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <h1 class="uk-card-title",>{"Content"}</h1>
-                <button disabled=self.button_disabled,
+                <button disabled=self.logout_button_disabled,
                     class="uk-button uk-button-default",
                     onclick=|_| Message::LogoutRequest,>{"Logout"}</button>
             </div>

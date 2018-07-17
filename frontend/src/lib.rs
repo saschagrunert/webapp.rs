@@ -1,6 +1,6 @@
 //! The main library interface
 #![deny(missing_docs)]
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 
 #[macro_use]
 extern crate serde_derive;

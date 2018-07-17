@@ -62,7 +62,6 @@ impl Component for RootComponent {
         match msg {
             Message::HandleRoute(route) => {
                 self.child_component = route.into();
-                true
             }
             Message::WebSocketOpened => {
                 // Verify if a session cookie already exist and try to authenticate if so
@@ -71,20 +70,17 @@ impl Component for RootComponent {
                         Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
                             self.websocket_service.send(&data);
-                            false
                         }
                         None => {
                             self.cookie_service.remove(SESSION_COOKIE);
                             self.router_agent
                                 .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
-                            true
                         }
                     }
                 } else {
                     self.console_service.info("No token found, routing to login");
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
-                    true
                 }
             }
             Message::WebSocketResponse(response) => match from_slice(&response) {
@@ -94,7 +90,6 @@ impl Component for RootComponent {
                     self.cookie_service.set(SESSION_COOKIE, &token);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
-                    true
                 }
                 Ok(protocol::Response::Login(Err(e))) => {
                     // Remote the existing cookie
@@ -102,14 +97,15 @@ impl Component for RootComponent {
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
-                    true
                 }
                 Ok(protocol::Response::Error) => {
+                    // Send a notification to the user and route to the error page
+                    self.uikit_service
+                        .notify("Internal server error", NotificationStatus::Danger);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
-                    true
                 }
-                _ => false, // Not my response
+                _ => {} // Not my response
             },
             Message::WebSocketError => {
                 // Send a notification to the user
@@ -121,7 +117,6 @@ impl Component for RootComponent {
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 }
-                true
             }
             Message::WebSocketClosed => {
                 // Send a notification to the user if app already in usage
@@ -129,9 +124,9 @@ impl Component for RootComponent {
                     self.uikit_service
                         .notify("Server connection closed", NotificationStatus::Danger);
                 }
-                true
             }
         }
+        true
     }
 }
 
@@ -145,7 +140,7 @@ impl Renderable<RootComponent> for RouterComponent {
     fn view(&self) -> Html<RootComponent> {
         match *self {
             RouterComponent::Loading => html! {
-                <div class="uk-position-center", uk-spinner="",></div>
+                <div class="uk-position-center", uk-icon="icon: cloud-download; ratio: 3",></div>
             },
             RouterComponent::Login => html! {
                <LoginComponent:/>
@@ -157,9 +152,7 @@ impl Renderable<RootComponent> for RouterComponent {
                <ContentComponent:/>
             },
             RouterComponent::Error => html! {
-                <div class="uk-position-center",>
-                    {"Error loading application."}
-                </div>
+                <div class="uk-position-center", uk-icon="icon: ban; ratio: 3",></div>
             },
         }
     }
