@@ -21,7 +21,7 @@ before_script:
   - ./.ci/install_cargo_web
   - psql -c "CREATE DATABASE database;" -U postgres
   - psql -c "CREATE USER username WITH PASSWORD 'password';" -U postgres
-  - cargo install diesel_cli --no-default-features --features "postgres"
+  - cargo install diesel_cli --force --no-default-features --features "postgres"
   - diesel migration run --database-url postgres://username:password@localhost/database
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
