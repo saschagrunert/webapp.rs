@@ -19,7 +19,7 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
-tungstenite = { version = "0.5.4", default-features = false }
+tungstenite = { version = "0.6.0", default-features = false }
 url = "1.7.1"
 
 [dependencies]

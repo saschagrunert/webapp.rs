@@ -5,7 +5,7 @@ use serde_cbor::from_slice;
 use services::{
     cookie::CookieService,
     router::{self, RouterAgent},
-    websocket::WebSocketService,
+    websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse},
 };
 use webapp::protocol::{self, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
@@ -14,9 +14,9 @@ use SESSION_COOKIE;
 /// Data Model for the Content component
 pub struct ContentComponent {
     router_agent: Box<Bridge<RouterAgent<()>>>,
+    websocket_agent: Box<Bridge<WebSocketAgent>>,
     cookie_service: CookieService,
     console_service: ConsoleService,
-    websocket_service: WebSocketService,
     logout_button_disabled: bool,
 }
 
@@ -24,8 +24,7 @@ pub struct ContentComponent {
 pub enum Message {
     Ignore,
     LogoutRequest,
-    WebSocketResponse(Vec<u8>),
-    WebSocketError,
+    Ws(WebSocketResponse),
 }
 
 impl Component for ContentComponent {
@@ -46,12 +45,9 @@ impl Component for ContentComponent {
         // Create the component
         Self {
             router_agent,
+            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
             cookie_service,
             console_service,
-            websocket_service: WebSocketService::new(
-                link.send_back(|data| Message::WebSocketResponse(data)),
-                link.send_back(|_| Message::WebSocketError),
-            ),
             logout_button_disabled: false,
         }
     }
@@ -63,8 +59,6 @@ impl Component for ContentComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::Ignore => {}
-            Message::WebSocketError => self.logout_button_disabled = true,
             Message::LogoutRequest => {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
@@ -75,7 +69,7 @@ impl Component for ContentComponent {
                             self.logout_button_disabled = true;
 
                             // Send the request
-                            self.websocket_service.send(&data);
+                            self.websocket_agent.send(WebSocketRequest(data));
                         }
                         None => self.console_service.error("Unable to write logout request"),
                     }
@@ -87,7 +81,7 @@ impl Component for ContentComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
             }
-            Message::WebSocketResponse(response) => match from_slice(&response) {
+            Message::Ws(WebSocketResponse::Data(response)) => match from_slice(&response) {
                 Ok(Response::Logout(Ok(()))) => {
                     self.console_service.log("Got valid logout response");
                     self.cookie_service.remove(SESSION_COOKIE);
@@ -97,6 +91,10 @@ impl Component for ContentComponent {
                 Ok(Response::Logout(Err(e))) => self.console_service.info(&format!("Unable to logout: {}", e)),
                 _ => {} // Not my response
             },
+            Message::Ignore | Message::Ws(WebSocketResponse::Opened) => {}
+            Message::Ws(WebSocketResponse::Error) | Message::Ws(WebSocketResponse::Closed) => {
+                self.logout_button_disabled = true
+            }
         }
         true
     }

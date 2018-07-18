@@ -57,7 +57,7 @@ fn succeed_to_login_with_username_and_password() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::Login(Ok(_))) => {}
+            Ok(Response::LoginCredentials(Ok(_))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -80,7 +80,7 @@ fn fail_to_login_with_wrong_username_and_password() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::Login(Err(_))) => {}
+            Ok(Response::LoginCredentials(Err(_))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -88,7 +88,7 @@ fn fail_to_login_with_wrong_username_and_password() {
 }
 
 #[test]
-fn succeed_to_login_with_token() {
+fn succeed_to_login_with_session() {
     // Given
     let mut socket = create_testserver();
 
@@ -103,7 +103,7 @@ fn succeed_to_login_with_token() {
     // Then
     let session = match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::Login(Ok(session))) => session,
+            Ok(Response::LoginCredentials(Ok(session))) => session,
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -116,7 +116,7 @@ fn succeed_to_login_with_token() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::Login(Ok(_))) => {}
+            Ok(Response::LoginSession(Ok(_))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -124,7 +124,7 @@ fn succeed_to_login_with_token() {
 }
 
 #[test]
-fn fail_to_login_with_wrong_token() {
+fn fail_to_login_with_wrong_session() {
     // Given
     let mut socket = create_testserver();
 
@@ -138,7 +138,7 @@ fn fail_to_login_with_wrong_token() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::Login(Err(_))) => {}
+            Ok(Response::LoginSession(Err(_))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),

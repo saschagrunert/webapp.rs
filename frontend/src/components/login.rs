@@ -6,15 +6,16 @@ use services::{
     cookie::CookieService,
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
-    websocket::WebSocketService,
+    websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse},
 };
-use webapp::protocol::{self, Login, Response, Session};
+use webapp::protocol::{Login, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
 pub struct LoginComponent {
     router_agent: Box<Bridge<RouterAgent<()>>>,
+    websocket_agent: Box<Bridge<WebSocketAgent>>,
     username: String,
     password: String,
     login_button_disabled: bool,
@@ -22,7 +23,6 @@ pub struct LoginComponent {
     cookie_service: CookieService,
     console_service: ConsoleService,
     uikit_service: UIkitService,
-    websocket_service: WebSocketService,
 }
 
 /// Available message types to process
@@ -32,8 +32,7 @@ pub enum Message {
     RegisterRequest,
     UpdatePassword(String),
     UpdateUsername(String),
-    WebSocketResponse(Vec<u8>),
-    WebSocketError,
+    Ws(WebSocketResponse),
 }
 
 impl Component for LoginComponent {
@@ -44,6 +43,7 @@ impl Component for LoginComponent {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
+            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
             username: String::new(),
             password: String::new(),
             login_button_disabled: true,
@@ -51,10 +51,6 @@ impl Component for LoginComponent {
             cookie_service: CookieService::new(),
             console_service: ConsoleService::new(),
             uikit_service: UIkitService::new(),
-            websocket_service: WebSocketService::new(
-                link.send_back(|data| Message::WebSocketResponse(data)),
-                link.send_back(|_| Message::WebSocketError),
-            ),
         }
     }
 
@@ -65,13 +61,8 @@ impl Component for LoginComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::Ignore => {}
-            Message::WebSocketError => {
-                self.login_button_disabled = true;
-                self.inputs_and_register_button_disabled = true;
-            }
             Message::LoginRequest => {
-                match protocol::Request::Login(Login::Credentials {
+                match Request::Login(Login::Credentials {
                     username: self.username.to_owned(),
                     password: self.password.to_owned(),
                 }).to_vec()
@@ -82,16 +73,16 @@ impl Component for LoginComponent {
                         self.inputs_and_register_button_disabled = true;
 
                         // Send the request
-                        self.websocket_service.send(&data);
+                        self.websocket_agent.send(WebSocketRequest(data));
                     }
                     None => {
                         self.console_service.error("Unable to create login credential request");
                     }
                 }
             }
-            Message::WebSocketResponse(response) => match from_slice(&response) {
-                Ok(Response::Login(Ok(Session { token }))) => {
-                    self.console_service.info("Login succeed");
+            Message::Ws(WebSocketResponse::Data(response)) => match from_slice(&response) {
+                Ok(Response::LoginCredentials(Ok(Session { token }))) => {
+                    self.console_service.info("Credential based login succeed");
 
                     // Set the retrieved session cookie
                     self.cookie_service.set(SESSION_COOKIE, &token);
@@ -100,8 +91,9 @@ impl Component for LoginComponent {
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                 }
-                Ok(Response::Login(Err(e))) => {
-                    self.console_service.warn(&format!("Unable to login: {}", e));
+                Ok(Response::LoginCredentials(Err(e))) => {
+                    self.console_service
+                        .warn(&format!("Credential based login failed: {}", e));
                     self.uikit_service
                         .notify("Authentication failed", NotificationStatus::Warning);
                     self.login_button_disabled = false;
@@ -121,6 +113,11 @@ impl Component for LoginComponent {
                 // Route to the register component
                 self.router_agent
                     .send(router::Request::ChangeRoute(RouterComponent::Register.into()));
+            }
+            Message::Ignore | Message::Ws(WebSocketResponse::Opened) => {}
+            Message::Ws(WebSocketResponse::Error) | Message::Ws(WebSocketResponse::Closed) => {
+                self.login_button_disabled = true;
+                self.inputs_and_register_button_disabled = true;
             }
         }
         true

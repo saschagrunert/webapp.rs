@@ -63,14 +63,15 @@ impl WebSocket {
                         username: u,
                         password: p,
                     } => {
-                        let response = Response::Login(self.handle_request_login_credentials(&u, &p, context));
+                        let response =
+                            Response::LoginCredentials(self.handle_request_login_credentials(&u, &p, context));
 
                         // Send the response to the websocket
                         self.send(context, &response)?;
                         Ok(())
                     }
                     Login::Session(s) => {
-                        let response = Response::Login(self.handle_request_login_token(&s, context));
+                        let response = Response::LoginSession(self.handle_request_login_token(&s, context));
 
                         // Send the response to the websocket
                         self.send(context, &response)?;

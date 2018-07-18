@@ -27,10 +27,9 @@ toml = "0.4.6"
 
 [dependencies]
 failure = "0.1.1"
-lazy_static = "1.0.2"
 serde = "1.0.70"
 serde_cbor = "0.8.2"
 serde_derive = "1.0.70"
-stdweb = "0.4.7"
+stdweb = "0.4.8"
 yew = { git = "https://github.com/DenisKolodin/yew" }
 webapp = { path = ".." }

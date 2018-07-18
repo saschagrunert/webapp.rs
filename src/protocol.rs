@@ -43,8 +43,11 @@ pub enum Response {
     /// A generic error from the server, which is not recoverable
     Error,
 
-    /// A login response which returns a session on success
-    Login(Result<Session, ResponseError>),
+    /// A login response for a given session which returns a session on success
+    LoginSession(Result<Session, ResponseError>),
+
+    /// A login response for given credentials which returns a session on success
+    LoginCredentials(Result<Session, ResponseError>),
 
     /// A logout response
     Logout(Result<(), ResponseError>),

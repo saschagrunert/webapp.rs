@@ -1,93 +1,108 @@
 //! A custom websocket service
 //! [`WebSocket` Protocol](https://tools.ietf.org/html/rfc6455).
 
+use std::collections::HashSet;
 use stdweb::{
     traits::IMessageEvent,
     web::{
         event::{SocketCloseEvent, SocketErrorEvent, SocketMessageEvent, SocketOpenEvent},
-        IEventTarget, SocketBinaryType, SocketReadyState, WebSocket,
+        IEventTarget, SocketBinaryType, WebSocket,
     },
 };
-use yew::{callback::Callback, services::Task};
+use yew::prelude::worker::*;
 
-lazy_static! {
-    /// Create a single websocket connection per application instance
-    static ref WEBSOCKET: WebSocket = WebSocket::new(env!("WS_URL")).expect("Unable to connect to websocket");
-}
-
-/// A status of a websocket connection. Used for status notification.
-pub enum WebSocketStatus {
-    /// Used when a websocket connection was opened
-    Opened,
-
-    /// Used when a websocket connection was closed
+#[derive(Clone, Deserialize, Serialize)]
+/// Available WebSocket responses
+pub enum WebSocketResponse {
     Closed,
-
-    /// Used when a websocket connection was failed
     Error,
+    Opened,
+    Data(Vec<u8>),
 }
 
-/// A handle to control current websocket connection. Implements `Task` and could be canceled.
-pub struct WebSocketService {
-    notification: Callback<WebSocketStatus>,
+impl Transferable for WebSocketResponse {}
+
+#[derive(Deserialize, Serialize)]
+/// The WebSocket data request
+pub struct WebSocketRequest(pub Vec<u8>);
+
+impl Transferable for WebSocketRequest {}
+
+/// The WebSocketAgent which handles a websocket connection per tab
+pub struct WebSocketAgent {
+    link: AgentLink<WebSocketAgent>,
+    subscribers: HashSet<HandlerId>,
+    websocket: WebSocket,
 }
 
-impl WebSocketService {
-    /// Connects to a server by a websocket connection. Needs two functions to generate data and
-    /// notification messages.
-    pub fn new(callback: Callback<Vec<u8>>, notification: Callback<WebSocketStatus>) -> Self {
+impl Agent for WebSocketAgent {
+    type Reach = Context;
+    type Message = WebSocketResponse;
+    type Input = WebSocketRequest;
+    type Output = WebSocketResponse;
+
+    /// Creates a new WebSocketAgent
+    fn create(link: AgentLink<Self>) -> Self {
+        // Create the WebSocket connection
+        let websocket = WebSocket::new(env!("WS_URL")).expect("Unable to connect to websocket");
+
         // Set the websocket to binary mode
-        WEBSOCKET.set_binary_type(SocketBinaryType::ArrayBuffer);
+        websocket.set_binary_type(SocketBinaryType::ArrayBuffer);
 
         // Create notification callbacks
-        let n = notification.clone();
-        WEBSOCKET.add_event_listener(move |_: SocketOpenEvent| {
-            n.emit(WebSocketStatus::Opened);
+        let notification_callback = link.send_back(|data| data);
+        let n = notification_callback.clone();
+        websocket.add_event_listener(move |_: SocketOpenEvent| {
+            n.emit(WebSocketResponse::Opened);
         });
-        let n = notification.clone();
-        WEBSOCKET.add_event_listener(move |_: SocketCloseEvent| {
-            n.emit(WebSocketStatus::Closed);
+        let n = notification_callback.clone();
+        websocket.add_event_listener(move |_: SocketCloseEvent| {
+            n.emit(WebSocketResponse::Closed);
         });
-        let n = notification.clone();
-        WEBSOCKET.add_event_listener(move |_: SocketErrorEvent| {
-            n.emit(WebSocketStatus::Error);
+        let n = notification_callback.clone();
+        websocket.add_event_listener(move |_: SocketErrorEvent| {
+            n.emit(WebSocketResponse::Error);
         });
 
         // Add data callback
-        WEBSOCKET.add_event_listener(move |event: SocketMessageEvent| {
+        let data_callback = link.send_back(|data| WebSocketResponse::Data(data));
+        websocket.add_event_listener(move |event: SocketMessageEvent| {
             if let Some(bytes) = event.data().into_array_buffer() {
-                callback.emit(bytes.into());
+                data_callback.emit(bytes.into());
             }
         });
 
-        Self { notification }
-    }
-
-    /// Sends binary data to a websocket connection.
-    pub fn send(&mut self, data: &[u8]) {
-        if WEBSOCKET.send_bytes(data).is_err() {
-            self.notification.emit(WebSocketStatus::Error);
+        // Return the instance
+        Self {
+            link,
+            subscribers: HashSet::new(),
+            websocket,
         }
     }
-}
 
-impl Task for WebSocketService {
-    /// Test wheter the websocket connection is active
-    fn is_active(&self) -> bool {
-        WEBSOCKET.ready_state() == SocketReadyState::Open
-    }
-
-    // Close the websocket connection
-    fn cancel(&mut self) {
-        WEBSOCKET.close();
-    }
-}
-
-impl Drop for WebSocketService {
-    /// Close this connection on drop
-    fn drop(&mut self) {
-        if self.is_active() {
-            self.cancel();
+    /// Internal update mechanism based on messages
+    fn update(&mut self, msg: Self::Message) {
+        // Inform all subscribers
+        for who in self.subscribers.iter() {
+            self.link.response(*who, msg.clone());
         }
+    }
+
+    /// Handle incoming data requests
+    fn handle(&mut self, msg: Self::Input, _: HandlerId) {
+        let WebSocketRequest(data) = msg;
+        if self.websocket.send_bytes(&data).is_err() {
+            self.update(WebSocketResponse::Error);
+        }
+    }
+
+    /// Add a new client to the pool of connections to this agent
+    fn connected(&mut self, id: HandlerId) {
+        self.subscribers.insert(id);
+    }
+
+    /// Remove a client from the pool of connections of this agent
+    fn disconnected(&mut self, id: HandlerId) {
+        self.subscribers.remove(&id);
     }
 }

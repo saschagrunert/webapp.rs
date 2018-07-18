@@ -7,29 +7,26 @@ use services::{
     cookie::CookieService,
     router::{self, Route, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
-    websocket::{WebSocketService, WebSocketStatus},
+    websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse},
 };
-use webapp::protocol::{self, Login, Session};
+use webapp::protocol::{Login, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
-
-/// Available message types to process
-pub enum Message {
-    HandleRoute(Route<()>),
-    WebSocketClosed,
-    WebSocketOpened,
-    WebSocketError,
-    WebSocketResponse(Vec<u8>),
-}
 
 /// Data Model for the Root Component
 pub struct RootComponent {
     router_agent: Box<Bridge<RouterAgent<()>>>,
+    websocket_agent: Box<Bridge<WebSocketAgent>>,
     child_component: RouterComponent,
     cookie_service: CookieService,
     console_service: ConsoleService,
     uikit_service: UIkitService,
-    websocket_service: WebSocketService,
+}
+
+/// Available message types to process
+pub enum Message {
+    HandleRoute(Route<()>),
+    Ws(WebSocketResponse),
 }
 
 impl Component for RootComponent {
@@ -38,19 +35,12 @@ impl Component for RootComponent {
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
-            router_agent: RouterAgent::bridge(link.send_back(|route| Message::HandleRoute(route))),
+            router_agent: RouterAgent::bridge(link.send_back(|r| Message::HandleRoute(r))),
+            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
             child_component: RouterComponent::Loading,
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             uikit_service: UIkitService::new(),
-            websocket_service: WebSocketService::new(
-                link.send_back(|data| Message::WebSocketResponse(data)),
-                link.send_back(|data| match data {
-                    WebSocketStatus::Closed => Message::WebSocketClosed,
-                    WebSocketStatus::Opened => Message::WebSocketOpened,
-                    WebSocketStatus::Error => Message::WebSocketError,
-                }),
-            ),
         }
     }
 
@@ -63,13 +53,13 @@ impl Component for RootComponent {
             Message::HandleRoute(route) => {
                 self.child_component = route.into();
             }
-            Message::WebSocketOpened => {
+            Message::Ws(WebSocketResponse::Opened) => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match protocol::Request::Login(Login::Session(Session { token: token })).to_vec() {
+                    match Request::Login(Login::Session(Session { token: token })).to_vec() {
                         Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
-                            self.websocket_service.send(&data);
+                            self.websocket_agent.send(WebSocketRequest(data));
                         }
                         None => {
                             self.cookie_service.remove(SESSION_COOKIE);
@@ -83,22 +73,25 @@ impl Component for RootComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
             }
-            Message::WebSocketResponse(response) => match from_slice(&response) {
-                Ok(protocol::Response::Login(Ok(Session { token }))) => {
+            Message::Ws(WebSocketResponse::Data(response)) => match from_slice(&response) {
+                Ok(Response::LoginSession(Ok(Session { token }))) => {
+                    self.console_service.info("Session based login succeed");
+
                     // Set the retrieved session cookie
-                    self.console_service.info("Login succeed");
                     self.cookie_service.set(SESSION_COOKIE, &token);
+
+                    // Route to the content component
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                 }
-                Ok(protocol::Response::Login(Err(e))) => {
+                Ok(Response::LoginSession(Err(e))) => {
                     // Remote the existing cookie
-                    self.console_service.info(&format!("Login failed: {}", e));
+                    self.console_service.info(&format!("Session based login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
-                Ok(protocol::Response::Error) => {
+                Ok(Response::Error) => {
                     // Send a notification to the user and route to the error page
                     self.uikit_service
                         .notify("Internal server error", NotificationStatus::Danger);
@@ -107,7 +100,7 @@ impl Component for RootComponent {
                 }
                 _ => {} // Not my response
             },
-            Message::WebSocketError => {
+            Message::Ws(WebSocketResponse::Error) => {
                 // Send a notification to the user
                 self.uikit_service
                     .notify("Server connection unavailable", NotificationStatus::Danger);
@@ -118,7 +111,7 @@ impl Component for RootComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 }
             }
-            Message::WebSocketClosed => {
+            Message::Ws(WebSocketResponse::Closed) => {
                 // Send a notification to the user if app already in usage
                 if self.child_component != RouterComponent::Error {
                     self.uikit_service
