@@ -43,7 +43,7 @@ impl Component for LoginComponent {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
             router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
-            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
+            websocket_agent: WebSocketAgent::bridge(link.send_back(Message::Ws)),
             username: String::new(),
             password: String::new(),
             login_button_disabled: true,
@@ -95,7 +95,7 @@ impl Component for LoginComponent {
                     self.console_service
                         .warn(&format!("Credential based login failed: {}", e));
                     self.uikit_service
-                        .notify("Authentication failed", NotificationStatus::Warning);
+                        .notify("Authentication failed", &NotificationStatus::Warning);
                     self.login_button_disabled = false;
                     self.inputs_and_register_button_disabled = false;
                 }

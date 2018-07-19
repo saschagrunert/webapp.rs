@@ -45,7 +45,7 @@ impl Component for ContentComponent {
         // Create the component
         Self {
             router_agent,
-            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
+            websocket_agent: WebSocketAgent::bridge(link.send_back(Message::Ws)),
             cookie_service,
             console_service,
             logout_button_disabled: false,
@@ -63,7 +63,7 @@ impl Component for ContentComponent {
                 // Retrieve the currently set cookie
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
-                    match protocol::Request::Logout(Session { token: token }).to_vec() {
+                    match protocol::Request::Logout(Session { token }).to_vec() {
                         Some(data) => {
                             // Disable user interaction
                             self.logout_button_disabled = true;

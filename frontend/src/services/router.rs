@@ -63,9 +63,9 @@ where
     }
 
     fn get_route_from_location(location: &Location) -> String {
-        let path = location.pathname().unwrap_or("".to_owned());
-        let query = location.search().unwrap_or("".to_owned());
-        let fragment = location.hash().unwrap_or("".to_owned());
+        let path = location.pathname().unwrap_or_else(|_| "".to_owned());
+        let query = location.search().unwrap_or_else(|_| "".to_owned());
+        let fragment = location.hash().unwrap_or_else(|_| "".to_owned());
         format!(
             "{path}{query}{fragment}",
             path = path,
@@ -124,7 +124,7 @@ where
     pub fn current_route(route_service: &RouterService<T>) -> Result<Self, Error> {
         // guaranteed to always start with a '/'
         let path = route_service.get_path()?;
-        let mut path_segments: Vec<String> = path.split("/").map(String::from).collect();
+        let mut path_segments: Vec<String> = path.split('/').map(String::from).collect();
         // remove empty string that is split from the first '/'
         path_segments.remove(0);
 
@@ -202,8 +202,7 @@ where
     type Output = Route<T>;
 
     fn create(link: AgentLink<Self>) -> Self {
-        let callback =
-            link.send_back(|route_changed: (String, T)| Message::BrowserNavigationRouteChanged(route_changed));
+        let callback = link.send_back(Message::BrowserNavigationRouteChanged);
         let mut route_service = RouterService::new();
         route_service.register_callback(callback);
 
@@ -219,7 +218,7 @@ where
             Message::BrowserNavigationRouteChanged((_route_string, state)) => {
                 if let Ok(mut route) = Route::current_route(&self.route_service) {
                     route.state = state;
-                    for sub in self.subscribers.iter() {
+                    for sub in &self.subscribers {
                         self.link.response(*sub, route.clone());
                     }
                 }
@@ -236,7 +235,7 @@ where
                 // get the new route. This will contain a default state object
                 if let Ok(route) = Route::current_route(&self.route_service) {
                     // broadcast it to all listening components
-                    for sub in self.subscribers.iter() {
+                    for sub in &self.subscribers {
                         self.link.response(*sub, route.clone());
                     }
                 }

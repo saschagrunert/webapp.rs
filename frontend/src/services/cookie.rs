@@ -29,7 +29,7 @@ impl CookieService {
         cookies
             .iter()
             .filter_map(|x| {
-                let name_value: Vec<_> = x.split("=").collect();
+                let name_value: Vec<_> = x.split('=').collect();
                 match name_value.get(0) {
                     None => None,
                     Some(c) => {
@@ -43,7 +43,7 @@ impl CookieService {
             })
             .collect::<Vec<String>>()
             .pop()
-            .ok_or(CookieError::NotFound.into())
+            .ok_or_else(|| CookieError::NotFound.into())
     }
 
     /// Remove a cookie for a given name

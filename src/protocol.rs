@@ -1,10 +1,10 @@
 //! The main protocol handling
 
-#[cfg(feature = "db")]
+#[cfg(feature = "backend")]
 use schema::sessions;
 use serde_cbor::to_vec;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 /// All possible request variants
 pub enum Request {
     /// Possible variants of a login request
@@ -21,7 +21,7 @@ impl Request {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 /// Possible login request variants
 pub enum Login {
     /// A credentials based request
@@ -37,7 +37,7 @@ pub enum Login {
     Session(Session),
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 /// All possible response variants
 pub enum Response {
     /// A generic error from the server, which is not recoverable
@@ -53,7 +53,7 @@ pub enum Response {
     Logout(Result<(), ResponseError>),
 }
 
-#[derive(Debug, Fail, Deserialize, Serialize)]
+#[derive(Clone, Debug, Fail, Deserialize, Serialize)]
 /// All possible response errors
 pub enum ResponseError {
     #[fail(display = "wrong username or password")]
@@ -85,9 +85,9 @@ pub enum ResponseError {
     DeleteSession,
 }
 
-#[cfg_attr(feature = "db", derive(Insertable, Queryable))]
-#[cfg_attr(feature = "db", table_name = "sessions")]
-#[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "backend", derive(Insertable, Queryable))]
+#[cfg_attr(feature = "backend", table_name = "sessions")]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 /// A session representation
 pub struct Session {
     /// The actual session token

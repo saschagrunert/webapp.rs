@@ -1,4 +1,4 @@
-//! A custom websocket service
+//! A custom websocket agent
 //! [`WebSocket` Protocol](https://tools.ietf.org/html/rfc6455).
 
 use std::collections::HashSet;
@@ -65,7 +65,7 @@ impl Agent for WebSocketAgent {
         });
 
         // Add data callback
-        let data_callback = link.send_back(|data| WebSocketResponse::Data(data));
+        let data_callback = link.send_back(WebSocketResponse::Data);
         websocket.add_event_listener(move |event: SocketMessageEvent| {
             if let Some(bytes) = event.data().into_array_buffer() {
                 data_callback.emit(bytes.into());
@@ -83,7 +83,7 @@ impl Agent for WebSocketAgent {
     /// Internal update mechanism based on messages
     fn update(&mut self, msg: Self::Message) {
         // Inform all subscribers
-        for who in self.subscribers.iter() {
+        for who in &self.subscribers {
             self.link.response(*who, msg.clone());
         }
     }

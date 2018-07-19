@@ -16,13 +16,14 @@ travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
 
 [dependencies]
 diesel = { version = "1.3.2", optional = true }
+yew = { git = "https://github.com/DenisKolodin/yew", optional = true }
 failure = "0.1.1"
 serde = "1.0.70"
 serde_cbor = "0.8.2"
 serde_derive = "1.0.70"
 
 [features]
-db = ["diesel"]
+backend = ["diesel"]
 
 [workspace]
 members = [

@@ -27,7 +27,7 @@ impl UIkitService {
     }
 
     /// Create a new notification
-    pub fn notify(&self, message: &str, status: NotificationStatus) {
+    pub fn notify(&self, message: &str, status: &NotificationStatus) {
         js! {
             UIkit.notification({
                 message: @{message},

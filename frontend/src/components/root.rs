@@ -35,8 +35,8 @@ impl Component for RootComponent {
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Self {
-            router_agent: RouterAgent::bridge(link.send_back(|r| Message::HandleRoute(r))),
-            websocket_agent: WebSocketAgent::bridge(link.send_back(|r| Message::Ws(r))),
+            router_agent: RouterAgent::bridge(link.send_back(Message::HandleRoute)),
+            websocket_agent: WebSocketAgent::bridge(link.send_back(Message::Ws)),
             child_component: RouterComponent::Loading,
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
@@ -56,7 +56,7 @@ impl Component for RootComponent {
             Message::Ws(WebSocketResponse::Opened) => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match Request::Login(Login::Session(Session { token: token })).to_vec() {
+                    match Request::Login(Login::Session(Session { token })).to_vec() {
                         Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
                             self.websocket_agent.send(WebSocketRequest(data));
@@ -94,7 +94,7 @@ impl Component for RootComponent {
                 Ok(Response::Error) => {
                     // Send a notification to the user and route to the error page
                     self.uikit_service
-                        .notify("Internal server error", NotificationStatus::Danger);
+                        .notify("Internal server error", &NotificationStatus::Danger);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 }
@@ -103,7 +103,7 @@ impl Component for RootComponent {
             Message::Ws(WebSocketResponse::Error) => {
                 // Send a notification to the user
                 self.uikit_service
-                    .notify("Server connection unavailable", NotificationStatus::Danger);
+                    .notify("Server connection unavailable", &NotificationStatus::Danger);
 
                 // Route to the error child if coming from the loading child
                 if self.child_component == RouterComponent::Loading {
@@ -115,7 +115,7 @@ impl Component for RootComponent {
                 // Send a notification to the user if app already in usage
                 if self.child_component != RouterComponent::Error {
                     self.uikit_service
-                        .notify("Server connection closed", NotificationStatus::Danger);
+                        .notify("Server connection closed", &NotificationStatus::Danger);
                 }
             }
         }
