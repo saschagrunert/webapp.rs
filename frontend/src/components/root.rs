@@ -1,13 +1,12 @@
-//! The Root component
+//! The Root component as main entry point of the frontend application
 
 use components::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
 use routes::RouterComponent;
-use serde_cbor::from_slice;
 use services::{
     cookie::CookieService,
+    reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, Route, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
-    websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse},
 };
 use webapp::protocol::{Login, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
@@ -15,9 +14,9 @@ use SESSION_COOKIE;
 
 /// Data Model for the Root Component
 pub struct RootComponent {
-    router_agent: Box<Bridge<RouterAgent<()>>>,
-    websocket_agent: Box<Bridge<WebSocketAgent>>,
     child_component: RouterComponent,
+    reducer_agent: Box<Bridge<ReducerAgent>>,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
     cookie_service: CookieService,
     console_service: ConsoleService,
     uikit_service: UIkitService,
@@ -26,7 +25,7 @@ pub struct RootComponent {
 /// Available message types to process
 pub enum Message {
     HandleRoute(Route<()>),
-    Ws(WebSocketResponse),
+    Reducer(ReducerResponse),
 }
 
 impl Component for RootComponent {
@@ -34,10 +33,20 @@ impl Component for RootComponent {
     type Properties = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+        // Create the reducer and subscribe to the used messages
+        let mut reducer_agent = ReducerAgent::bridge(link.send_back(Message::Reducer));
+        reducer_agent.send(ReducerRequest::Subscribe(vec![
+            ResponseType::LoginSession,
+            ResponseType::StatusClose,
+            ResponseType::StatusError,
+            ResponseType::StatusOpen,
+        ]));
+
+        // Return the component
         Self {
-            router_agent: RouterAgent::bridge(link.send_back(Message::HandleRoute)),
-            websocket_agent: WebSocketAgent::bridge(link.send_back(Message::Ws)),
             child_component: RouterComponent::Loading,
+            reducer_agent,
+            router_agent: RouterAgent::bridge(link.send_back(Message::HandleRoute)),
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             uikit_service: UIkitService::new(),
@@ -50,16 +59,16 @@ impl Component for RootComponent {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::HandleRoute(route) => {
-                self.child_component = route.into();
-            }
-            Message::Ws(WebSocketResponse::Opened) => {
+            // Route to the appropriate child component
+            Message::HandleRoute(route) => self.child_component = route.into(),
+            // The WebSocket connection is open, try to authenticate if possible
+            Message::Reducer(ReducerResponse::Open) => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     match Request::Login(Login::Session(Session { token })).to_vec() {
                         Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
-                            self.websocket_agent.send(WebSocketRequest(data));
+                            self.reducer_agent.send(ReducerRequest::Send(data));
                         }
                         None => {
                             self.cookie_service.remove(SESSION_COOKIE);
@@ -73,8 +82,9 @@ impl Component for RootComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
             }
-            Message::Ws(WebSocketResponse::Data(response)) => match from_slice(&response) {
-                Ok(Response::LoginSession(Ok(Session { token }))) => {
+            // Received a response, handle if needed
+            Message::Reducer(ReducerResponse::Data(response)) => match response {
+                Response::LoginSession(Ok(Session { token })) => {
                     self.console_service.info("Session based login succeed");
 
                     // Set the retrieved session cookie
@@ -84,14 +94,14 @@ impl Component for RootComponent {
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                 }
-                Ok(Response::LoginSession(Err(e))) => {
+                Response::LoginSession(Err(e)) => {
                     // Remote the existing cookie
                     self.console_service.info(&format!("Session based login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
-                Ok(Response::Error) => {
+                Response::Error => {
                     // Send a notification to the user and route to the error page
                     self.uikit_service
                         .notify("Internal server error", &NotificationStatus::Danger);
@@ -100,7 +110,8 @@ impl Component for RootComponent {
                 }
                 _ => {} // Not my response
             },
-            Message::Ws(WebSocketResponse::Error) => {
+            // The root component also handles WebSocket failures like real errors
+            Message::Reducer(ReducerResponse::Error) => {
                 // Send a notification to the user
                 self.uikit_service
                     .notify("Server connection unavailable", &NotificationStatus::Danger);
@@ -111,7 +122,8 @@ impl Component for RootComponent {
                         .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 }
             }
-            Message::Ws(WebSocketResponse::Closed) => {
+            // The root component also handles WebSocket failures like connection closings
+            Message::Reducer(ReducerResponse::Close) => {
                 // Send a notification to the user if app already in usage
                 if self.child_component != RouterComponent::Error {
                     self.uikit_service

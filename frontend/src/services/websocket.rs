@@ -14,9 +14,9 @@ use yew::prelude::worker::*;
 #[derive(Clone, Deserialize, Serialize)]
 /// Available WebSocket responses
 pub enum WebSocketResponse {
-    Closed,
+    Close,
     Error,
-    Opened,
+    Open,
     Data(Vec<u8>),
 }
 
@@ -53,11 +53,11 @@ impl Agent for WebSocketAgent {
         let notification_callback = link.send_back(|data| data);
         let n = notification_callback.clone();
         websocket.add_event_listener(move |_: SocketOpenEvent| {
-            n.emit(WebSocketResponse::Opened);
+            n.emit(WebSocketResponse::Open);
         });
         let n = notification_callback.clone();
         websocket.add_event_listener(move |_: SocketCloseEvent| {
-            n.emit(WebSocketResponse::Closed);
+            n.emit(WebSocketResponse::Close);
         });
         let n = notification_callback.clone();
         websocket.add_event_listener(move |_: SocketErrorEvent| {

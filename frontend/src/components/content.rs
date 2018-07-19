@@ -1,30 +1,29 @@
 //! The Main Content component
 
 use routes::RouterComponent;
-use serde_cbor::from_slice;
 use services::{
     cookie::CookieService,
+    reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
-    websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse},
 };
-use webapp::protocol::{self, Response, Session};
+use webapp::protocol::{Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
 pub struct ContentComponent {
-    router_agent: Box<Bridge<RouterAgent<()>>>,
-    websocket_agent: Box<Bridge<WebSocketAgent>>,
-    cookie_service: CookieService,
-    console_service: ConsoleService,
     logout_button_disabled: bool,
+    reducer_agent: Box<Bridge<ReducerAgent>>,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
+    console_service: ConsoleService,
+    cookie_service: CookieService,
 }
 
 /// Available message types to process
 pub enum Message {
     Ignore,
     LogoutRequest,
-    Ws(WebSocketResponse),
+    Reducer(ReducerResponse),
 }
 
 impl Component for ContentComponent {
@@ -42,13 +41,21 @@ impl Component for ContentComponent {
             router_agent.send(router::Request::ChangeRoute(RouterComponent::Login.into()));
         }
 
-        // Create the component
+        // Create the reducer and subscribe to the used messages
+        let mut reducer_agent = ReducerAgent::bridge(link.send_back(Message::Reducer));
+        reducer_agent.send(ReducerRequest::Subscribe(vec![
+            ResponseType::Logout,
+            ResponseType::StatusClose,
+            ResponseType::StatusError,
+        ]));
+
+        // Return the component
         Self {
-            router_agent,
-            websocket_agent: WebSocketAgent::bridge(link.send_back(Message::Ws)),
-            cookie_service,
-            console_service,
             logout_button_disabled: false,
+            reducer_agent,
+            router_agent,
+            console_service,
+            cookie_service,
         }
     }
 
@@ -59,42 +66,39 @@ impl Component for ContentComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::LogoutRequest => {
-                // Retrieve the currently set cookie
-                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    // Create the logout request
-                    match protocol::Request::Logout(Session { token }).to_vec() {
-                        Some(data) => {
-                            // Disable user interaction
-                            self.logout_button_disabled = true;
+            Message::LogoutRequest => if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
+                // Create the logout request
+                match Request::Logout(Session { token }).to_vec() {
+                    Some(data) => {
+                        // Disable user interaction
+                        self.logout_button_disabled = true;
 
-                            // Send the request
-                            self.websocket_agent.send(WebSocketRequest(data));
-                        }
-                        None => self.console_service.error("Unable to write logout request"),
+                        // Send the request
+                        self.reducer_agent.send(ReducerRequest::Send(data));
                     }
-                } else {
-                    // It should not happen but in case there is no session cookie on logout, route
-                    // back to login
-                    self.console_service.error("No session cookie found");
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                    None => self.console_service.error("Unable to write logout request"),
                 }
-            }
-            Message::Ws(WebSocketResponse::Data(response)) => match from_slice(&response) {
-                Ok(Response::Logout(Ok(()))) => {
+            } else {
+                // It should not happen but in case there is no session cookie on logout, route
+                // back to login
+                self.console_service.error("No session cookie found");
+                self.router_agent
+                    .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+            },
+            Message::Reducer(ReducerResponse::Data(response)) => match response {
+                Response::Logout(Ok(())) => {
                     self.console_service.log("Got valid logout response");
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
                 }
-                Ok(Response::Logout(Err(e))) => self.console_service.info(&format!("Unable to logout: {}", e)),
+                Response::Logout(Err(e)) => self.console_service.info(&format!("Unable to logout: {}", e)),
                 _ => {} // Not my response
             },
-            Message::Ignore | Message::Ws(WebSocketResponse::Opened) => {}
-            Message::Ws(WebSocketResponse::Error) | Message::Ws(WebSocketResponse::Closed) => {
+            Message::Reducer(ReducerResponse::Close) | Message::Reducer(ReducerResponse::Error) => {
                 self.logout_button_disabled = true
             }
+            _ => {}
         }
         true
     }

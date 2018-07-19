@@ -95,6 +95,15 @@ where
     }
 }
 
+impl<T> Default for RouterService<T>
+where
+    T: JsSerialize + Clone + TryFrom<Value> + 'static,
+{
+    fn default() -> Self {
+        RouterService::new()
+    }
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Route<T> {
     pub path_segments: Vec<String>,
@@ -203,7 +212,7 @@ where
 
     fn create(link: AgentLink<Self>) -> Self {
         let callback = link.send_back(Message::BrowserNavigationRouteChanged);
-        let mut route_service = RouterService::new();
+        let mut route_service = RouterService::default();
         route_service.register_callback(callback);
 
         Self {
@@ -252,10 +261,12 @@ where
         }
     }
 
+    /// Add a client to the pool of connections of this agent
     fn connected(&mut self, id: HandlerId) {
         self.subscribers.insert(id);
     }
 
+    /// Remove a client from the pool of connections of this agent
     fn disconnected(&mut self, id: HandlerId) {
         self.subscribers.remove(&id);
     }
