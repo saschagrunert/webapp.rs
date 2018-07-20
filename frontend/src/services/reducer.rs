@@ -1,7 +1,7 @@
 //! The message reducer agent
 
 use serde_cbor::from_slice;
-use services::websocket::{WebSocketAgent, WebSocketRequest, WebSocketResponse};
+use services::websocket::{WebSocketService, WebSocketResponse};
 use std::collections::{HashMap, HashSet};
 use webapp::protocol::Response;
 use yew::prelude::worker::*;
@@ -41,7 +41,7 @@ impl Transferable for ReducerResponse {}
 pub struct ReducerAgent {
     link: AgentLink<ReducerAgent>,
     subscribers: HashMap<HandlerId, HashSet<ResponseType>>,
-    websocket_agent: Box<Bridge<WebSocketAgent>>,
+    websocket_service: WebSocketService,
 }
 
 impl ReducerAgent {
@@ -66,13 +66,11 @@ impl Agent for ReducerAgent {
 
     /// Creates a new ReducerAgent
     fn create(link: AgentLink<Self>) -> Self {
-        let websocket_agent = WebSocketAgent::bridge(link.send_back(|r| r));
-
-        // Return the instance
+        let websocket_service = WebSocketService::new(link.send_back(|r| r));
         Self {
             link,
             subscribers: HashMap::new(),
-            websocket_agent,
+            websocket_service,
         }
     }
 
@@ -104,7 +102,7 @@ impl Agent for ReducerAgent {
                     })
                     .or_insert_with(|| vec![i].into_iter().collect());
             },
-            ReducerRequest::Send(data) => self.websocket_agent.send(WebSocketRequest(data)),
+            ReducerRequest::Send(data) => self.websocket_service.send(&data),
         }
     }
 
