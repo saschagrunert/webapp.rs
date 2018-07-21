@@ -3,11 +3,9 @@
 use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
 use uuid::Uuid;
-use webapp::protocol::ResponseError;
+use webapp::protocol::TokenError;
 
-lazy_static! {
-    static ref SECRET: String = Uuid::new_v4().to_string();
-}
+const SECRET: &[u8] = b"my_secret";
 
 #[derive(Deserialize, Serialize)]
 /// A web token
@@ -27,7 +25,7 @@ pub struct Token {
 
 impl Token {
     /// Create a new default token for a given username and a validity in seconds
-    pub fn create(username: &str) -> Result<String, ResponseError> {
+    pub fn create(username: &str) -> Result<String, TokenError> {
         const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
         let claim = Token {
             sub: username.to_owned(),
@@ -35,13 +33,12 @@ impl Token {
             iat: get_time().sec,
             jti: Uuid::new_v4().to_string(),
         };
-        encode(&Header::default(), &claim, SECRET.as_ref()).map_err(|_| ResponseError::CreateToken)
+        encode(&Header::default(), &claim, SECRET).map_err(|_| TokenError::Create)
     }
 
     /// Verify the validity of a token and get a new one
-    pub fn verify(token: &str) -> Result<String, ResponseError> {
-        let data =
-            decode::<Token>(token, SECRET.as_ref(), &Validation::default()).map_err(|_| ResponseError::VerifyToken)?;
+    pub fn verify(token: &str) -> Result<String, TokenError> {
+        let data = decode::<Token>(token, SECRET, &Validation::default()).map_err(|_| TokenError::Verify)?;
         Self::create(&data.claims.sub)
     }
 }

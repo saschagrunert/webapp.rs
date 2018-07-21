@@ -14,7 +14,7 @@ use url::Url;
 use webapp::CONFIG_FILENAME;
 use webapp::{
     config::Config,
-    protocol::{self, Login, Response, Session},
+    protocol::{self, request, response, Response, Session},
 };
 use webapp_backend::Server;
 
@@ -47,7 +47,7 @@ fn succeed_to_login_with_username_and_password() {
     let mut socket = create_testserver();
 
     // When
-    let data = protocol::Request::Login(Login::Credentials {
+    let data = protocol::Request::Login(request::Login::Credentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).to_vec()
@@ -57,7 +57,7 @@ fn succeed_to_login_with_username_and_password() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::LoginCredentials(Ok(_))) => {}
+            Ok(Response::Login(response::Login::Credentials(Ok(_)))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -70,7 +70,7 @@ fn fail_to_login_with_wrong_username_and_password() {
     let mut socket = create_testserver();
 
     // When
-    let data = protocol::Request::Login(Login::Credentials {
+    let data = protocol::Request::Login(request::Login::Credentials {
         username: "username".to_owned(),
         password: "password".to_owned(),
     }).to_vec()
@@ -80,7 +80,7 @@ fn fail_to_login_with_wrong_username_and_password() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::LoginCredentials(Err(_))) => {}
+            Ok(Response::Login(response::Login::Credentials(Err(_)))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -93,7 +93,7 @@ fn succeed_to_login_with_session() {
     let mut socket = create_testserver();
 
     // When
-    let data = protocol::Request::Login(Login::Credentials {
+    let data = protocol::Request::Login(request::Login::Credentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).to_vec()
@@ -103,20 +103,22 @@ fn succeed_to_login_with_session() {
     // Then
     let session = match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::LoginCredentials(Ok(session))) => session,
+            Ok(Response::Login(response::Login::Credentials(Ok(session)))) => session,
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
     };
 
     // And When
-    let session_data = protocol::Request::Login(Login::Session(session)).to_vec().unwrap();
+    let session_data = protocol::Request::Login(request::Login::Session(session))
+        .to_vec()
+        .unwrap();
     socket.write_message(Message::binary(session_data)).unwrap();
 
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::LoginSession(Ok(_))) => {}
+            Ok(Response::Login(response::Login::Session(Ok(_)))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),
@@ -129,7 +131,7 @@ fn fail_to_login_with_wrong_session() {
     let mut socket = create_testserver();
 
     // When
-    let data = protocol::Request::Login(Login::Session(Session {
+    let data = protocol::Request::Login(request::Login::Session(Session {
         token: "wrong_token".to_owned(),
     })).to_vec()
         .unwrap();
@@ -138,7 +140,7 @@ fn fail_to_login_with_wrong_session() {
     // Then
     match socket.read_message().unwrap() {
         Message::Binary(b) => match from_slice(&b) {
-            Ok(Response::LoginSession(Err(_))) => {}
+            Ok(Response::Login(response::Login::Session(Err(_)))) => {}
             _ => panic!("Wrong response type"),
         },
         _ => panic!("Wrong message type"),

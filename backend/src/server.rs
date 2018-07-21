@@ -1,7 +1,7 @@
 //! Everything related to the actual server implementation
 
 use actix::{prelude::*, SystemRunner};
-use actix_web::{fs, http, middleware, server, ws, App};
+use actix_web::{fs::StaticFiles, http, middleware, server, ws, App};
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
@@ -19,7 +19,7 @@ pub struct Server {
 /// Shared mutable application state
 pub struct State {
     /// The database connection
-    pub database: Addr<Syn, DatabaseExecutor>,
+    pub database: Addr<DatabaseExecutor>,
 }
 
 impl Server {
@@ -45,7 +45,7 @@ impl Server {
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .handler("/", fs::StaticFiles::new(".").index_file("index.html"))
+                .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 
         // Create the server url from the given configuration

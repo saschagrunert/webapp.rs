@@ -2,6 +2,8 @@
 #![deny(missing_docs)]
 
 #[cfg(feature = "backend")]
+extern crate actix;
+#[cfg(feature = "backend")]
 #[macro_use]
 extern crate diesel;
 #[macro_use]

@@ -11,7 +11,9 @@ use futures::Future;
 use serde_cbor::{from_slice, to_vec};
 use server::State;
 use token::Token;
-use webapp::protocol::{request, response, Request, Response, ResponseError, Session};
+use webapp::protocol::{
+    request, response, DatabaseError, LoginCredentialsError, LoginSessionError, LogoutError, Request, Response, Session,
+};
 
 /// The actual websocket
 pub struct WebSocket;
@@ -73,7 +75,7 @@ impl WebSocket {
                     }
                     request::Login::Session(s) => {
                         let response =
-                            Response::Login(response::Login::Session(self.handle_request_login_token(&s, context)));
+                            Response::Login(response::Login::Session(self.handle_request_login_session(&s, context)));
 
                         // Send the response to the websocket
                         self.send(context, &response)?;
@@ -102,13 +104,13 @@ impl WebSocket {
         username: &str,
         password: &str,
         context: &mut WebsocketContext<Self, State>,
-    ) -> Result<Session, ResponseError> {
+    ) -> Result<Session, LoginCredentialsError> {
         debug!("User {} is trying to login", username);
 
         // Error if username and password are invalid
         if username.is_empty() || password.is_empty() || username != password {
             debug!("Wrong username or password");
-            return Err(ResponseError::WrongUsernamePassword);
+            return Err(LoginCredentialsError::WrongUsernamePassword);
         }
 
         // Create a new session
@@ -117,17 +119,17 @@ impl WebSocket {
             .database
             .send(CreateSession(Token::create(username)?))
             .wait()
-            .map_err(|_| ResponseError::Database)??;
+            .map_err(|_| DatabaseError::Communication)??;
 
         // Return the session
         Ok(session)
     }
 
-    fn handle_request_login_token(
+    fn handle_request_login_session(
         &mut self,
         session: &Session,
         context: &mut WebsocketContext<Self, State>,
-    ) -> Result<Session, ResponseError> {
+    ) -> Result<Session, LoginSessionError> {
         debug!("Session token {} wants to be renewed", session.token);
 
         // Try to verify and create a new session
@@ -138,8 +140,7 @@ impl WebSocket {
                 old_token: session.token.to_owned(),
                 new_token: Token::verify(&session.token)?,
             })
-            .wait()
-            .map_err(|_| ResponseError::Database)??;
+            .wait()??;
 
         // Return the new session
         Ok(new_session)
@@ -149,14 +150,9 @@ impl WebSocket {
         &mut self,
         session: Session,
         context: &mut WebsocketContext<Self, State>,
-    ) -> Result<(), ResponseError> {
+    ) -> Result<(), LogoutError> {
         // Remove the session from the internal storage
-        context
-            .state()
-            .database
-            .send(DeleteSession(session.token))
-            .wait()
-            .map_err(|_| ResponseError::Database)??;
+        context.state().database.send(DeleteSession(session.token)).wait()??;
 
         Ok(())
     }
