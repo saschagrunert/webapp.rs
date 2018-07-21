@@ -8,11 +8,8 @@ pub enum Response {
     /// A generic error from the server, which is not recoverable
     Error,
 
-    /// A login response for a given session which returns a session on success
-    LoginSession(Result<Session, ResponseError>),
-
-    /// A login response for given credentials which returns a session on success
-    LoginCredentials(Result<Session, ResponseError>),
+    /// A login response
+    Login(Login),
 
     /// A logout response
     Logout(Result<(), ResponseError>),
@@ -48,4 +45,14 @@ pub enum ResponseError {
     #[fail(display = "unable to delete session within database")]
     /// Session deletion in database failed
     DeleteSession,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+/// Possible login request variants
+pub enum Login {
+    /// A login response for given credentials which returns a session on success
+    Credentials(Result<Session, ResponseError>),
+
+    /// A login response for a given session which returns a session on success
+    Session(Result<Session, ResponseError>),
 }

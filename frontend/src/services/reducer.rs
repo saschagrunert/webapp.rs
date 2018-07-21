@@ -3,7 +3,7 @@
 use serde_cbor::from_slice;
 use services::websocket::{WebSocketResponse, WebSocketService};
 use std::collections::{HashMap, HashSet};
-use webapp::protocol::Response;
+use webapp::protocol::{response::Login, Response};
 use yew::prelude::worker::*;
 
 #[derive(Clone, Deserialize, Eq, Hash, PartialEq, Serialize)]
@@ -78,8 +78,12 @@ impl Agent for ReducerAgent {
     fn update(&mut self, msg: Self::Message) {
         match msg {
             WebSocketResponse::Data(data) => match from_slice(&data) {
-                Ok(r @ Response::LoginSession(_)) => self.respond_data_filtered(&ResponseType::LoginSession, r),
-                Ok(r @ Response::LoginCredentials(_)) => self.respond_data_filtered(&ResponseType::LoginCredentials, r),
+                Ok(r @ Response::Login(Login::Session(_))) => {
+                    self.respond_data_filtered(&ResponseType::LoginSession, r)
+                }
+                Ok(r @ Response::Login(Login::Credentials(_))) => {
+                    self.respond_data_filtered(&ResponseType::LoginCredentials, r)
+                }
                 Ok(r @ Response::Logout(_)) => self.respond_data_filtered(&ResponseType::Logout, r),
                 Ok(r @ Response::Error) => self.respond_data_filtered(&ResponseType::Error, r),
                 Err(_) => {} // Message not decodable

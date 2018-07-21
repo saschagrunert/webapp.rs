@@ -11,7 +11,7 @@ use futures::Future;
 use serde_cbor::{from_slice, to_vec};
 use server::State;
 use token::Token;
-use webapp::protocol::{Login, Request, Response, ResponseError, Session};
+use webapp::protocol::{request, response, Request, Response, ResponseError, Session};
 
 /// The actual websocket
 pub struct WebSocket;
@@ -59,19 +59,21 @@ impl WebSocket {
             Request::Login(login) => {
                 // Check if its a credential or token login type
                 match login {
-                    Login::Credentials {
+                    request::Login::Credentials {
                         username: u,
                         password: p,
                     } => {
-                        let response =
-                            Response::LoginCredentials(self.handle_request_login_credentials(&u, &p, context));
+                        let response = Response::Login(response::Login::Credentials(
+                            self.handle_request_login_credentials(&u, &p, context),
+                        ));
 
                         // Send the response to the websocket
                         self.send(context, &response)?;
                         Ok(())
                     }
-                    Login::Session(s) => {
-                        let response = Response::LoginSession(self.handle_request_login_token(&s, context));
+                    request::Login::Session(s) => {
+                        let response =
+                            Response::Login(response::Login::Session(self.handle_request_login_token(&s, context)));
 
                         // Send the response to the websocket
                         self.send(context, &response)?;

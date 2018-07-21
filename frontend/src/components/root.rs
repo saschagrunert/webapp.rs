@@ -8,7 +8,7 @@ use services::{
     router::{self, Route, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use webapp::protocol::{Login, Request, Response, Session};
+use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -65,7 +65,7 @@ impl Component for RootComponent {
             Message::Reducer(ReducerResponse::Open) => {
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match Request::Login(Login::Session(Session { token })).to_vec() {
+                    match Request::Login(request::Login::Session(Session { token })).to_vec() {
                         Some(data) => {
                             self.console_service.info("Token found, trying to authenticate");
                             self.reducer_agent.send(ReducerRequest::Send(data));
@@ -84,7 +84,7 @@ impl Component for RootComponent {
             }
             // Received a response, handle if needed
             Message::Reducer(ReducerResponse::Data(response)) => match response {
-                Response::LoginSession(Ok(Session { token })) => {
+                Response::Login(response::Login::Session(Ok(Session { token }))) => {
                     self.console_service.info("Session based login succeed");
 
                     // Set the retrieved session cookie
@@ -94,7 +94,7 @@ impl Component for RootComponent {
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                 }
-                Response::LoginSession(Err(e)) => {
+                Response::Login(response::Login::Session(Err(e))) => {
                     // Remote the existing cookie
                     self.console_service.info(&format!("Session based login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);

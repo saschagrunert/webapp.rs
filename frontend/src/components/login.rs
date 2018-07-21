@@ -7,7 +7,7 @@ use services::{
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use webapp::protocol::{Login, Request, Response, Session};
+use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
@@ -70,7 +70,7 @@ impl Component for LoginComponent {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             // Login via username and password
-            Message::LoginRequest => match Request::Login(Login::Credentials {
+            Message::LoginRequest => match Request::Login(request::Login::Credentials {
                 username: self.username.to_owned(),
                 password: self.password.to_owned(),
             }).to_vec()
@@ -100,7 +100,7 @@ impl Component for LoginComponent {
                 self.update_button_state();
             }
             Message::Reducer(ReducerResponse::Data(response)) => match response {
-                Response::LoginCredentials(Ok(Session { token })) => {
+                Response::Login(response::Login::Credentials(Ok(Session { token }))) => {
                     self.console_service.info("Credential based login succeed");
 
                     // Set the retrieved session cookie
@@ -110,7 +110,7 @@ impl Component for LoginComponent {
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
                 }
-                Response::LoginCredentials(Err(e)) => {
+                Response::Login(response::Login::Credentials(Err(e))) => {
                     self.console_service
                         .warn(&format!("Credential based login failed: {}", e));
                     self.uikit_service

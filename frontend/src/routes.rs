@@ -17,7 +17,7 @@ macro_rules! routes {
                 Route {
                     fragment: Some(
                         match self {
-                            $(RouterComponent::$x => format!("/{}", $y),)*
+                            $(RouterComponent::$x => $y,)*
                         }.into(),
                     ),
                     ..Default::default()
@@ -42,9 +42,9 @@ macro_rules! routes {
 
 /// Available routes
 routes!(
-    (Error, "error"),
-    (Loading, "loading"),
-    (Login, "login"),
-    (Register, "register"),
-    (Content, "content")
+    (Error, "/error"),
+    (Loading, "/loading"),
+    (Login, "/login"),
+    (Register, "/register"),
+    (Content, "/content")
 );
