@@ -1,4 +1,5 @@
 //! Response specific implementations
+
 pub mod error;
 pub mod model;
 

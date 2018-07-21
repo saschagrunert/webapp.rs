@@ -54,6 +54,7 @@ impl WebSocket {
 
     fn handle_request(&mut self, data: &Binary, context: &mut WebsocketContext<Self, State>) -> Result<(), Error> {
         // Try to read the message
+        debug!("Got request of len: {}", data.len());
         let request: Request = from_slice(data.as_ref())?;
 
         // Check the request type

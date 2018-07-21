@@ -1,7 +1,7 @@
 //! The Main Content component
 
-use routes::RouterComponent;
-use services::{
+use route::RouterTarget;
+use service::{
     cookie::CookieService,
     reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
@@ -38,7 +38,7 @@ impl Component for ContentComponent {
         let mut console_service = ConsoleService::new();
         if cookie_service.get(SESSION_COOKIE).is_err() {
             console_service.log("No session token found, routing back to login");
-            router_agent.send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+            router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
         }
 
         // Create the reducer and subscribe to the used messages
@@ -83,14 +83,14 @@ impl Component for ContentComponent {
                 // back to login
                 self.console_service.error("No session cookie found");
                 self.router_agent
-                    .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
             },
             Message::Reducer(ReducerResponse::Data(response)) => match response {
                 Response::Logout(Ok(())) => {
                     self.console_service.log("Got valid logout response");
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
                 Response::Logout(Err(e)) => self.console_service.info(&format!("Unable to logout: {}", e)),
                 _ => {} // Not my response

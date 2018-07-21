@@ -1,4 +1,5 @@
 //! The main library interface
+
 #![deny(missing_docs)]
 
 #[macro_use]

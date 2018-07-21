@@ -1,8 +1,8 @@
 //! The Root component as main entry point of the frontend application
 
-use components::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
-use routes::RouterComponent;
-use services::{
+use component::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
+use route::RouterTarget;
+use service::{
     cookie::CookieService,
     reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, Route, RouterAgent},
@@ -14,7 +14,7 @@ use SESSION_COOKIE;
 
 /// Data Model for the Root Component
 pub struct RootComponent {
-    child_component: RouterComponent,
+    child_component: RouterTarget,
     reducer_agent: Box<Bridge<ReducerAgent>>,
     router_agent: Box<Bridge<RouterAgent<()>>>,
     cookie_service: CookieService,
@@ -44,7 +44,7 @@ impl Component for RootComponent {
 
         // Return the component
         Self {
-            child_component: RouterComponent::Loading,
+            child_component: RouterTarget::Loading,
             reducer_agent,
             router_agent: RouterAgent::bridge(link.send_back(Message::HandleRoute)),
             console_service: ConsoleService::new(),
@@ -73,13 +73,13 @@ impl Component for RootComponent {
                         None => {
                             self.cookie_service.remove(SESSION_COOKIE);
                             self.router_agent
-                                .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                                .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                         }
                     }
                 } else {
                     self.console_service.info("No token found, routing to login");
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
             }
             // Received a response, handle if needed
@@ -92,40 +92,40 @@ impl Component for RootComponent {
 
                     // Route to the content component
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                 }
                 Response::Login(response::Login::Session(Err(e))) => {
                     // Remote the existing cookie
                     self.console_service.info(&format!("Session based login failed: {}", e));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Login.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
                 Response::Error => {
                     // Send a notification to the user and route to the error page
                     self.uikit_service
                         .notify("Internal server error", &NotificationStatus::Danger);
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
                 }
                 _ => {} // Not my response
             },
             // The root component also handles WebSocket failures like real errors
             Message::Reducer(ReducerResponse::Error) => {
                 // Send a notification to the user
-                self.uikit_service
-                    .notify("Server connection unavailable", &NotificationStatus::Danger);
+                self.uikit_service.notify(
+                    "Server communication unavailable or broken",
+                    &NotificationStatus::Danger,
+                );
 
                 // Route to the error child if coming from the loading child
-                if self.child_component == RouterComponent::Loading {
+                if self.child_component == RouterTarget::Loading {
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Error.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Error.into()));
                 }
             }
             // The root component also handles WebSocket failures like connection closings
             Message::Reducer(ReducerResponse::Close) => {
                 // Send a notification to the user if app already in usage
-                if self.child_component != RouterComponent::Error {
+                if self.child_component != RouterTarget::Error {
                     self.uikit_service
                         .notify("Server connection closed", &NotificationStatus::Danger);
                 }
@@ -141,22 +141,22 @@ impl Renderable<RootComponent> for RootComponent {
     }
 }
 
-impl Renderable<RootComponent> for RouterComponent {
+impl Renderable<RootComponent> for RouterTarget {
     fn view(&self) -> Html<RootComponent> {
         match *self {
-            RouterComponent::Loading => html! {
+            RouterTarget::Loading => html! {
                 <div class="uk-position-center", uk-icon="icon: cloud-download; ratio: 3",></div>
             },
-            RouterComponent::Login => html! {
+            RouterTarget::Login => html! {
                <LoginComponent:/>
             },
-            RouterComponent::Register => html! {
+            RouterTarget::Register => html! {
                <RegisterComponent:/>
             },
-            RouterComponent::Content => html! {
+            RouterTarget::Content => html! {
                <ContentComponent:/>
             },
-            RouterComponent::Error => html! {
+            RouterTarget::Error => html! {
                 <div class="uk-position-center", uk-icon="icon: ban; ratio: 3",></div>
             },
         }

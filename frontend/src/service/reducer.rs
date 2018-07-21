@@ -1,10 +1,10 @@
 //! The message reducer agent
 
 use serde_cbor::from_slice;
-use services::websocket::{WebSocketResponse, WebSocketService};
+use service::websocket::{WebSocketResponse, WebSocketService};
 use std::collections::{HashMap, HashSet};
 use webapp::protocol::{response::Login, Response};
-use yew::prelude::worker::*;
+use yew::{prelude::worker::*, services::ConsoleService};
 
 #[derive(Clone, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub enum ResponseType {
@@ -41,6 +41,7 @@ impl Transferable for ReducerResponse {}
 pub struct ReducerAgent {
     link: AgentLink<ReducerAgent>,
     subscribers: HashMap<HandlerId, HashSet<ResponseType>>,
+    console_service: ConsoleService,
     websocket_service: WebSocketService,
 }
 
@@ -70,6 +71,7 @@ impl Agent for ReducerAgent {
         Self {
             link,
             subscribers: HashMap::new(),
+            console_service: ConsoleService::new(),
             websocket_service,
         }
     }
@@ -86,7 +88,10 @@ impl Agent for ReducerAgent {
                 }
                 Ok(r @ Response::Logout(_)) => self.respond_data_filtered(&ResponseType::Logout, r),
                 Ok(r @ Response::Error) => self.respond_data_filtered(&ResponseType::Error, r),
-                Err(_) => {} // Message not decodable
+                Err(e) => {
+                    self.console_service.warn(&format!("Message not decodable: {}", e));
+                    self.respond_filtered(&ResponseType::StatusError, &ReducerResponse::Error);
+                }
             },
             // Inform all subscribers about the status responses
             WebSocketResponse::Close => self.respond_filtered(&ResponseType::StatusClose, &ReducerResponse::Close),

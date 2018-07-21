@@ -1,7 +1,7 @@
 //! Request messages
 
 use protocol::model::Session;
-use serde_cbor::to_vec;
+use serde_cbor::ser::to_vec_packed;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 /// All possible request variants
@@ -16,7 +16,7 @@ pub enum Request {
 impl Request {
     /// Convert the request into a vector of bytes on success
     pub fn to_vec(&self) -> Option<Vec<u8>> {
-        to_vec(self).ok()
+        to_vec_packed(self).ok()
     }
 }
 

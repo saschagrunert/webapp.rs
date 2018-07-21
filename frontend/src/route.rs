@@ -1,23 +1,23 @@
 //! All available routes within this application for fragment based routing
 
-use services::router::Route;
+use service::router::Route;
 use std::convert::Into;
 
 macro_rules! routes {
     ($(($x:tt, $y:expr)),*) => {
         #[derive(Debug, PartialEq)]
         /// Possible child components of this one
-        pub enum RouterComponent {
+        pub enum RouterTarget {
             $($x,)*
         }
 
-        /// Convert a RouterComponent into a Route
-        impl<T> Into<Route<T>> for RouterComponent where T: Default {
+        /// Convert a RouterTarget into a Route
+        impl<T> Into<Route<T>> for RouterTarget where T: Default {
             fn into(self) -> Route<T> {
                 Route {
                     fragment: Some(
                         match self {
-                            $(RouterComponent::$x => $y,)*
+                            $(RouterTarget::$x => $y,)*
                         }.into(),
                     ),
                     ..Default::default()
@@ -25,15 +25,15 @@ macro_rules! routes {
             }
         }
 
-        /// Convert a Route into a RouterComponent
-        impl<T> Into<RouterComponent> for Route<T> {
-            fn into(self) -> RouterComponent {
+        /// Convert a Route into a RouterTarget
+        impl<T> Into<RouterTarget> for Route<T> {
+            fn into(self) -> RouterTarget {
                 match self.fragment {
                     Some(f) => match f.as_str() {
-                        $($y => RouterComponent::$x,)*
-                        _ => RouterComponent::Error,
+                        $($y => RouterTarget::$x,)*
+                        _ => RouterTarget::Error,
                     },
-                    _ => RouterComponent::Error,
+                    _ => RouterTarget::Error,
                 }
             }
         }

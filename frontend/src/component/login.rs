@@ -1,7 +1,7 @@
 //! The Login component
 
-use routes::RouterComponent;
-use services::{
+use route::RouterTarget;
+use service::{
     cookie::CookieService,
     reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
@@ -90,7 +90,7 @@ impl Component for LoginComponent {
             // Route to the register component
             Message::RegisterRequest => self
                 .router_agent
-                .send(router::Request::ChangeRoute(RouterComponent::Register.into())),
+                .send(router::Request::ChangeRoute(RouterTarget::Register.into())),
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
                 self.update_button_state();
@@ -108,7 +108,7 @@ impl Component for LoginComponent {
 
                     // Route to the content component
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterComponent::Content.into()));
+                        .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                 }
                 Response::Login(response::Login::Credentials(Err(e))) => {
                     self.console_service

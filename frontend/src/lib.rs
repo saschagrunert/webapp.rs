@@ -1,4 +1,5 @@
 //! The main library interface
+
 #![deny(missing_docs)]
 #![recursion_limit = "128"]
 
@@ -14,11 +15,12 @@ extern crate serde;
 extern crate serde_cbor;
 extern crate webapp;
 
-mod components;
-mod routes;
-mod services;
+mod component;
+mod error;
+mod route;
+mod service;
 
-pub use components::root::RootComponent;
+pub use component::root::RootComponent;
 
 /// The global session cookie name
 pub const SESSION_COOKIE: &str = "sessionToken";
