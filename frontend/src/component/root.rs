@@ -1,7 +1,6 @@
 //! The Root component as main entry point of the frontend application
 
 use component::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
-use string::{ERROR_SERVER_INTERNAL, ERROR_SERVER_COMMUNICATION, SERVER_COMMUNICATION_CLOSED};
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
@@ -9,6 +8,7 @@ use service::{
     router::{self, Route, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
+use string::{ERROR_SERVER_COMMUNICATION, ERROR_SERVER_INTERNAL, SERVER_COMMUNICATION_CLOSED};
 use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
@@ -112,10 +112,8 @@ impl Component for RootComponent {
             // The root component also handles WebSocket failures like real errors
             Message::Reducer(ReducerResponse::Error) => {
                 // Send a notification to the user
-                self.uikit_service.notify(
-                    ERROR_SERVER_COMMUNICATION,
-                    &NotificationStatus::Danger,
-                );
+                self.uikit_service
+                    .notify(ERROR_SERVER_COMMUNICATION, &NotificationStatus::Danger);
 
                 // Route to the error child if coming from the loading child
                 if self.child_component == RouterTarget::Loading {

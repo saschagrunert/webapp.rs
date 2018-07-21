@@ -6,6 +6,7 @@ use service::{
     reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
 };
+use string::{TEXT_CONTENT, TEXT_LOGOUT};
 use webapp::protocol::{Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
@@ -108,10 +109,10 @@ impl Renderable<ContentComponent> for ContentComponent {
     fn view(&self) -> Html<Self> {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
-                <h1 class="uk-card-title",>{"Content"}</h1>
+                <h1 class="uk-card-title",>{TEXT_CONTENT}</h1>
                 <button disabled=self.logout_button_disabled,
                     class="uk-button uk-button-default",
-                    onclick=|_| Message::LogoutRequest,>{"Logout"}</button>
+                    onclick=|_| Message::LogoutRequest,>{TEXT_LOGOUT}</button>
             </div>
         }
     }

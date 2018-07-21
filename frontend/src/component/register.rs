@@ -1,6 +1,7 @@
 //! The registration component
 
 use yew::prelude::*;
+use string::TEXT_REGISTER;
 
 /// Data Model for the Register component
 pub struct RegisterComponent {}
@@ -32,7 +33,7 @@ impl Renderable<RegisterComponent> for RegisterComponent {
     fn view(&self) -> Html<Self> {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
-                {"Register Component"}
+                <h1 class="uk-card-title",>{TEXT_REGISTER}</h1>
             </div>
         }
     }

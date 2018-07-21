@@ -7,6 +7,7 @@ use service::{
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
+use string::{ERROR_AUTHENTICATION_FAILED, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN, TEXT_REGISTER};
 use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
@@ -114,7 +115,7 @@ impl Component for LoginComponent {
                     self.console_service
                         .warn(&format!("Credential based login failed: {}", e));
                     self.uikit_service
-                        .notify("Authentication failed", &NotificationStatus::Warning);
+                        .notify(ERROR_AUTHENTICATION_FAILED, &NotificationStatus::Warning);
                     self.login_button_disabled = false;
                     self.inputs_and_register_button_disabled = false;
                 }
@@ -140,17 +141,17 @@ impl Renderable<LoginComponent> for LoginComponent {
     fn view(&self) -> Html<Self> {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
+                <h1 class="uk-card-title",>{TEXT_LOGIN}</h1>
                 <form onsubmit="return false",>
                     <fieldset class="uk-fieldset",>
-                        <legend class="uk-legend",>{"Login"}</legend>
                         <input class="uk-input uk-margin",
-                            placeholder="Username",
+                            placeholder=INPUT_USERNAME,
                             disabled=self.inputs_and_register_button_disabled,
                             value=&self.username,
                             oninput=|e| Message::UpdateUsername(e.value), />
                         <input class="uk-input uk-margin-bottom",
                             type="password",
-                            placeholder="Password",
+                            placeholder=INPUT_PASSWORD,
                             disabled=self.inputs_and_register_button_disabled,
                             value=&self.password,
                             oninput=|e| Message::UpdatePassword(e.value), />
@@ -158,11 +159,11 @@ impl Renderable<LoginComponent> for LoginComponent {
                             <button class="uk-button uk-button-primary",
                                 type="submit",
                                 disabled=self.login_button_disabled,
-                                onclick=|_| Message::LoginRequest,>{"Login"}</button>
+                                onclick=|_| Message::LoginRequest,>{TEXT_LOGIN}</button>
                             <button class="uk-button uk-button-default",
                                 type="register",
                                 disabled=self.inputs_and_register_button_disabled,
-                                onclick=|_| Message::RegisterRequest,>{"Register"}</button>
+                                onclick=|_| Message::RegisterRequest,>{TEXT_REGISTER}</button>
                         </div>
                     </fieldset>
                 </form>
