@@ -14,7 +14,7 @@ pub enum Request {
 }
 
 impl Request {
-    /// Consume the object into a vector
+    /// Convert the request into a vector of bytes on success
     pub fn to_vec(&self) -> Option<Vec<u8>> {
         to_vec(self).ok()
     }

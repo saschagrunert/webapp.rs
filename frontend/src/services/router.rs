@@ -177,10 +177,6 @@ pub enum Request<T> {
     /// components to the route change.
     ChangeRoute(Route<T>),
 
-    /// Changes the route using a RouteInfo struct, but does not alert
-    /// connected components to the route change.
-    ChangeRouteNoBroadcast(Route<T>),
-
     /// Retrieve the current route request
     GetCurrentRoute,
 }
@@ -248,10 +244,6 @@ where
                         self.link.response(*sub, route.clone());
                     }
                 }
-            }
-            Request::ChangeRouteNoBroadcast(route) => {
-                let route_string: String = route.to_route_string();
-                self.route_service.set_route(&route_string, route.state);
             }
             Request::GetCurrentRoute => {
                 if let Ok(route) = Route::current_route(&self.route_service) {

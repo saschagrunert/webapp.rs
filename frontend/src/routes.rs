@@ -1,4 +1,4 @@
-//! All available routes within this application
+//! All available routes within this application for fragment based routing
 
 use services::router::Route;
 use std::convert::Into;
@@ -17,7 +17,7 @@ macro_rules! routes {
                 Route {
                     fragment: Some(
                         match self {
-                            $(RouterComponent::$x => $y,)*
+                            $(RouterComponent::$x => format!("/{}", $y),)*
                         }.into(),
                     ),
                     ..Default::default()

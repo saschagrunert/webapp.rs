@@ -1,7 +1,7 @@
 //! The message reducer agent
 
 use serde_cbor::from_slice;
-use services::websocket::{WebSocketService, WebSocketResponse};
+use services::websocket::{WebSocketResponse, WebSocketService};
 use std::collections::{HashMap, HashSet};
 use webapp::protocol::Response;
 use yew::prelude::worker::*;
