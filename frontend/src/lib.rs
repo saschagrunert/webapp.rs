@@ -16,9 +16,9 @@ extern crate serde_cbor;
 extern crate webapp;
 
 mod component;
-mod error;
 mod route;
 mod service;
+mod string;
 
 pub use component::root::RootComponent;
 

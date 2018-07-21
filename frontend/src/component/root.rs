@@ -1,6 +1,7 @@
 //! The Root component as main entry point of the frontend application
 
 use component::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
+use string::{ERROR_SERVER_INTERNAL, ERROR_SERVER_COMMUNICATION, SERVER_COMMUNICATION_CLOSED};
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
@@ -104,7 +105,7 @@ impl Component for RootComponent {
                 Response::Error => {
                     // Send a notification to the user and route to the error page
                     self.uikit_service
-                        .notify("Internal server error", &NotificationStatus::Danger);
+                        .notify(ERROR_SERVER_INTERNAL, &NotificationStatus::Danger);
                 }
                 _ => {} // Not my response
             },
@@ -112,7 +113,7 @@ impl Component for RootComponent {
             Message::Reducer(ReducerResponse::Error) => {
                 // Send a notification to the user
                 self.uikit_service.notify(
-                    "Server communication unavailable or broken",
+                    ERROR_SERVER_COMMUNICATION,
                     &NotificationStatus::Danger,
                 );
 
@@ -127,7 +128,7 @@ impl Component for RootComponent {
                 // Send a notification to the user if app already in usage
                 if self.child_component != RouterTarget::Error {
                     self.uikit_service
-                        .notify("Server connection closed", &NotificationStatus::Danger);
+                        .notify(SERVER_COMMUNICATION_CLOSED, &NotificationStatus::Danger);
                 }
             }
         }

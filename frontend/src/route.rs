@@ -4,7 +4,7 @@ use service::router::Route;
 use std::convert::Into;
 
 macro_rules! routes {
-    ($(($x:tt, $y:expr)),*) => {
+    ($(($x:tt, $y:expr)),*) => (
         #[derive(Debug, PartialEq)]
         /// Possible child components of this one
         pub enum RouterTarget {
@@ -37,7 +37,7 @@ macro_rules! routes {
                 }
             }
         }
-    };
+    )
 }
 
 /// Available routes
