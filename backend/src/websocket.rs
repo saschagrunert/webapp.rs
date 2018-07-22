@@ -62,12 +62,9 @@ impl WebSocket {
             Request::Login(login) => {
                 // Check if its a credential or token login type
                 match login {
-                    request::Login::Credentials {
-                        username: u,
-                        password: p,
-                    } => {
+                    request::Login::Credentials { username, password } => {
                         let response = Response::Login(response::Login::Credentials(
-                            self.handle_request_login_credentials(&u, &p, context),
+                            self.handle_request_login_credentials(&username, &password, context),
                         ));
 
                         // Send the response to the websocket
@@ -152,6 +149,8 @@ impl WebSocket {
         session: Session,
         context: &mut WebsocketContext<Self, State>,
     ) -> Result<(), LogoutError> {
+        debug!("Session token {} wants to be logged out", session.token);
+
         // Remove the session from the internal storage
         context.state().database.send(DeleteSession(session.token)).wait()??;
 
