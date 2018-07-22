@@ -47,7 +47,7 @@ impl CborRequest {
     pub fn new<S>(req: &HttpRequest<S>) -> Self {
         let future = req
             .payload()
-            .map_err(|e| CborError::Payload(e))
+            .map_err(CborError::Payload)
             .fold(BytesMut::new(), move |mut body, chunk| {
                 body.extend_from_slice(&chunk);
                 Ok::<_, CborError>(body)
@@ -74,7 +74,7 @@ pub trait CborResponseBuilder {
 impl CborResponseBuilder for HttpResponseBuilder {
     fn cbor(&mut self, value: Response) -> Result<HttpResponse, ActixError> {
         self.header(CONTENT_TYPE, DEFAULT_CONTENT_TYPE);
-        let body = to_vec(&value).map_err(|e| CborError::Serialize(e))?;
+        let body = to_vec(&value).map_err(CborError::Serialize)?;
         Ok(self.body(body))
     }
 }

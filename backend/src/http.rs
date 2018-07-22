@@ -114,7 +114,7 @@ pub fn logout(http_request: &HttpRequest<State>) -> FutureResposne {
                 .send(DeleteSession(token))
                 .from_err()
                 .and_then(|result| match result {
-                    Ok(r) => Ok(HttpResponse::Ok().cbor(Response::Logout(Ok(r)))?),
+                    Ok(()) => Ok(HttpResponse::Ok().cbor(Response::Logout(Ok(())))?),
                     Err(_) => Ok(HttpResponse::InternalServerError().into()),
                 })
         })
