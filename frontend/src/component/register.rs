@@ -1,7 +1,7 @@
 //! The registration component
 
-use yew::prelude::*;
 use string::TEXT_REGISTER;
+use yew::prelude::*;
 
 /// Data Model for the Register component
 pub struct RegisterComponent {}

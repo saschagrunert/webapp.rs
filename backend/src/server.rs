@@ -5,6 +5,7 @@ use actix_web::{fs::StaticFiles, http, middleware, server, ws, App};
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
+use http::logout;
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
@@ -45,6 +46,7 @@ impl Server {
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
+                .resource("/logout", |r| r.method(http::Method::POST).f(logout))
                 .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 

@@ -54,7 +54,7 @@ impl CookieService {
     /// Set a cookie for a given name, value and validity days
     fn set_expiring(&self, name: &str, value: &str, days: i32) {
         js! {
-            document.cookie = @{name} + "=" + (@{value} || "")  +
+            document.cookie = @{name} + "=" + (@{value} || "") +
                 ";max-age=" + (@{days} * 24 * 60 * 60) + ";path=/";
         }
     }

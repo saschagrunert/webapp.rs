@@ -2,7 +2,7 @@
 
 macro_rules! strings {
     ($(($name:ident, $content:expr)),*) => (
-        $(pub static $name: &str = $content;)*
+        $(pub const $name: &str = $content;)*
     )
 }
 
