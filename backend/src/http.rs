@@ -12,12 +12,12 @@ pub fn logout(http_request: &HttpRequest<State>) -> Box<Future<Item = HttpRespon
     CborRequest::new(http_request)
         .from_err()
         .and_then(|request: Request| match request {
-            Request::Logout(_session) => {
+            Request::Logout(session) => {
                 // Remove the session from the internal storage
                 /* http_request
                     .state()
                     .database
-                    .send(DeleteSession("asd".to_owned()))
+                    .send(DeleteSession(session.token))
                     .wait()??; */
 
                 Ok(HttpResponse::Ok().cbor(Response::Logout(Ok(())))?)
