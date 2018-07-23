@@ -3,6 +3,7 @@
 use component::{content::ContentComponent, login::LoginComponent};
 use route::RouterTarget;
 use service::{
+    api::{self, ApiAgent, ApiRequest, ApiResponse},
     cookie::CookieService,
     reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, Route, RouterAgent},
@@ -13,13 +14,10 @@ use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
 
-use failure::Error;
-use yew::format::Cbor;
-use yew::services::fetch::{FetchService, Request as FetchRequest, Response as FetchResponse};
-
 /// Data Model for the Root Component
 pub struct RootComponent {
     child_component: RouterTarget,
+    api_agent: Box<Bridge<ApiAgent>>,
     reducer_agent: Box<Bridge<ReducerAgent>>,
     router_agent: Box<Bridge<RouterAgent<()>>>,
     cookie_service: CookieService,
@@ -29,9 +27,9 @@ pub struct RootComponent {
 
 /// Available message types to process
 pub enum Message {
-    HandleRoute(Route<()>),
+    Api(ApiResponse),
+    Route(Route<()>),
     Reducer(ReducerResponse),
-    Ignore,
 }
 
 impl Component for RootComponent {
@@ -48,35 +46,18 @@ impl Component for RootComponent {
             ResponseType::StatusOpen,
         ]));
 
-        // Test post request
-        let mut fetch_service = FetchService::new();
-        let data = Request::Login(request::Login::Credentials {
-            username: "username".to_owned(),
-            password: "username".to_owned(),
-        });
-        let request = FetchRequest::post("http://localhost:30080/login/credentials")
-            .body(Cbor(&data))
-            .unwrap();
-        fetch_service.fetch_binary(
-            request,
-            link.send_back(|response: FetchResponse<Cbor<Result<Response, Error>>>| {
-                let (meta, Cbor(body)) = response.into_parts();
-                let mut cs = ConsoleService::new();
-                cs.info(&format!("{:?}", meta));
-                cs.info(&format!("{:?}", body));
-                if meta.status.is_success() {
-                    Message::Ignore
-                } else {
-                    Message::Ignore
-                }
-            }),
-        );
+        let mut api_agent = ApiAgent::bridge(link.send_back(Message::Api));
+        api_agent.send(ApiRequest::Subscribe(vec![
+            api::ResponseType::Error,
+            api::ResponseType::LoginCredentials,
+        ]));
 
         // Return the component
         Self {
             child_component: RouterTarget::Loading,
+            api_agent,
             reducer_agent,
-            router_agent: RouterAgent::bridge(link.send_back(Message::HandleRoute)),
+            router_agent: RouterAgent::bridge(link.send_back(Message::Route)),
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             uikit_service: UIkitService::new(),
@@ -89,12 +70,19 @@ impl Component for RootComponent {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::Ignore => {}
-
             // Route to the appropriate child component
-            Message::HandleRoute(route) => self.child_component = route.into(),
+            Message::Route(route) => self.child_component = route.into(),
+            // Handle API responses
+            Message::Api(_) => {}
             // The WebSocket connection is open, try to authenticate if possible
             Message::Reducer(ReducerResponse::Open) => {
+                // Test the API agent
+                self.api_agent
+                    .send(ApiRequest::Send(Request::Login(request::Login::Credentials {
+                        username: "p".to_owned(),
+                        password: "a".to_owned(),
+                    })));
+
                 // Verify if a session cookie already exist and try to authenticate if so
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     match Request::Login(request::Login::Session(Session { token })).to_vec() {
