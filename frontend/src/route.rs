@@ -45,6 +45,5 @@ routes!(
     (Error, "/error"),
     (Loading, "/loading"),
     (Login, "/login"),
-    (Register, "/register"),
     (Content, "/content")
 );

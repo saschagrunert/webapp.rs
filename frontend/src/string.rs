@@ -15,6 +15,5 @@ strings!(
     (SERVER_COMMUNICATION_CLOSED, "Server connection closed"),
     (TEXT_CONTENT, "Content"),
     (TEXT_LOGIN, "Login"),
-    (TEXT_LOGOUT, "Logout"),
-    (TEXT_REGISTER, "Register")
+    (TEXT_LOGOUT, "Logout")
 );

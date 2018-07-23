@@ -2,7 +2,7 @@
 
 use actix_web::{
     dev::HttpResponseBuilder,
-    error::{Error as ActixError, PayloadError},
+    error::{Error as HttpError, PayloadError},
     http::header::CONTENT_TYPE,
     HttpMessage, HttpRequest, HttpResponse, ResponseError,
 };
@@ -68,12 +68,13 @@ impl Future for CborRequest {
 }
 
 pub trait CborResponseBuilder {
-    fn cbor(&mut self, value: Response) -> Result<HttpResponse, ActixError>;
+    fn cbor(&mut self, value: Response) -> Result<HttpResponse, HttpError>;
 }
 
 impl CborResponseBuilder for HttpResponseBuilder {
-    fn cbor(&mut self, value: Response) -> Result<HttpResponse, ActixError> {
+    fn cbor(&mut self, value: Response) -> Result<HttpResponse, HttpError> {
         self.header(CONTENT_TYPE, DEFAULT_CONTENT_TYPE);
+        self.header("Access-Control-Allow-Origin", "*");
         let body = to_vec(&value).map_err(CborError::Serialize)?;
         Ok(self.body(body))
     }

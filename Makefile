@@ -1,6 +1,6 @@
 # Compiler configuration
 GENERAL_ARGS = --release
-FRONTEND_ARGS = $(GENERAL_ARGS) -p webapp-frontend --target wasm32-unknown-emscripten
+FRONTEND_ARGS = $(GENERAL_ARGS) -p webapp-frontend --target wasm32-unknown-unknown
 BACKEND_ARGS = $(GENERAL_ARGS) -p webapp-backend
 
 # Application configuration

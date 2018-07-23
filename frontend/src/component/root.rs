@@ -1,6 +1,6 @@
 //! The Root component as main entry point of the frontend application
 
-use component::{content::ContentComponent, login::LoginComponent, register::RegisterComponent};
+use component::{content::ContentComponent, login::LoginComponent};
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
@@ -12,6 +12,10 @@ use string::{ERROR_SERVER_COMMUNICATION, ERROR_SERVER_INTERNAL, SERVER_COMMUNICA
 use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
+
+use failure::Error;
+use yew::format::Cbor;
+use yew::services::fetch::{FetchService, Request as FetchRequest, Response as FetchResponse};
 
 /// Data Model for the Root Component
 pub struct RootComponent {
@@ -27,6 +31,7 @@ pub struct RootComponent {
 pub enum Message {
     HandleRoute(Route<()>),
     Reducer(ReducerResponse),
+    Ignore,
 }
 
 impl Component for RootComponent {
@@ -42,6 +47,30 @@ impl Component for RootComponent {
             ResponseType::StatusError,
             ResponseType::StatusOpen,
         ]));
+
+        // Test post request
+        let mut fetch_service = FetchService::new();
+        let data = Request::Login(request::Login::Credentials {
+            username: "username".to_owned(),
+            password: "username".to_owned(),
+        });
+        let request = FetchRequest::post("http://localhost:30080/login/credentials")
+            .body(Cbor(&data))
+            .unwrap();
+        fetch_service.fetch_binary(
+            request,
+            link.send_back(|response: FetchResponse<Cbor<Result<Response, Error>>>| {
+                let (meta, Cbor(body)) = response.into_parts();
+                let mut cs = ConsoleService::new();
+                cs.info(&format!("{:?}", meta));
+                cs.info(&format!("{:?}", body));
+                if meta.status.is_success() {
+                    Message::Ignore
+                } else {
+                    Message::Ignore
+                }
+            }),
+        );
 
         // Return the component
         Self {
@@ -60,6 +89,8 @@ impl Component for RootComponent {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Message::Ignore => {}
+
             // Route to the appropriate child component
             Message::HandleRoute(route) => self.child_component = route.into(),
             // The WebSocket connection is open, try to authenticate if possible
@@ -148,9 +179,6 @@ impl Renderable<RootComponent> for RouterTarget {
             },
             RouterTarget::Login => html! {
                <LoginComponent:/>
-            },
-            RouterTarget::Register => html! {
-               <RegisterComponent:/>
             },
             RouterTarget::Content => html! {
                <ContentComponent:/>

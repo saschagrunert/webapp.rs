@@ -7,7 +7,7 @@ use service::{
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{ERROR_AUTHENTICATION_FAILED, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN, TEXT_REGISTER};
+use string::{ERROR_AUTHENTICATION_FAILED, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN};
 use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
@@ -17,7 +17,7 @@ pub struct LoginComponent {
     username: String,
     password: String,
     login_button_disabled: bool,
-    inputs_and_register_button_disabled: bool,
+    inputs_disabled: bool,
     reducer_agent: Box<Bridge<ReducerAgent>>,
     router_agent: Box<Bridge<RouterAgent<()>>>,
     console_service: ConsoleService,
@@ -29,7 +29,6 @@ pub struct LoginComponent {
 pub enum Message {
     Ignore,
     LoginRequest,
-    RegisterRequest,
     UpdatePassword(String),
     UpdateUsername(String),
     Reducer(ReducerResponse),
@@ -54,7 +53,7 @@ impl Component for LoginComponent {
             username: String::new(),
             password: String::new(),
             login_button_disabled: true,
-            inputs_and_register_button_disabled: false,
+            inputs_disabled: false,
             reducer_agent,
             router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
             console_service: ConsoleService::new(),
@@ -79,7 +78,7 @@ impl Component for LoginComponent {
                 Some(data) => {
                     // Disable user interaction
                     self.login_button_disabled = true;
-                    self.inputs_and_register_button_disabled = true;
+                    self.inputs_disabled = true;
 
                     // Send the request
                     self.reducer_agent.send(ReducerRequest::Send(data));
@@ -88,10 +87,6 @@ impl Component for LoginComponent {
                     self.console_service.error("Unable to create login credential request");
                 }
             },
-            // Route to the register component
-            Message::RegisterRequest => self
-                .router_agent
-                .send(router::Request::ChangeRoute(RouterTarget::Register.into())),
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
                 self.update_button_state();
@@ -117,13 +112,13 @@ impl Component for LoginComponent {
                     self.uikit_service
                         .notify(ERROR_AUTHENTICATION_FAILED, &NotificationStatus::Warning);
                     self.login_button_disabled = false;
-                    self.inputs_and_register_button_disabled = false;
+                    self.inputs_disabled = false;
                 }
                 _ => {} // Not my response
             },
             Message::Reducer(ReducerResponse::Close) | Message::Reducer(ReducerResponse::Error) => {
                 self.login_button_disabled = true;
-                self.inputs_and_register_button_disabled = true;
+                self.inputs_disabled = true;
             }
             _ => {}
         }
@@ -146,25 +141,19 @@ impl Renderable<LoginComponent> for LoginComponent {
                     <fieldset class="uk-fieldset",>
                         <input class="uk-input uk-margin",
                             placeholder=INPUT_USERNAME,
-                            disabled=self.inputs_and_register_button_disabled,
+                            disabled=self.inputs_disabled,
                             value=&self.username,
                             oninput=|e| Message::UpdateUsername(e.value), />
                         <input class="uk-input uk-margin-bottom",
                             type="password",
                             placeholder=INPUT_PASSWORD,
-                            disabled=self.inputs_and_register_button_disabled,
+                            disabled=self.inputs_disabled,
                             value=&self.password,
                             oninput=|e| Message::UpdatePassword(e.value), />
-                        <div class="uk-button-group",>
-                            <button class="uk-button uk-button-primary",
-                                type="submit",
-                                disabled=self.login_button_disabled,
-                                onclick=|_| Message::LoginRequest,>{TEXT_LOGIN}</button>
-                            <button class="uk-button uk-button-default",
-                                type="register",
-                                disabled=self.inputs_and_register_button_disabled,
-                                onclick=|_| Message::RegisterRequest,>{TEXT_REGISTER}</button>
-                        </div>
+                        <button class="uk-button uk-button-primary",
+                            type="submit",
+                            disabled=self.login_button_disabled,
+                            onclick=|_| Message::LoginRequest,>{TEXT_LOGIN}</button>
                     </fieldset>
                 </form>
             </div>

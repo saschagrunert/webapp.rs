@@ -32,4 +32,4 @@ serde_cbor = "0.8.2"
 serde_derive = "1.0.70"
 stdweb = "0.4.8"
 webapp = { path = ".." }
-yew = { git = "https://github.com/DenisKolodin/yew" }
+yew = { git = "https://github.com/DenisKolodin/yew", features = ["cbor"] }

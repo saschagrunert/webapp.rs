@@ -1,7 +1,7 @@
 //! HTTP message handling
 
 use actix_web::{
-    error::{Error as ActixError, ErrorBadRequest, ErrorForbidden, ErrorInternalServerError},
+    error::{Error as HttpError, ErrorBadRequest, ErrorForbidden, ErrorInternalServerError},
     AsyncResponder, HttpRequest, HttpResponse,
 };
 use cbor::{CborRequest, CborResponseBuilder};
@@ -11,9 +11,14 @@ use server::State;
 use token::Token;
 use webapp::protocol::{request, response, Request, Response};
 
-type FutureResposne = Box<Future<Item = HttpResponse, Error = ActixError>>;
+type FutureResponse = Box<Future<Item = HttpResponse, Error = HttpError>>;
 
-pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResposne {
+/// Returns a generic bad request on receiving a wrong message type
+fn wrong_message_type<T>() -> Result<T, HttpError> {
+    Err(ErrorBadRequest("wrong message type"))
+}
+
+pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResponse {
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -24,13 +29,14 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResposne {
                 Ok((username, password))
             },
             // When it is not the correct request
-            _ => Err(ErrorBadRequest("wrong message type")),
+            _ => wrong_message_type(),
         })
         // Verify username and password
         .and_then(|(username, password)| {
             if username.is_empty() || password.is_empty() || username != password {
-                debug!("Wrong username or password");
-                return Err(ErrorForbidden("wrong username or password"));
+                const M :&str = "Wrong username or password";
+                debug!("{}", M);
+                return Err(ErrorForbidden(M));
             }
             Ok(username)
         })
@@ -38,8 +44,6 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResposne {
         .and_then(|username| {
             Token::create(&username).map_err(|_| {
                  ErrorInternalServerError("token creation failed")
-            }).and_then(|token| {
-                 Ok(token)
             })
         })
         // Update the session in the database
@@ -57,7 +61,7 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResposne {
         .responder()
 }
 
-pub fn login_session(http_request: &HttpRequest<State>) -> FutureResposne {
+pub fn login_session(http_request: &HttpRequest<State>) -> FutureResponse {
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -68,7 +72,7 @@ pub fn login_session(http_request: &HttpRequest<State>) -> FutureResposne {
                 Ok(session.token)
             },
             // When it is not the correct request
-            _ => Err(ErrorBadRequest("wrong message type")),
+            _ => wrong_message_type(),
         })
         // Create a new token for the already given one
         .and_then(|token| {
@@ -93,7 +97,7 @@ pub fn login_session(http_request: &HttpRequest<State>) -> FutureResposne {
         .responder()
 }
 
-pub fn logout(http_request: &HttpRequest<State>) -> FutureResposne {
+pub fn logout(http_request: &HttpRequest<State>) -> FutureResponse {
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -104,7 +108,7 @@ pub fn logout(http_request: &HttpRequest<State>) -> FutureResposne {
                 Ok(session.token)
             },
             // When it is not the correct request
-            _ => Err(ErrorBadRequest("wrong message type")),
+            _ => wrong_message_type(),
         })
         // Remove the session from the database
         .and_then(move |token| {
