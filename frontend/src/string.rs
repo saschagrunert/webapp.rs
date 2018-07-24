@@ -7,12 +7,11 @@ macro_rules! strings {
 }
 
 strings!(
-    (ERROR_AUTHENTICATION_FAILED, "Authentication failed"),
-    (ERROR_SERVER_COMMUNICATION, "Server communication unavailable or broken"),
-    (ERROR_SERVER_INTERNAL, "Internal server error"),
+    (AUTHENTICATION_ERROR, "Authentication failed"),
     (INPUT_PASSWORD, "Password"),
     (INPUT_USERNAME, "Username"),
-    (SERVER_COMMUNICATION_CLOSED, "Server connection closed"),
+    (REQUEST_ERROR, "Failed to send request to server"),
+    (RESPONSE_ERROR, "Failed to retrieve valid server response"),
     (TEXT_CONTENT, "Content"),
     (TEXT_LOGIN, "Login"),
     (TEXT_LOGOUT, "Logout")

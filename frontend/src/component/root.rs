@@ -1,35 +1,39 @@
 //! The Root component as main entry point of the frontend application
 
 use component::{content::ContentComponent, login::LoginComponent};
+use failure::Error;
 use route::RouterTarget;
 use service::{
-    api::{self, ApiAgent, ApiRequest, ApiResponse},
     cookie::CookieService,
-    reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, Route, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{ERROR_SERVER_COMMUNICATION, ERROR_SERVER_INTERNAL, SERVER_COMMUNICATION_CLOSED};
+use string::{REQUEST_ERROR, RESPONSE_ERROR};
 use webapp::protocol::{request, response, Request, Response, Session};
-use yew::{prelude::*, services::ConsoleService};
-use SESSION_COOKIE;
+use yew::{
+    format::Cbor,
+    prelude::*,
+    services::{
+        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        ConsoleService, FetchService,
+    },
+};
+use {API_URL_LOGIN_SESSION, SESSION_COOKIE};
 
 /// Data Model for the Root Component
 pub struct RootComponent {
     child_component: RouterTarget,
-    api_agent: Box<Bridge<ApiAgent>>,
-    reducer_agent: Box<Bridge<ReducerAgent>>,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
-    cookie_service: CookieService,
     console_service: ConsoleService,
+    cookie_service: CookieService,
+    fetch_task: Option<FetchTask>,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
     uikit_service: UIkitService,
 }
 
 /// Available message types to process
 pub enum Message {
-    Api(ApiResponse),
+    Fetch(FetchResponse<Cbor<Result<Response, Error>>>),
     Route(Route<()>),
-    Reducer(ReducerResponse),
 }
 
 impl Component for RootComponent {
@@ -37,30 +41,41 @@ impl Component for RootComponent {
     type Properties = ();
 
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        // Create the reducer and subscribe to the used messages
-        let mut reducer_agent = ReducerAgent::bridge(link.send_back(Message::Reducer));
-        reducer_agent.send(ReducerRequest::Subscribe(vec![
-            ResponseType::LoginSession,
-            ResponseType::StatusClose,
-            ResponseType::StatusError,
-            ResponseType::StatusOpen,
-        ]));
+        // Create needed services
+        let cookie_service = CookieService::new();
+        let mut console_service = ConsoleService::new();
+        let mut fetch_service = FetchService::new();
+        let mut fetch_task = None;
+        let mut router_agent = RouterAgent::bridge(link.send_back(Message::Route));
+        let uikit_service = UIkitService::new();
 
-        let mut api_agent = ApiAgent::bridge(link.send_back(Message::Api));
-        api_agent.send(ApiRequest::Subscribe(vec![
-            api::ResponseType::Error,
-            api::ResponseType::LoginCredentials,
-        ]));
+        // Verify if a session cookie already exist and try to authenticate if so
+        if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
+            match FetchRequest::post(API_URL_LOGIN_SESSION).body(Cbor(&Request::Login(request::Login::Session(
+                Session {
+                    token: token.to_owned(),
+                },
+            )))) {
+                Ok(body) => fetch_task = Some(fetch_service.fetch_binary(body, link.send_back(Message::Fetch))),
+                Err(_) => {
+                    uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                    cookie_service.remove(SESSION_COOKIE);
+                    router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                }
+            }
+        } else {
+            console_service.info("No token found, routing to login");
+            router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+        }
 
         // Return the component
         Self {
             child_component: RouterTarget::Loading,
-            api_agent,
-            reducer_agent,
-            router_agent: RouterAgent::bridge(link.send_back(Message::Route)),
-            console_service: ConsoleService::new(),
-            cookie_service: CookieService::new(),
-            uikit_service: UIkitService::new(),
+            console_service,
+            cookie_service,
+            fetch_task,
+            router_agent,
+            uikit_service,
         }
     }
 
@@ -72,81 +87,42 @@ impl Component for RootComponent {
         match msg {
             // Route to the appropriate child component
             Message::Route(route) => self.child_component = route.into(),
-            // Handle API responses
-            Message::Api(_) => {}
-            // The WebSocket connection is open, try to authenticate if possible
-            Message::Reducer(ReducerResponse::Open) => {
-                // Test the API agent
-                self.api_agent
-                    .send(ApiRequest::Send(Request::Login(request::Login::Credentials {
-                        username: "p".to_owned(),
-                        password: "a".to_owned(),
-                    })));
 
-                // Verify if a session cookie already exist and try to authenticate if so
-                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match Request::Login(request::Login::Session(Session { token })).to_vec() {
-                        Some(data) => {
-                            self.console_service.info("Token found, trying to authenticate");
-                            self.reducer_agent.send(ReducerRequest::Send(data));
+            // The message for all fetch responses
+            Message::Fetch(response) => {
+                let (meta, Cbor(body)) = response.into_parts();
+
+                // Check the response type
+                if meta.status.is_success() {
+                    match body {
+                        Ok(Response::Login(response::Login::Session(Ok(Session { token })))) => {
+                            self.console_service.info("Session based login succeed");
+
+                            // Set the retrieved session cookie
+                            self.cookie_service.set(SESSION_COOKIE, &token);
+
+                            // Route to the content component
+                            self.router_agent
+                                .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                         }
-                        None => {
-                            self.cookie_service.remove(SESSION_COOKIE);
+                        _ => {
+                            // Send an error notification to the user on any failure
+                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                             self.router_agent
                                 .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                         }
                     }
                 } else {
-                    self.console_service.info("No token found, routing to login");
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
-                }
-            }
-            // Received a response, handle if needed
-            Message::Reducer(ReducerResponse::Data(response)) => match response {
-                Response::Login(response::Login::Session(Ok(Session { token }))) => {
-                    self.console_service.info("Session based login succeed");
-
-                    // Set the retrieved session cookie
-                    self.cookie_service.set(SESSION_COOKIE, &token);
-
-                    // Route to the content component
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
-                }
-                Response::Login(response::Login::Session(Err(e))) => {
-                    // Remote the existing cookie
-                    self.console_service.info(&format!("Session based login failed: {}", e));
+                    // Remove the existing cookie
+                    self.console_service
+                        .info(&format!("Session based login failed with status: {}", meta.status));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
-                Response::Error => {
-                    // Send a notification to the user and route to the error page
-                    self.uikit_service
-                        .notify(ERROR_SERVER_INTERNAL, &NotificationStatus::Danger);
-                }
-                _ => {} // Not my response
-            },
-            // The root component also handles WebSocket failures like real errors
-            Message::Reducer(ReducerResponse::Error) => {
-                // Send a notification to the user
-                self.uikit_service
-                    .notify(ERROR_SERVER_COMMUNICATION, &NotificationStatus::Danger);
 
-                // Route to the error child if coming from the loading child
-                if self.child_component == RouterTarget::Loading {
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Error.into()));
-                }
-            }
-            // The root component also handles WebSocket failures like connection closings
-            Message::Reducer(ReducerResponse::Close) => {
-                // Send a notification to the user if app already in usage
-                if self.child_component != RouterTarget::Error {
-                    self.uikit_service
-                        .notify(SERVER_COMMUNICATION_CLOSED, &NotificationStatus::Danger);
-                }
+                // Remove the ongoing task
+                self.fetch_task = None;
             }
         }
         true

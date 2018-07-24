@@ -74,7 +74,6 @@ pub trait CborResponseBuilder {
 impl CborResponseBuilder for HttpResponseBuilder {
     fn cbor(&mut self, value: Response) -> Result<HttpResponse, HttpError> {
         self.header(CONTENT_TYPE, DEFAULT_CONTENT_TYPE);
-        self.header("Access-Control-Allow-Origin", "*");
         let body = to_vec(&value).map_err(CborError::Serialize)?;
         Ok(self.body(body))
     }

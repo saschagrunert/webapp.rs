@@ -34,9 +34,7 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResponse {
         // Verify username and password
         .and_then(|(username, password)| {
             if username.is_empty() || password.is_empty() || username != password {
-                const M :&str = "Wrong username or password";
-                debug!("{}", M);
-                return Err(ErrorForbidden(M));
+                return Err(ErrorForbidden("wrong username or password"));
             }
             Ok(username)
         })
@@ -77,7 +75,7 @@ pub fn login_session(http_request: &HttpRequest<State>) -> FutureResponse {
         // Create a new token for the already given one
         .and_then(|token| {
             Token::verify(&token).map_err(|_| {
-                 ErrorInternalServerError("token verification failed")
+                 ErrorForbidden("Token verification failed")
             }).and_then(|new_token| {
                  Ok((token, new_token))
             })

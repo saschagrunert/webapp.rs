@@ -97,10 +97,14 @@ fn prepare_config() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string("../Config.toml")?)?;
 
     // Set the websocket path directly within the build target
-    let ws_prot = if config.server.tls { "wss" } else { "ws" };
+    let secure_protocol = if config.server.tls { "s" } else { "" };
     println!(
-        "cargo:rustc-env=WS_URL={}://{}:{}/ws",
-        ws_prot, config.server.ip, config.server.port
+        "cargo:rustc-env=WS_URL=ws{}://{}:{}/ws",
+        secure_protocol, config.server.ip, config.server.port
+    );
+    println!(
+        "cargo:rustc-env=API_URL=http{}://{}:{}/",
+        secure_protocol, config.server.ip, config.server.port
     );
 
     Ok(())

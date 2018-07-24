@@ -7,7 +7,7 @@ use service::{
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{ERROR_AUTHENTICATION_FAILED, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN};
+use string::{AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN};
 use webapp::protocol::{request, response, Request, Response, Session};
 use yew::{prelude::*, services::ConsoleService};
 use SESSION_COOKIE;
@@ -110,7 +110,7 @@ impl Component for LoginComponent {
                     self.console_service
                         .warn(&format!("Credential based login failed: {}", e));
                     self.uikit_service
-                        .notify(ERROR_AUTHENTICATION_FAILED, &NotificationStatus::Warning);
+                        .notify(AUTHENTICATION_ERROR, &NotificationStatus::Warning);
                     self.login_button_disabled = false;
                     self.inputs_disabled = false;
                 }

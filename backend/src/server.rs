@@ -1,7 +1,9 @@
 //! Everything related to the actual server implementation
 
 use actix::{prelude::*, SystemRunner};
-use actix_web::{fs::StaticFiles, http, middleware, server, ws, App};
+use actix_web::{
+    fs::StaticFiles, http, http::header::CONTENT_TYPE, middleware, middleware::cors::Cors, server, ws, App,
+};
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
@@ -43,14 +45,21 @@ impl Server {
             App::with_state(State {
                 database: db_addr.clone(),
             }).middleware(middleware::Logger::default())
+                .configure(|app| {
+                    Cors::for_app(app)
+                        .allowed_methods(vec!["GET", "POST"])
+                        .allowed_header(CONTENT_TYPE)
+                        .max_age(3600)
+                        .resource("/login/credentials", |r| {
+                            r.method(http::Method::POST).f(login_credentials)
+                        })
+                        .resource("/login/session", |r| r.method(http::Method::POST).f(login_session))
+                        .resource("/logout", |r| r.method(http::Method::POST).f(logout))
+                        .register()
+                })
                 .resource("/ws", |r| {
                     r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
-                .resource("/login/credentials", |r| {
-                    r.method(http::Method::POST).f(login_credentials)
-                })
-                .resource("/login/session", |r| r.method(http::Method::POST).f(login_session))
-                .resource("/logout", |r| r.method(http::Method::POST).f(logout))
                 .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 
