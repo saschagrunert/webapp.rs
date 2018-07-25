@@ -5,6 +5,7 @@ use route::RouterTarget;
 use service::{
     cookie::CookieService,
     router::{self, RouterAgent},
+    session_timer::{self, SessionTimerAgent},
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
@@ -13,7 +14,7 @@ use yew::{
     format::Cbor,
     prelude::*,
     services::{
-        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        fetch::{self, FetchTask},
         ConsoleService, FetchService,
     },
 };
@@ -27,12 +28,13 @@ pub struct ContentComponent {
     fetch_task: Option<FetchTask>,
     logout_button_disabled: bool,
     router_agent: Box<Bridge<RouterAgent<()>>>,
+    session_timer_agent: Box<Bridge<SessionTimerAgent>>,
     uikit_service: UIkitService,
 }
 
 /// Available message types to process
 pub enum Message {
-    Fetch(FetchResponse<Cbor<Result<response::Logout, Error>>>),
+    Fetch(fetch::Response<Cbor<Result<response::Logout, Error>>>),
     Ignore,
     LogoutRequest,
 }
@@ -47,9 +49,13 @@ impl Component for ContentComponent {
         let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
         let mut console_service = ConsoleService::new();
+        let mut session_timer_agent = SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
             console_service.log("No session token found, routing back to login");
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+        } else {
+            // Start the timer to keep the session active
+            session_timer_agent.send(session_timer::Request::Start);
         }
 
         // Return the component
@@ -60,6 +66,7 @@ impl Component for ContentComponent {
             fetch_task: None,
             logout_button_disabled: false,
             router_agent,
+            session_timer_agent,
             uikit_service: UIkitService::new(),
         }
     }
@@ -73,7 +80,7 @@ impl Component for ContentComponent {
         match msg {
             Message::LogoutRequest => if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                 // Create the logout request
-                match FetchRequest::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
+                match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
                     token: token.to_owned(),
                 }))) {
                     Ok(body) => {
@@ -117,6 +124,7 @@ impl Component for ContentComponent {
 
                 // Remove the existing cookie
                 self.cookie_service.remove(SESSION_COOKIE);
+                self.session_timer_agent.send(session_timer::Request::Stop);
                 self.router_agent
                     .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 self.logout_button_disabled = true;

@@ -13,7 +13,7 @@ use yew::{
     format::Cbor,
     prelude::*,
     services::{
-        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        fetch::{self, FetchTask},
         ConsoleService, FetchService,
     },
 };
@@ -35,7 +35,7 @@ pub struct LoginComponent {
 
 /// Available message types to process
 pub enum Message {
-    Fetch(FetchResponse<Cbor<Result<response::Login, Error>>>),
+    Fetch(fetch::Response<Cbor<Result<response::Login, Error>>>),
     Ignore,
     LoginRequest,
     UpdatePassword(String),
@@ -72,7 +72,7 @@ impl Component for LoginComponent {
         match msg {
             // Login via username and password
             Message::LoginRequest => {
-                match FetchRequest::post(API_URL_LOGIN_CREDENTIALS).body(Cbor(&request::LoginCredentials {
+                match fetch::Request::post(API_URL_LOGIN_CREDENTIALS).body(Cbor(&request::LoginCredentials {
                     username: self.username.to_owned(),
                     password: self.password.to_owned(),
                 })) {

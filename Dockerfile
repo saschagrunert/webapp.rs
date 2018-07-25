@@ -10,7 +10,7 @@ COPY backend/tls /tls
 COPY Config.toml /
 
 # Copy the static files
-COPY target/deploy /static
+COPY target/deploy /
 
 # Expose the target port
 ARG API_PORT=443

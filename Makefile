@@ -44,11 +44,14 @@ deploy:
 frontend:
 	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
 
-run: startdb
+start: startdb
 	docker run --rm \
 		--name webapp \
 		--network="host" \
 		-d webapp
+
+stop: stopdb
+	docker stop webapp
 
 startdb:
 	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \

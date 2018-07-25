@@ -56,7 +56,7 @@ After that you can run the application side by side with a PostgreSQL container
 via:
 
 ```console
-make run
+make start
 ```
 
 The application should now be accessible at

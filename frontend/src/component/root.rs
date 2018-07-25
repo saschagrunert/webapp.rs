@@ -14,7 +14,7 @@ use yew::{
     format::Cbor,
     prelude::*,
     services::{
-        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        fetch::{self, FetchTask},
         ConsoleService, FetchService,
     },
 };
@@ -32,7 +32,7 @@ pub struct RootComponent {
 
 /// Available message types to process
 pub enum Message {
-    Fetch(FetchResponse<Cbor<Result<response::Login, Error>>>),
+    Fetch(fetch::Response<Cbor<Result<response::Login, Error>>>),
     Route(Route<()>),
 }
 
@@ -50,7 +50,7 @@ impl Component for RootComponent {
 
         // Verify if a session cookie already exist and try to authenticate if so
         if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
-            match FetchRequest::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(Session {
+            match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(Session {
                 token: token.to_owned(),
             }))) {
                 Ok(body) => fetch_task = Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch))),
