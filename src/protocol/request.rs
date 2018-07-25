@@ -3,7 +3,7 @@
 use protocol::model::Session;
 
 #[derive(Deserialize, Serialize)]
-/// The session based login request
+/// The credentials based login request
 pub struct LoginCredentials {
     /// The username
     pub username: String,
