@@ -35,7 +35,7 @@ pub struct Token {
 }
 
 impl Token {
-    /// Create a new default token for a given username and a validity in seconds
+    /// Create a new default token for a given username
     pub fn create(username: &str) -> Result<String, TokenError> {
         const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
         let claim = Token {
