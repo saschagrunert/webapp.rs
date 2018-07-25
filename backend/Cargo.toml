@@ -20,8 +20,7 @@ path = "src/main.rs"
 
 [dev-dependencies]
 lazy_static = "1.0.2"
-tungstenite = { version = "0.6.0", default-features = false }
-url = "1.7.1"
+reqwest = "0.8.6"
 
 [dependencies]
 actix = "0.7.2"

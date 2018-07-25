@@ -4,7 +4,7 @@ port = "30080"
 tls = false
 
 [log]
-actix_web = "debug"
+actix-web = "debug"
 webapp = "trace"
 
 [postgres]
@@ -14,6 +14,6 @@ password = "password"
 database = "database"
 
 [api]
-login_credentials = "/login/credentials"
-login_session = "/login/session"
+login-credentials = "/login/credentials"
+login-session = "/login/session"
 logout = "/logout"

@@ -82,6 +82,7 @@ fn prepare_style() -> Result<(), Error> {
 
 fn prepare_api() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME))?)?;
+
     let secure_protocol = if config.server.tls { "s" } else { "" };
     let api_url = format!("http{}://{}:{}", secure_protocol, config.server.ip, config.server.port);
 

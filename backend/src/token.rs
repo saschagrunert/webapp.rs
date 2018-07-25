@@ -68,4 +68,9 @@ mod tests {
         let sut = Token::create("").unwrap();
         assert!(Token::verify(&sut).is_ok());
     }
+
+    #[test]
+    fn fail_to_verify_a_token() {
+        assert!(Token::verify("wrong").is_err());
+    }
 }

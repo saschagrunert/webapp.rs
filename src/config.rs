@@ -30,6 +30,7 @@ pub struct ServerConfig {
 }
 
 #[derive(Clone, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 /// The logger configuration
 pub struct LogConfig {
     /// The logging level of actix-web
@@ -56,6 +57,7 @@ pub struct PostgresConfig {
 }
 
 #[derive(Clone, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 /// The API configuration
 pub struct ApiConfig {
     /// The credentials based login API

@@ -1,7 +1,7 @@
 //! HTTP message handling
 
 use actix_web::{
-    error::{Error as HttpError, ErrorForbidden, ErrorInternalServerError},
+    error::{Error as HttpError, ErrorInternalServerError, ErrorUnauthorized},
     AsyncResponder, HttpRequest, HttpResponse,
 };
 use cbor::{CborRequest, CborResponseBuilder};
@@ -21,7 +21,7 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResponse {
         .and_then(|request::LoginCredentials{username, password}| {
             debug!("User {} is trying to login", username);
             if username.is_empty() || password.is_empty() || username != password {
-                return Err(ErrorForbidden("wrong username or password"));
+                return Err(ErrorUnauthorized("wrong username or password"));
             }
             Ok(username)
         })
@@ -54,7 +54,7 @@ pub fn login_session(http_request: &HttpRequest<State>) -> FutureResponse {
         .and_then(|request::LoginSession(Session{token})| {
             debug!("Session token {} wants to be renewed", token);
             Token::verify(&token).map_err(|_| {
-                 ErrorForbidden("Token verification failed")
+                 ErrorUnauthorized("Token verification failed")
             }).and_then(|new_token| {
                  Ok((token, new_token))
             })

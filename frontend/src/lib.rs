@@ -4,16 +4,15 @@
 #![recursion_limit = "128"]
 
 #[macro_use]
+extern crate failure;
+extern crate serde;
+#[macro_use]
 extern crate serde_derive;
 #[macro_use]
-extern crate failure;
-#[macro_use]
 extern crate stdweb;
+extern crate webapp;
 #[macro_use]
 extern crate yew;
-extern crate serde;
-extern crate serde_cbor;
-extern crate webapp;
 
 mod component;
 mod route;
