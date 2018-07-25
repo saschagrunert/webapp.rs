@@ -38,6 +38,7 @@ impl Server {
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
 
         // Create the server
+        let config_clone = config.clone();
         let server = server::new(move || {
             App::with_state(State {
                 database: db_addr.clone(),
@@ -47,11 +48,13 @@ impl Server {
                         .allowed_methods(vec!["GET", "POST"])
                         .allowed_header(CONTENT_TYPE)
                         .max_age(3600)
-                        .resource("/login/credentials", |r| {
+                        .resource(&config_clone.api.login_credentials, |r| {
                             r.method(http::Method::POST).f(login_credentials)
                         })
-                        .resource("/login/session", |r| r.method(http::Method::POST).f(login_session))
-                        .resource("/logout", |r| r.method(http::Method::POST).f(logout))
+                        .resource(&config_clone.api.login_session, |r| {
+                            r.method(http::Method::POST).f(login_session)
+                        })
+                        .resource(&config_clone.api.logout, |r| r.method(http::Method::POST).f(logout))
                         .register()
                 })
                 .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))

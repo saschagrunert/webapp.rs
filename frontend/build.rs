@@ -1,9 +1,7 @@
 extern crate failure;
 extern crate sass_rs;
 extern crate toml;
-
-#[macro_use]
-extern crate serde_derive;
+extern crate webapp;
 
 use failure::Error;
 use sass_rs::{compile_file, Options, OutputStyle};
@@ -13,6 +11,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
+use webapp::{config::Config, CONFIG_FILENAME};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
 const TAG: &str = "v3.0.0-rc.9";
@@ -23,8 +22,8 @@ pub fn main() -> Result<(), Error> {
     // Prepeare UIKit and build the complete style
     prepare_style()?;
 
-    // Prepare the global project configuration
-    prepare_config()?;
+    // Prepare the API URL paths
+    prepare_api()?;
 
     Ok(())
 }
@@ -81,25 +80,21 @@ fn prepare_style() -> Result<(), Error> {
     Ok(())
 }
 
-#[derive(Deserialize)]
-struct Config {
-    server: Server,
-}
-
-#[derive(Deserialize)]
-struct Server {
-    ip: String,
-    port: String,
-    tls: bool,
-}
-
-fn prepare_config() -> Result<(), Error> {
-    let config: Config = toml::from_str(&read_to_string("../Config.toml")?)?;
+fn prepare_api() -> Result<(), Error> {
+    let config: Config = toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME))?)?;
     let secure_protocol = if config.server.tls { "s" } else { "" };
+    let api_url = format!("http{}://{}:{}", secure_protocol, config.server.ip, config.server.port);
+
+    println!("cargo:rustc-env=API_URL={}", api_url);
     println!(
-        "cargo:rustc-env=API_URL=http{}://{}:{}/",
-        secure_protocol, config.server.ip, config.server.port
+        "cargo:rustc-env=API_URL_LOGIN_CREDENTIALS={}{}",
+        api_url, config.api.login_credentials
     );
+    println!(
+        "cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
+        api_url, config.api.login_session
+    );
+    println!("cargo:rustc-env=API_URL_LOGOUT={}{}", api_url, config.api.logout);
 
     Ok(())
 }

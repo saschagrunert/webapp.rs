@@ -14,4 +14,6 @@ password = "password"
 database = "database"
 
 [api]
-
+login_credentials = "/login/credentials"
+login_session = "/login/session"
+logout = "/logout"

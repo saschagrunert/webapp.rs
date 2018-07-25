@@ -25,11 +25,7 @@ pub use component::root::RootComponent;
 /// The global session cookie name
 const SESSION_COOKIE: &str = "sessionToken";
 
-/// The API URL for the session based login request
-const API_URL_LOGIN_SESSION: &str = concat!(env!("API_URL"), "login/session");
-
-/// The API URL for the credentials based login request
-const API_URL_LOGIN_CREDENTIALS: &str = concat!(env!("API_URL"), "login/credentials");
-
-/// The API URL for the logout request
-const API_URL_LOGOUT: &str = concat!(env!("API_URL"), "logout");
+/// The API URLs
+const API_URL_LOGIN_CREDENTIALS: &str = env!("API_URL_LOGIN_CREDENTIALS");
+const API_URL_LOGIN_SESSION: &str = env!("API_URL_LOGIN_SESSION");
+const API_URL_LOGOUT: &str = env!("API_URL_LOGOUT");

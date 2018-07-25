@@ -21,9 +21,8 @@ path = "src/main.rs"
 [build-dependencies]
 failure = "0.1.1"
 sass-rs = "0.2.1"
-serde = "1.0.70"
-serde_derive = "1.0.70"
 toml = "0.4.6"
+webapp = { path = ".." }
 
 [dependencies]
 failure = "0.1.1"
