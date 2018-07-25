@@ -3,9 +3,20 @@
 use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
 use uuid::Uuid;
-use webapp::protocol::TokenError;
 
 const SECRET: &[u8] = b"my_secret";
+
+#[derive(Debug, Fail)]
+/// Token handling related errors
+pub enum TokenError {
+    #[fail(display = "unable to create session token")]
+    /// Session token creation failed
+    Create,
+
+    #[fail(display = "unable to verify session token")]
+    /// Session token verification failed
+    Verify,
+}
 
 #[derive(Deserialize, Serialize)]
 /// A web token

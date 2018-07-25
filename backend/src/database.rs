@@ -7,10 +7,27 @@ use diesel::{
     r2d2::{ConnectionManager, Pool},
     update,
 };
-use webapp::{
-    protocol::{DatabaseError, Session},
-    schema::sessions::dsl::*,
-};
+use webapp::{protocol::model::Session, schema::sessions::dsl::*};
+
+#[derive(Debug, Fail)]
+/// Database related errors
+pub enum DatabaseError {
+    #[fail(display = "unable communicate to database")]
+    /// Database communication failed
+    Communication,
+
+    #[fail(display = "unable to insert session into database")]
+    /// Session insert in database failed
+    InsertSession,
+
+    #[fail(display = "unable to update session within database")]
+    /// Session update in database failed
+    UpdateSession,
+
+    #[fail(display = "unable to delete session within database")]
+    /// Session deletion in database failed
+    DeleteSession,
+}
 
 /// The database executor actor
 pub struct DatabaseExecutor(pub Pool<ConnectionManager<PgConnection>>);

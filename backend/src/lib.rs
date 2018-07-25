@@ -28,6 +28,5 @@ mod database;
 mod http;
 mod server;
 mod token;
-mod websocket;
 
 pub use server::Server;

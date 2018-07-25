@@ -9,7 +9,7 @@ use service::{
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{REQUEST_ERROR, RESPONSE_ERROR};
-use webapp::protocol::{request, response, Request, Response, Session};
+use webapp::protocol::{model::Session, request, response};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -32,7 +32,7 @@ pub struct RootComponent {
 
 /// Available message types to process
 pub enum Message {
-    Fetch(FetchResponse<Cbor<Result<Response, Error>>>),
+    Fetch(FetchResponse<Cbor<Result<response::Login, Error>>>),
     Route(Route<()>),
 }
 
@@ -44,20 +44,18 @@ impl Component for RootComponent {
         // Create needed services
         let cookie_service = CookieService::new();
         let mut console_service = ConsoleService::new();
-        let mut fetch_service = FetchService::new();
         let mut fetch_task = None;
         let mut router_agent = RouterAgent::bridge(link.send_back(Message::Route));
         let uikit_service = UIkitService::new();
 
         // Verify if a session cookie already exist and try to authenticate if so
         if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
-            match FetchRequest::post(API_URL_LOGIN_SESSION).body(Cbor(&Request::Login(request::Login::Session(
-                Session {
-                    token: token.to_owned(),
-                },
-            )))) {
-                Ok(body) => fetch_task = Some(fetch_service.fetch_binary(body, link.send_back(Message::Fetch))),
+            match FetchRequest::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(Session {
+                token: token.to_owned(),
+            }))) {
+                Ok(body) => fetch_task = Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch))),
                 Err(_) => {
+                    console_service.error("Unable to create session login request");
                     uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     cookie_service.remove(SESSION_COOKIE);
                     router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
@@ -95,7 +93,7 @@ impl Component for RootComponent {
                 // Check the response type
                 if meta.status.is_success() {
                     match body {
-                        Ok(Response::Login(response::Login::Session(Ok(Session { token })))) => {
+                        Ok(response::Login(Session { token })) => {
                             self.console_service.info("Session based login succeed");
 
                             // Set the retrieved session cookie
@@ -107,6 +105,7 @@ impl Component for RootComponent {
                         }
                         _ => {
                             // Send an error notification to the user on any failure
+                            self.console_service.error("Got wrong session login response");
                             self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                             self.router_agent
                                 .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
@@ -115,7 +114,7 @@ impl Component for RootComponent {
                 } else {
                     // Remove the existing cookie
                     self.console_service
-                        .info(&format!("Session based login failed with status: {}", meta.status));
+                        .info(&format!("Session login failed with status: {}", meta.status));
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterTarget::Login.into()));

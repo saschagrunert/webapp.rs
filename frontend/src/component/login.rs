@@ -1,37 +1,45 @@
 //! The Login component
 
+use failure::Error;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
-    reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, TEXT_LOGIN};
-use webapp::protocol::{request, response, Request, Response, Session};
-use yew::{prelude::*, services::ConsoleService};
-use SESSION_COOKIE;
+use string::{AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN};
+use webapp::protocol::{model::Session, request, response};
+use yew::{
+    format::Cbor,
+    prelude::*,
+    services::{
+        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        ConsoleService, FetchService,
+    },
+};
+use {API_URL_LOGIN_CREDENTIALS, SESSION_COOKIE};
 
 /// Data Model for the Login component
 pub struct LoginComponent {
-    username: String,
-    password: String,
-    login_button_disabled: bool,
-    inputs_disabled: bool,
-    reducer_agent: Box<Bridge<ReducerAgent>>,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
+    component_link: ComponentLink<LoginComponent>,
     console_service: ConsoleService,
     cookie_service: CookieService,
+    fetch_task: Option<FetchTask>,
+    inputs_disabled: bool,
+    login_button_disabled: bool,
+    password: String,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
     uikit_service: UIkitService,
+    username: String,
 }
 
 /// Available message types to process
 pub enum Message {
+    Fetch(FetchResponse<Cbor<Result<response::Login, Error>>>),
     Ignore,
     LoginRequest,
     UpdatePassword(String),
     UpdateUsername(String),
-    Reducer(ReducerResponse),
 }
 
 impl Component for LoginComponent {
@@ -40,25 +48,18 @@ impl Component for LoginComponent {
 
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
-        // Create the reducer and subscribe to the used messages
-        let mut reducer_agent = ReducerAgent::bridge(link.send_back(Message::Reducer));
-        reducer_agent.send(ReducerRequest::Subscribe(vec![
-            ResponseType::LoginCredentials,
-            ResponseType::StatusClose,
-            ResponseType::StatusError,
-        ]));
-
         // Return the component
         Self {
-            username: String::new(),
-            password: String::new(),
-            login_button_disabled: true,
-            inputs_disabled: false,
-            reducer_agent,
-            router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
             console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
+            fetch_task: None,
+            inputs_disabled: false,
+            login_button_disabled: true,
+            password: String::new(),
+            router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
+            component_link: link,
             uikit_service: UIkitService::new(),
+            username: String::new(),
         }
     }
 
@@ -70,23 +71,27 @@ impl Component for LoginComponent {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             // Login via username and password
-            Message::LoginRequest => match Request::Login(request::Login::Credentials {
-                username: self.username.to_owned(),
-                password: self.password.to_owned(),
-            }).to_vec()
-            {
-                Some(data) => {
-                    // Disable user interaction
-                    self.login_button_disabled = true;
-                    self.inputs_disabled = true;
+            Message::LoginRequest => {
+                match FetchRequest::post(API_URL_LOGIN_CREDENTIALS).body(Cbor(&request::LoginCredentials {
+                    username: self.username.to_owned(),
+                    password: self.password.to_owned(),
+                })) {
+                    Ok(body) => {
+                        // Disable user interaction
+                        self.login_button_disabled = true;
+                        self.inputs_disabled = true;
 
-                    // Send the request
-                    self.reducer_agent.send(ReducerRequest::Send(data));
+                        // Send the request
+                        self.fetch_task =
+                            Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
+                    }
+                    _ => {
+                        self.console_service.error("Unable to create credentials login request");
+                        self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                    }
                 }
-                None => {
-                    self.console_service.error("Unable to create login credential request");
-                }
-            },
+            }
+
             Message::UpdateUsername(new_username) => {
                 self.username = new_username;
                 self.update_button_state();
@@ -95,32 +100,43 @@ impl Component for LoginComponent {
                 self.password = new_password;
                 self.update_button_state();
             }
-            Message::Reducer(ReducerResponse::Data(response)) => match response {
-                Response::Login(response::Login::Credentials(Ok(Session { token }))) => {
-                    self.console_service.info("Credential based login succeed");
 
-                    // Set the retrieved session cookie
-                    self.cookie_service.set(SESSION_COOKIE, &token);
+            // The message for all fetch responses
+            Message::Fetch(response) => {
+                let (meta, Cbor(body)) = response.into_parts();
 
-                    // Route to the content component
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
-                }
-                Response::Login(response::Login::Credentials(Err(e))) => {
+                // Check the response type
+                if meta.status.is_success() {
+                    match body {
+                        Ok(response::Login(Session { token })) => {
+                            self.console_service.info("Credential based login succeed");
+
+                            // Set the retrieved session cookie
+                            self.cookie_service.set(SESSION_COOKIE, &token);
+
+                            // Route to the content component
+                            self.router_agent
+                                .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
+                        }
+                        _ => {
+                            self.console_service.log("Got wrong credentials login response");
+                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                        }
+                    }
+                } else {
+                    // Authentication failed
                     self.console_service
-                        .warn(&format!("Credential based login failed: {}", e));
+                        .info(&format!("Credentials login failed with status: {}", meta.status));
                     self.uikit_service
                         .notify(AUTHENTICATION_ERROR, &NotificationStatus::Warning);
                     self.login_button_disabled = false;
                     self.inputs_disabled = false;
                 }
-                _ => {} // Not my response
-            },
-            Message::Reducer(ReducerResponse::Close) | Message::Reducer(ReducerResponse::Error) => {
-                self.login_button_disabled = true;
-                self.inputs_disabled = true;
+
+                // Remove the ongoing task
+                self.fetch_task = None;
             }
-            _ => {}
+            Message::Ignore => {}
         }
         true
     }

@@ -23,7 +23,13 @@ mod string;
 pub use component::root::RootComponent;
 
 /// The global session cookie name
-pub const SESSION_COOKIE: &str = "sessionToken";
+const SESSION_COOKIE: &str = "sessionToken";
 
-/// The API URL for the login credential request
-pub const API_URL_LOGIN_SESSION: &str = concat!(env!("API_URL"), "login/session");
+/// The API URL for the session based login request
+const API_URL_LOGIN_SESSION: &str = concat!(env!("API_URL"), "login/session");
+
+/// The API URL for the credentials based login request
+const API_URL_LOGIN_CREDENTIALS: &str = concat!(env!("API_URL"), "login/credentials");
+
+/// The API URL for the logout request
+const API_URL_LOGOUT: &str = concat!(env!("API_URL"), "logout");

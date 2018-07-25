@@ -1,9 +1,7 @@
 //! Everything related to the actual server implementation
 
 use actix::{prelude::*, SystemRunner};
-use actix_web::{
-    fs::StaticFiles, http, http::header::CONTENT_TYPE, middleware, middleware::cors::Cors, server, ws, App,
-};
+use actix_web::{fs::StaticFiles, http, http::header::CONTENT_TYPE, middleware, middleware::cors::Cors, server, App};
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
@@ -12,7 +10,6 @@ use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
 use webapp::config::Config;
-use websocket::WebSocket;
 
 /// The server instance
 pub struct Server {
@@ -56,9 +53,6 @@ impl Server {
                         .resource("/login/session", |r| r.method(http::Method::POST).f(login_session))
                         .resource("/logout", |r| r.method(http::Method::POST).f(logout))
                         .register()
-                })
-                .resource("/ws", |r| {
-                    r.method(http::Method::GET).f(|r| ws::start(r, WebSocket::new()))
                 })
                 .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });

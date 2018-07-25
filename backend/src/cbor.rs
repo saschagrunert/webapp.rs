@@ -8,12 +8,10 @@ use actix_web::{
 };
 use bytes::BytesMut;
 use futures::{Future, Poll, Stream};
+use serde::{de::DeserializeOwned, Serialize};
 use serde_cbor::{error::Error as SerdeError, from_slice, to_vec};
-use webapp::protocol::{Request, Response};
 
-const DEFAULT_CONTENT_TYPE: &str = "application/cbor";
-
-#[derive(Fail, Debug)]
+#[derive(Debug, Fail)]
 pub enum CborError {
     #[fail(display = "Payload read error: {}", _0)]
     /// Payload error
@@ -40,40 +38,42 @@ impl From<SerdeError> for CborError {
     }
 }
 
-/// A wrapped Request based on a future
-pub struct CborRequest(Box<Future<Item = Request, Error = CborError>>);
+/// A wrapped request based on a future
+pub struct CborRequest<T>(Box<Future<Item = T, Error = CborError>>);
 
-impl CborRequest {
+impl<T> CborRequest<T>
+where
+    T: DeserializeOwned + 'static,
+{
     pub fn new<S>(req: &HttpRequest<S>) -> Self {
-        let future = req
-            .payload()
-            .map_err(CborError::Payload)
-            .fold(BytesMut::new(), move |mut body, chunk| {
-                body.extend_from_slice(&chunk);
-                Ok::<_, CborError>(body)
-            })
-            .and_then(|body| Ok(from_slice(&body)?));
-
-        CborRequest(Box::new(future))
+        CborRequest(Box::new(
+            req.payload()
+                .map_err(CborError::Payload)
+                .fold(BytesMut::new(), move |mut body, chunk| {
+                    body.extend_from_slice(&chunk);
+                    Ok::<_, CborError>(body)
+                })
+                .and_then(|body| Ok(from_slice(&body)?)),
+        ))
     }
 }
 
-impl Future for CborRequest {
-    type Item = Request;
+impl<T> Future for CborRequest<T> {
+    type Item = T;
     type Error = CborError;
 
-    fn poll(&mut self) -> Poll<Request, CborError> {
+    fn poll(&mut self) -> Poll<T, CborError> {
         self.0.poll()
     }
 }
 
 pub trait CborResponseBuilder {
-    fn cbor(&mut self, value: Response) -> Result<HttpResponse, HttpError>;
+    fn cbor<T: Serialize>(&mut self, value: T) -> Result<HttpResponse, HttpError>;
 }
 
 impl CborResponseBuilder for HttpResponseBuilder {
-    fn cbor(&mut self, value: Response) -> Result<HttpResponse, HttpError> {
-        self.header(CONTENT_TYPE, DEFAULT_CONTENT_TYPE);
+    fn cbor<T: Serialize>(&mut self, value: T) -> Result<HttpResponse, HttpError> {
+        self.header(CONTENT_TYPE, "application/cbor");
         let body = to_vec(&value).map_err(CborError::Serialize)?;
         Ok(self.body(body))
     }

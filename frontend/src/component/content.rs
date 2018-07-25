@@ -1,30 +1,40 @@
 //! The Main Content component
 
+use failure::Error;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
-    reducer::{ReducerAgent, ReducerRequest, ReducerResponse, ResponseType},
     router::{self, RouterAgent},
+    uikit::{NotificationStatus, UIkitService},
 };
-use string::{TEXT_CONTENT, TEXT_LOGOUT};
-use webapp::protocol::{Request, Response, Session};
-use yew::{prelude::*, services::ConsoleService};
-use SESSION_COOKIE;
+use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
+use webapp::protocol::{model::Session, request, response};
+use yew::{
+    format::Cbor,
+    prelude::*,
+    services::{
+        fetch::{FetchTask, Request as FetchRequest, Response as FetchResponse},
+        ConsoleService, FetchService,
+    },
+};
+use {API_URL_LOGOUT, SESSION_COOKIE};
 
 /// Data Model for the Content component
 pub struct ContentComponent {
-    logout_button_disabled: bool,
-    reducer_agent: Box<Bridge<ReducerAgent>>,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
+    component_link: ComponentLink<ContentComponent>,
     console_service: ConsoleService,
     cookie_service: CookieService,
+    fetch_task: Option<FetchTask>,
+    logout_button_disabled: bool,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
+    uikit_service: UIkitService,
 }
 
 /// Available message types to process
 pub enum Message {
+    Fetch(FetchResponse<Cbor<Result<response::Logout, Error>>>),
     Ignore,
     LogoutRequest,
-    Reducer(ReducerResponse),
 }
 
 impl Component for ContentComponent {
@@ -42,21 +52,15 @@ impl Component for ContentComponent {
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
         }
 
-        // Create the reducer and subscribe to the used messages
-        let mut reducer_agent = ReducerAgent::bridge(link.send_back(Message::Reducer));
-        reducer_agent.send(ReducerRequest::Subscribe(vec![
-            ResponseType::Logout,
-            ResponseType::StatusClose,
-            ResponseType::StatusError,
-        ]));
-
         // Return the component
         Self {
-            logout_button_disabled: false,
-            reducer_agent,
-            router_agent,
+            component_link: link,
             console_service,
             cookie_service,
+            fetch_task: None,
+            logout_button_disabled: false,
+            router_agent,
+            uikit_service: UIkitService::new(),
         }
     }
 
@@ -69,15 +73,21 @@ impl Component for ContentComponent {
         match msg {
             Message::LogoutRequest => if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                 // Create the logout request
-                match Request::Logout(Session { token }).to_vec() {
-                    Some(data) => {
+                match FetchRequest::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
+                    token: token.to_owned(),
+                }))) {
+                    Ok(body) => {
                         // Disable user interaction
                         self.logout_button_disabled = true;
 
                         // Send the request
-                        self.reducer_agent.send(ReducerRequest::Send(data));
+                        self.fetch_task =
+                            Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
                     }
-                    None => self.console_service.error("Unable to write logout request"),
+                    _ => {
+                        self.console_service.error("Unable to create logout request");
+                        self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                    }
                 }
             } else {
                 // It should not happen but in case there is no session cookie on logout, route
@@ -86,20 +96,35 @@ impl Component for ContentComponent {
                 self.router_agent
                     .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
             },
-            Message::Reducer(ReducerResponse::Data(response)) => match response {
-                Response::Logout(Ok(())) => {
-                    self.console_service.log("Got valid logout response");
-                    self.cookie_service.remove(SESSION_COOKIE);
-                    self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+
+            // The message for all fetch responses
+            Message::Fetch(response) => {
+                let (meta, Cbor(body)) = response.into_parts();
+
+                // Check the response type
+                if meta.status.is_success() {
+                    match body {
+                        Ok(response::Logout) => self.console_service.log("Got valid logout response"),
+                        _ => {
+                            self.console_service.log("Got wrong logout response");
+                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                        }
+                    }
+                } else {
+                    self.console_service
+                        .info(&format!("Logout failed with status: {}", meta.status));
                 }
-                Response::Logout(Err(e)) => self.console_service.info(&format!("Unable to logout: {}", e)),
-                _ => {} // Not my response
-            },
-            Message::Reducer(ReducerResponse::Close) | Message::Reducer(ReducerResponse::Error) => {
-                self.logout_button_disabled = true
+
+                // Remove the existing cookie
+                self.cookie_service.remove(SESSION_COOKIE);
+                self.router_agent
+                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                self.logout_button_disabled = true;
+
+                // Remove the ongoing task
+                self.fetch_task = None;
             }
-            _ => {}
+            Message::Ignore => {}
         }
         true
     }

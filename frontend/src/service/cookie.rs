@@ -32,13 +32,11 @@ impl CookieService {
                 let name_value: Vec<_> = x.split('=').collect();
                 match name_value.get(0) {
                     None => None,
-                    Some(c) => {
-                        if *c == name {
-                            name_value.get(1).map(|x| (*x).to_owned())
-                        } else {
-                            None
-                        }
-                    }
+                    Some(c) => if c.trim_left() == name {
+                        name_value.get(1).map(|x| (*x).to_owned())
+                    } else {
+                        None
+                    },
                 }
             })
             .collect::<Vec<String>>()

@@ -1,37 +1,21 @@
 //! Request messages
 
 use protocol::model::Session;
-use serde_cbor::to_vec;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-/// All possible request variants
-pub enum Request {
-    /// Possible variants of a login request
-    Login(Login),
+#[derive(Deserialize, Serialize)]
+/// The session based login request
+pub struct LoginCredentials {
+    /// The username
+    pub username: String,
 
-    /// A logout request with a provided session
-    Logout(Session),
+    /// The password
+    pub password: String,
 }
 
-impl Request {
-    /// Convert the request into a vector of bytes on success
-    pub fn to_vec(&self) -> Option<Vec<u8>> {
-        to_vec(self).ok()
-    }
-}
+#[derive(Deserialize, Serialize)]
+/// The session based login request
+pub struct LoginSession(pub Session);
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-/// Possible login request variants
-pub enum Login {
-    /// A credentials based request
-    Credentials {
-        /// The username
-        username: String,
-
-        /// The password
-        password: String,
-    },
-
-    /// A session based request
-    Session(Session),
-}
+#[derive(Deserialize, Serialize)]
+/// The logout request
+pub struct Logout(pub Session);
