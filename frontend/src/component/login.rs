@@ -14,7 +14,7 @@ use yew::{
     prelude::*,
     services::{
         fetch::{self, FetchTask},
-        ConsoleService, FetchService,
+        FetchService,
     },
 };
 use {API_URL_LOGIN_CREDENTIALS, SESSION_COOKIE};
@@ -22,7 +22,6 @@ use {API_URL_LOGIN_CREDENTIALS, SESSION_COOKIE};
 /// Data Model for the Login component
 pub struct LoginComponent {
     component_link: ComponentLink<LoginComponent>,
-    console_service: ConsoleService,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
     inputs_disabled: bool,
@@ -50,7 +49,6 @@ impl Component for LoginComponent {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Return the component
         Self {
-            console_service: ConsoleService::new(),
             cookie_service: CookieService::new(),
             fetch_task: None,
             inputs_disabled: false,
@@ -86,7 +84,7 @@ impl Component for LoginComponent {
                             Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
                     }
                     _ => {
-                        self.console_service.error("Unable to create credentials login request");
+                        error!("Unable to create credentials login request");
                         self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     }
                 }
@@ -109,7 +107,7 @@ impl Component for LoginComponent {
                 if meta.status.is_success() {
                     match body {
                         Ok(response::Login(Session { token })) => {
-                            self.console_service.info("Credential based login succeed");
+                            info!("Credential based login succeed");
 
                             // Set the retrieved session cookie
                             self.cookie_service.set(SESSION_COOKIE, &token);
@@ -119,14 +117,13 @@ impl Component for LoginComponent {
                                 .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                         }
                         _ => {
-                            self.console_service.log("Got wrong credentials login response");
+                            warn!("Got wrong credentials login response");
                             self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                         }
                     }
                 } else {
                     // Authentication failed
-                    self.console_service
-                        .info(&format!("Credentials login failed with status: {}", meta.status));
+                    warn!("Credentials login failed with status: {}", meta.status);
                     self.uikit_service
                         .notify(AUTHENTICATION_ERROR, &NotificationStatus::Warning);
                     self.login_button_disabled = false;

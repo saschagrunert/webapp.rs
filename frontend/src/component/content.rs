@@ -15,7 +15,7 @@ use yew::{
     prelude::*,
     services::{
         fetch::{self, FetchTask},
-        ConsoleService, FetchService,
+        FetchService,
     },
 };
 use {API_URL_LOGOUT, SESSION_COOKIE};
@@ -23,7 +23,6 @@ use {API_URL_LOGOUT, SESSION_COOKIE};
 /// Data Model for the Content component
 pub struct ContentComponent {
     component_link: ComponentLink<ContentComponent>,
-    console_service: ConsoleService,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
     logout_button_disabled: bool,
@@ -48,10 +47,9 @@ impl Component for ContentComponent {
         // Guard the authentication
         let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
-        let mut console_service = ConsoleService::new();
         let mut session_timer_agent = SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
-            console_service.log("No session token found, routing back to login");
+            info!("No session token found, routing back to login");
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
         } else {
             // Start the timer to keep the session active
@@ -61,7 +59,6 @@ impl Component for ContentComponent {
         // Return the component
         Self {
             component_link: link,
-            console_service,
             cookie_service,
             fetch_task: None,
             logout_button_disabled: false,
@@ -92,14 +89,14 @@ impl Component for ContentComponent {
                             Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
                     }
                     _ => {
-                        self.console_service.error("Unable to create logout request");
+                        error!("Unable to create logout request");
                         self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     }
                 }
             } else {
                 // It should not happen but in case there is no session cookie on logout, route
                 // back to login
-                self.console_service.error("No session cookie found");
+                error!("No session cookie found");
                 self.router_agent
                     .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
             },
@@ -111,15 +108,14 @@ impl Component for ContentComponent {
                 // Check the response type
                 if meta.status.is_success() {
                     match body {
-                        Ok(response::Logout) => self.console_service.log("Got valid logout response"),
+                        Ok(response::Logout) => info!("Got valid logout response"),
                         _ => {
-                            self.console_service.log("Got wrong logout response");
+                            warn!("Got wrong logout response");
                             self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                         }
                     }
                 } else {
-                    self.console_service
-                        .info(&format!("Logout failed with status: {}", meta.status));
+                    warn!("Logout failed with status: {}", meta.status);
                 }
 
                 // Remove the existing cookie

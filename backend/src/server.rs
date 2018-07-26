@@ -17,9 +17,12 @@ pub struct Server {
 }
 
 /// Shared mutable application state
-pub struct State {
+pub struct State<T>
+where
+    T: Actor,
+{
     /// The database connection
-    pub database: Addr<DatabaseExecutor>,
+    pub database: Addr<T>,
 }
 
 impl Server {

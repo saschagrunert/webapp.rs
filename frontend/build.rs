@@ -14,7 +14,7 @@ use std::{
 use webapp::{config::Config, CONFIG_FILENAME};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
-const TAG: &str = "v3.0.0-rc.9";
+const TAG: &str = "v3.0.0-rc.10";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 

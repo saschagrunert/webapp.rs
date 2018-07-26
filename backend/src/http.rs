@@ -1,5 +1,6 @@
 //! HTTP message handling
 
+use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{
     error::{Error as HttpError, ErrorInternalServerError, ErrorUnauthorized},
     AsyncResponder, HttpRequest, HttpResponse,
@@ -13,7 +14,11 @@ use webapp::protocol::{model::Session, request, response};
 
 type FutureResponse = Box<Future<Item = HttpResponse, Error = HttpError>>;
 
-pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResponse {
+pub fn login_credentials<T>(http_request: &HttpRequest<State<T>>) -> FutureResponse
+where
+    T: Actor + Handler<CreateSession>,
+    <T as Actor>::Context: ToEnvelope<T, CreateSession>,
+{
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -46,7 +51,11 @@ pub fn login_credentials(http_request: &HttpRequest<State>) -> FutureResponse {
         .responder()
 }
 
-pub fn login_session(http_request: &HttpRequest<State>) -> FutureResponse {
+pub fn login_session<T>(http_request: &HttpRequest<State<T>>) -> FutureResponse
+where
+    T: Actor + Handler<UpdateSession>,
+    <T as Actor>::Context: ToEnvelope<T, UpdateSession>,
+{
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -74,7 +83,11 @@ pub fn login_session(http_request: &HttpRequest<State>) -> FutureResponse {
         .responder()
 }
 
-pub fn logout(http_request: &HttpRequest<State>) -> FutureResponse {
+pub fn logout<T: Actor>(http_request: &HttpRequest<State<T>>) -> FutureResponse
+where
+    T: Actor + Handler<DeleteSession>,
+    <T as Actor>::Context: ToEnvelope<T, DeleteSession>,
+{
     let request_clone = http_request.clone();
     CborRequest::new(http_request)
         .from_err()
@@ -92,4 +105,69 @@ pub fn logout(http_request: &HttpRequest<State>) -> FutureResponse {
                 })
         })
         .responder()
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_cbor::to_vec;
+    use super::*;
+    use database::DatabaseError;
+    use actix_web::{client::ClientResponse, http::{StatusCode}, test::TestServer};
+
+    /// The mock database executor actor
+    pub struct DatabaseExecutorMock;
+
+    impl Actor for DatabaseExecutorMock {
+        type Context = SyncContext<Self>;
+    }
+
+    impl Handler<CreateSession> for DatabaseExecutorMock {
+        type Result = Result<Session, DatabaseError>;
+        fn handle(&mut self, _: CreateSession, _: &mut Self::Context) -> Self::Result {
+            Ok(Session { token: "token".to_owned() })
+        }
+    }
+
+    fn create_testserver() -> TestServer {
+        TestServer::build_with_state(|| {
+            State { database: SyncArbiter::start(1, move || DatabaseExecutorMock) }
+        }).start(|app| app.handler(login_credentials))
+    }
+
+    fn execute_request(server: &mut TestServer, body: Vec<u8>) -> ClientResponse {
+        let request = server.post().body(body).unwrap();
+        server.execute(request.send()).unwrap()
+    }
+
+    #[test]
+    fn succeed_to_login_with_credentials() {
+        // Given
+        let mut server = create_testserver();
+
+        // When
+        let body = to_vec(&request::LoginCredentials {
+            username: "username".to_owned(),
+            password: "username".to_owned(),
+        }).unwrap();
+        let response = execute_request(&mut server, body);
+
+        // Then
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[test]
+    fn fail_to_login_with_credentials_wrong() {
+        // Given
+        let mut server = create_testserver();
+
+        // When
+        let body = to_vec(&request::LoginCredentials {
+            username: "username".to_owned(),
+            password: "password".to_owned(),
+        }).unwrap();
+        let response = execute_request(&mut server, body);
+
+        // Then
+        assert!(!response.status().is_success());
+    }
 }

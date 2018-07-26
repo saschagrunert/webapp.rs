@@ -5,6 +5,8 @@
 
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate log;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -20,6 +22,7 @@ mod service;
 mod string;
 
 pub use component::root::RootComponent;
+pub use service::log::init_logger;
 
 /// The global session cookie name
 const SESSION_COOKIE: &str = "sessionToken";

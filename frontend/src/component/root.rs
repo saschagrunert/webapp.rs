@@ -15,7 +15,7 @@ use yew::{
     prelude::*,
     services::{
         fetch::{self, FetchTask},
-        ConsoleService, FetchService,
+        FetchService,
     },
 };
 use {API_URL_LOGIN_SESSION, SESSION_COOKIE};
@@ -23,7 +23,6 @@ use {API_URL_LOGIN_SESSION, SESSION_COOKIE};
 /// Data Model for the Root Component
 pub struct RootComponent {
     child_component: RouterTarget,
-    console_service: ConsoleService,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
     router_agent: Box<Bridge<RouterAgent<()>>>,
@@ -43,7 +42,6 @@ impl Component for RootComponent {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Create needed services
         let cookie_service = CookieService::new();
-        let mut console_service = ConsoleService::new();
         let mut fetch_task = None;
         let mut router_agent = RouterAgent::bridge(link.send_back(Message::Route));
         let uikit_service = UIkitService::new();
@@ -55,21 +53,20 @@ impl Component for RootComponent {
             }))) {
                 Ok(body) => fetch_task = Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch))),
                 Err(_) => {
-                    console_service.error("Unable to create session login request");
+                    error!("Unable to create session login request");
                     uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     cookie_service.remove(SESSION_COOKIE);
                     router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
             }
         } else {
-            console_service.info("No token found, routing to login");
+            info!("No token found, routing to login");
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
         }
 
         // Return the component
         Self {
             child_component: RouterTarget::Loading,
-            console_service,
             cookie_service,
             fetch_task,
             router_agent,
@@ -94,7 +91,7 @@ impl Component for RootComponent {
                 if meta.status.is_success() {
                     match body {
                         Ok(response::Login(Session { token })) => {
-                            self.console_service.info("Session based login succeed");
+                            info!("Session based login succeed");
 
                             // Set the retrieved session cookie
                             self.cookie_service.set(SESSION_COOKIE, &token);
@@ -105,7 +102,7 @@ impl Component for RootComponent {
                         }
                         _ => {
                             // Send an error notification to the user on any failure
-                            self.console_service.error("Got wrong session login response");
+                            warn!("Got wrong session login response");
                             self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                             self.router_agent
                                 .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
@@ -113,8 +110,7 @@ impl Component for RootComponent {
                     }
                 } else {
                     // Remove the existing cookie
-                    self.console_service
-                        .info(&format!("Session login failed with status: {}", meta.status));
+                    warn!("Session login failed with status: {}", meta.status);
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
                         .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
