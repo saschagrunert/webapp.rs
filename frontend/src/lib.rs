@@ -1,7 +1,7 @@
 //! The main library interface
 
 #![deny(missing_docs)]
-#![recursion_limit = "128"]
+#![recursion_limit = "512"]
 
 #[macro_use]
 extern crate failure;

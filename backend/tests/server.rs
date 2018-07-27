@@ -39,7 +39,7 @@ fn create_testserver() -> (String, Config) {
 }
 
 #[test]
-fn succeed_to_login_with_username_and_password() {
+fn succeed_to_login_with_credentials() {
     // Given
     let (url, config) = create_testserver();
 
@@ -63,7 +63,7 @@ fn succeed_to_login_with_username_and_password() {
 }
 
 #[test]
-fn fail_to_login_with_wrong_username_and_password() {
+fn fail_to_login_with_wrong_credentials() {
     // Given
     let (url, config) = create_testserver();
 

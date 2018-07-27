@@ -70,7 +70,7 @@ mod tests {
     }
 
     #[test]
-    fn fail_to_verify_a_token() {
+    fn fail_to_verify_a_wrong_token() {
         assert!(Token::verify("wrong").is_err());
     }
 }
