@@ -11,6 +11,8 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
 use webapp::config::Config;
 
+mod tests;
+
 /// The server instance
 pub struct Server {
     runner: SystemRunner,
@@ -82,37 +84,5 @@ impl Server {
     /// Start the server
     pub fn start(self) -> i32 {
         self.runner.run()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    extern crate toml;
-
-    use super::*;
-    use std::fs::read_to_string;
-    use webapp::CONFIG_FILENAME;
-
-    fn get_config() -> Config {
-        toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME)).unwrap()).unwrap()
-    }
-
-    #[test]
-    fn succeed_to_create_a_server() {
-        assert!(Server::new(&get_config()).is_ok());
-    }
-
-    #[test]
-    fn fail_to_create_a_server_with_wrong_addr() {
-        let mut config = get_config();
-        config.server.ip = "".to_owned();
-        assert!(Server::new(&config).is_err());
-    }
-
-    #[test]
-    fn fail_to_create_a_server_with_wrong_port() {
-        let mut config = get_config();
-        config.server.port = "10".to_owned();
-        assert!(Server::new(&config).is_err());
     }
 }
