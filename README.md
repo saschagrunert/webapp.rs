@@ -8,7 +8,7 @@
 
 Target of this project is to write a complete web application including backend and frontend within Rust.
 
-### Blog
+### Blog Posts
 
 1.  [A Web Application completely in Rust](https://medium.com/@saschagrunert/a-web-application-completely-in-rust-6f6bdb6c4471).
 
