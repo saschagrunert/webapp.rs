@@ -1,7 +1,7 @@
 //! String representations for the user interface
 
 macro_rules! strings {
-    ($($name:ident => $content:expr),*) => (
+    ($($name:ident => $content:expr,)*) => (
         $(pub const $name: &str = $content;)*
     )
 }
@@ -14,5 +14,5 @@ strings! {
     RESPONSE_ERROR => "Failed to retrieve valid server response",
     TEXT_CONTENT => "Content",
     TEXT_LOGIN => "Login",
-    TEXT_LOGOUT => "Logout"
+    TEXT_LOGOUT => "Logout",
 }
