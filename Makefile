@@ -61,7 +61,11 @@ startdb:
 			-e POSTGRES_DB=$(PG_DATABASE) \
 			-p 5432:5432 \
 			-d postgres ;\
-		sleep 5 ;\
+		while true; do \
+			if docker logs postgres 2>&1 | grep -q "PostgreSQL init process complete"; then \
+				break ;\
+			fi \
+		done ;\
 		diesel migration run --database-url \
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
 	fi

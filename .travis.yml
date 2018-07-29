@@ -2,8 +2,8 @@
 dist: trusty
 language: rust
 rust:
-  - stable
-  - beta
+  # - stable
+  # - beta
   - nightly
 sudo: required
 services:
