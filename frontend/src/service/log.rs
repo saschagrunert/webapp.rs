@@ -2,7 +2,6 @@
 
 use failure::Error;
 use log::{set_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record};
-use yew::services::ConsoleService;
 
 /// The public static logger instance
 static LOGGER: LogService = LogService;
@@ -25,11 +24,8 @@ impl Log for LogService {
     fn log(&self, record: &Record) {
         // Verify that the logger is enabled
         if self.enabled(record.metadata()) {
-            // Create a new ConsoleService
-            let mut console_service = ConsoleService::new();
-
             // Create the log entry
-            let mut log_entry = format!("{}: ", record.level());
+            let mut log_entry = format!("%c{}: %c", record.level());
 
             // Add file and line if available
             if let (Some(file), Some(line)) = (record.file(), record.line()) {
@@ -40,12 +36,24 @@ impl Log for LogService {
             log_entry += &format!("{}", record.args());
 
             // Log the entry
+            const BOLD :&str = "font-weight: bold";
+            const NORMAL :&str = "font-weight: normal";
             match record.level() {
-                Level::Error => console_service.error(&log_entry),
-                Level::Warn => console_service.warn(&log_entry),
-                Level::Info => console_service.info(&log_entry),
-                Level::Debug => console_service.debug(&log_entry),
-                Level::Trace => console_service.debug(&log_entry),
+                Level::Error => {
+                    js! { console.error(@{log_entry}, @{BOLD}, @{NORMAL}) }
+                }
+                Level::Warn => {
+                    js! { console.warn(@{log_entry}, @{BOLD}, @{NORMAL}) }
+                }
+                Level::Info => {
+                    js! { console.log(@{log_entry}, @{BOLD}, @{NORMAL}) }
+                }
+                Level::Debug => {
+                    js! { console.debug(@{log_entry}, @{BOLD}, @{NORMAL}) }
+                }
+                Level::Trace => {
+                    js! { console.debug(@{log_entry}, @{BOLD}, @{NORMAL}) }
+                }
             }
         }
     }
