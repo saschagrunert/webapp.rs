@@ -41,20 +41,16 @@ impl From<SerdeError> for CborError {
 /// A wrapped request based on a future
 pub struct CborRequest<T>(Box<Future<Item = T, Error = CborError>>);
 
-impl<T> CborRequest<T>
-where
-    T: DeserializeOwned + 'static,
+impl<T> CborRequest<T> where T: DeserializeOwned + 'static
 {
     pub fn new<S>(req: &HttpRequest<S>) -> Self {
-        CborRequest(Box::new(
-            req.payload()
-                .map_err(CborError::Payload)
-                .fold(BytesMut::new(), move |mut body, chunk| {
-                    body.extend_from_slice(&chunk);
-                    Ok::<_, CborError>(body)
-                })
-                .and_then(|body| Ok(from_slice(&body)?)),
-        ))
+        CborRequest(Box::new(req.payload()
+                                .map_err(CborError::Payload)
+                                .fold(BytesMut::new(), move |mut body, chunk| {
+                                    body.extend_from_slice(&chunk);
+                                    Ok::<_, CborError>(body)
+                                })
+                                .and_then(|body| Ok(from_slice(&body)?))))
     }
 }
 

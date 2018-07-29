@@ -16,9 +16,8 @@ use webapp::protocol::{request, response};
 mod tests;
 
 pub fn login_credentials<T>(http_request: &HttpRequest<State<T>>) -> FutureResponse
-where
-    T: Actor + Handler<CreateSession>,
-    <T as Actor>::Context: ToEnvelope<T, CreateSession>,
+    where T: Actor + Handler<CreateSession>,
+          <T as Actor>::Context: ToEnvelope<T, CreateSession>
 {
     let request_clone = http_request.clone();
     CborRequest::new(http_request)

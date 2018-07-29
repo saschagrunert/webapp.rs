@@ -18,7 +18,8 @@ use yew::{
         FetchService,
     },
 };
-use {API_URL_LOGOUT, SESSION_COOKIE};
+use API_URL_LOGOUT;
+use SESSION_COOKIE;
 
 /// Data Model for the Content component
 pub struct ContentComponent {
@@ -57,15 +58,13 @@ impl Component for ContentComponent {
         }
 
         // Return the component
-        Self {
-            component_link: link,
-            cookie_service,
-            fetch_task: None,
-            logout_button_disabled: false,
-            router_agent,
-            session_timer_agent,
-            uikit_service: UIkitService::new(),
-        }
+        Self { component_link: link,
+               cookie_service,
+               fetch_task: None,
+               logout_button_disabled: false,
+               router_agent,
+               session_timer_agent,
+               uikit_service: UIkitService::new(), }
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
@@ -75,9 +74,10 @@ impl Component for ContentComponent {
     /// Called everytime when messages are received
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Message::LogoutRequest => if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                // Create the logout request
-                match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
+            Message::LogoutRequest => {
+                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
+                    // Create the logout request
+                    match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
                     token: token.to_owned(),
                 }))) {
                     Ok(body) => {
@@ -93,13 +93,13 @@ impl Component for ContentComponent {
                         self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     }
                 }
-            } else {
-                // It should not happen but in case there is no session cookie on logout, route
-                // back to login
-                error!("No session cookie found");
-                self.router_agent
-                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
-            },
+                } else {
+                    // It should not happen but in case there is no session cookie on logout, route
+                    // back to login
+                    error!("No session cookie found");
+                    self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                }
+            }
 
             // The message for all fetch responses
             Message::Fetch(response) => {
@@ -121,8 +121,7 @@ impl Component for ContentComponent {
                 // Remove the existing cookie
                 self.cookie_service.remove(SESSION_COOKIE);
                 self.session_timer_agent.send(session_timer::Request::Stop);
-                self.router_agent
-                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 self.logout_button_disabled = true;
 
                 // Remove the ongoing task

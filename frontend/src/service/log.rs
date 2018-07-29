@@ -8,9 +8,8 @@ static LOGGER: LogService = LogService;
 
 /// Initialize the static logger
 pub fn init_logger() -> Result<(), Error> {
-    set_logger(&LOGGER)
-        .map(|()| set_max_level(LevelFilter::Trace))
-        .map_err(|_| format_err!("Logger init failed"))
+    set_logger(&LOGGER).map(|()| set_max_level(LevelFilter::Trace))
+                       .map_err(|_| format_err!("Logger init failed"))
 }
 
 /// The service used for logging purposes
@@ -36,8 +35,8 @@ impl Log for LogService {
             log_entry += &format!("{}", record.args());
 
             // Log the entry
-            const BOLD :&str = "font-weight: bold";
-            const NORMAL :&str = "font-weight: normal";
+            const BOLD: &str = "font-weight: bold";
+            const NORMAL: &str = "font-weight: normal";
             match record.level() {
                 Level::Error => {
                     js! { console.error(@{log_entry}, @{BOLD}, @{NORMAL}) }

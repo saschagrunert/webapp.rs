@@ -6,14 +6,14 @@ use std::time::Duration;
 use webapp::protocol::{model::Session, request, response};
 use yew::{
     format::Cbor,
-    prelude::worker::*,
-    prelude::*,
+    prelude::{worker::*, *},
     services::{
         fetch::{self, FetchService, FetchTask},
         IntervalService, Task,
     },
 };
-use {API_URL_LOGIN_SESSION, SESSION_COOKIE};
+use API_URL_LOGIN_SESSION;
+use SESSION_COOKIE;
 
 /// Possible message types
 pub enum Message {
@@ -52,13 +52,11 @@ impl Agent for SessionTimerAgent {
 
     /// Creates a new SessionTimerAgent
     fn create(link: AgentLink<Self>) -> Self {
-        Self {
-            callback: link.send_back(|_| Message::Update),
-            agent_link: link,
-            cookie_service: CookieService::new(),
-            fetch_task: None,
-            timer_task: None,
-        }
+        Self { callback: link.send_back(|_| Message::Update),
+               agent_link: link,
+               cookie_service: CookieService::new(),
+               fetch_task: None,
+               timer_task: None, }
     }
 
     /// Internal update mechanism based on messages
@@ -112,10 +110,12 @@ impl Agent for SessionTimerAgent {
                 let handle = IntervalService::new().spawn(Duration::from_secs(10), self.callback.clone());
                 self.timer_task = Some(Box::new(handle));
             }
-            Request::Stop => if let Some(mut task) = self.timer_task.take() {
-                task.cancel();
-                self.timer_task = None;
-            },
+            Request::Stop => {
+                if let Some(mut task) = self.timer_task.take() {
+                    task.cancel();
+                    self.timer_task = None;
+                }
+            }
         }
     }
 }

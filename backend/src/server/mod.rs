@@ -1,7 +1,12 @@
 //! Everything related to the actual server implementation
 
 use actix::{prelude::*, SystemRunner};
-use actix_web::{fs::StaticFiles, http, http::header::CONTENT_TYPE, middleware, middleware::cors::Cors, server, App};
+use actix_web::{
+    fs::StaticFiles,
+    http::{self, header::CONTENT_TYPE},
+    middleware::{self, cors::Cors},
+    server, App,
+};
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Error;
@@ -20,8 +25,7 @@ pub struct Server {
 
 /// Shared mutable application state
 pub struct State<T>
-where
-    T: Actor,
+    where T: Actor
 {
     /// The database connection
     pub database: Addr<T>,
@@ -34,10 +38,11 @@ impl Server {
         let runner = actix::System::new("ws");
 
         // Start database executor actors
-        let database_url = format!(
-            "postgres://{}:{}@{}/{}",
-            config.postgres.username, config.postgres.password, config.postgres.host, config.postgres.database,
-        );
+        let database_url = format!("postgres://{}:{}@{}/{}",
+                                   config.postgres.username,
+                                   config.postgres.password,
+                                   config.postgres.host,
+                                   config.postgres.database,);
         let manager = ConnectionManager::<PgConnection>::new(database_url);
         let pool = Pool::builder().build(manager)?;
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));

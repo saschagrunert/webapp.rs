@@ -15,10 +15,9 @@ use webapp::protocol::{model::Session, request};
 
 impl Handler<UpdateSession> for DatabaseExecutorMock {
     type Result = Result<Session, DatabaseError>;
+
     fn handle(&mut self, _: UpdateSession, _: &mut Self::Context) -> Self::Result {
-        Ok(Session {
-            token: Token::create("username").unwrap(),
-        })
+        Ok(Session { token: Token::create("username").unwrap(), })
     }
 }
 
@@ -44,9 +43,7 @@ fn succeed_to_login_with_session() {
 fn fail_to_login_with_wrong_session() {
     // Given
     let mut server = create_testserver();
-    let body = to_vec(&request::LoginSession(Session {
-        token: "wrong".to_owned(),
-    })).unwrap();
+    let body = to_vec(&request::LoginSession(Session { token: "wrong".to_owned(), })).unwrap();
 
     // When
     let response = execute_request(&mut server, body);

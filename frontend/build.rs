@@ -29,8 +29,7 @@ pub fn main() -> Result<(), Error> {
 }
 
 fn run<F>(name: &str, mut configure: F) -> Result<(), Error>
-where
-    F: FnMut(&mut Command) -> &mut Command,
+    where F: FnMut(&mut Command) -> &mut Command
 {
     let mut command = Command::new(name);
     let configured = configure(&mut command);
@@ -49,12 +48,11 @@ fn prepare_style() -> Result<(), Error> {
     // Clone the repo if needed
     if !Path::new(&target.join(".git")).exists() {
         run("git", |command| {
-            command
-                .arg("clone")
-                .arg(format!("--branch={}", TAG))
-                .arg("--recursive")
-                .arg(REPOSITORY)
-                .arg(&target)
+            command.arg("clone")
+                   .arg(format!("--branch={}", TAG))
+                   .arg("--recursive")
+                   .arg(REPOSITORY)
+                   .arg(&target)
         })?;
     }
 
@@ -87,14 +85,10 @@ fn prepare_api() -> Result<(), Error> {
     let api_url = format!("http{}://{}:{}", secure_protocol, config.server.ip, config.server.port);
 
     println!("cargo:rustc-env=API_URL={}", api_url);
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_CREDENTIALS={}{}",
-        api_url, config.api.login_credentials
-    );
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
-        api_url, config.api.login_session
-    );
+    println!("cargo:rustc-env=API_URL_LOGIN_CREDENTIALS={}{}",
+             api_url, config.api.login_credentials);
+    println!("cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
+             api_url, config.api.login_session);
     println!("cargo:rustc-env=API_URL_LOGOUT={}{}", api_url, config.api.logout);
 
     Ok(())
