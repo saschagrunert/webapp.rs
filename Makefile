@@ -66,6 +66,7 @@ startdb:
 				break ;\
 			fi \
 		done ;\
+		sleep 1; \
 		diesel migration run --database-url \
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
 	fi
