@@ -23,7 +23,7 @@ else
 GENERAL_ARGS += -v
 endif
 
-build-backend: startdb
+build-backend:
 	cargo build $(BACKEND_ARGS)
 
 build-frontend:
