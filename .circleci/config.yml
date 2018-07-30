@@ -36,13 +36,14 @@ jobs:
             - target/debug/deps
           key: cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - persist_to_workspace:
-          root: workspace
+          root: target
           paths:
-            - target
+            - '*'
   test:
     <<: *defaults
     steps:
-      - checkout
+      - attach_workspace:
+          at: target
       - run:
           name: Run all tests
           command: cargo test
