@@ -27,7 +27,7 @@ jobs:
             - cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
-          command: make build-backend build-frontend
+          command: make build-backend build-frontend VERBOSE=1
       - save_cache:
           paths:
             - /usr/local/cargo/registry
