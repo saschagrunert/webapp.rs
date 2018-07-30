@@ -1,6 +1,6 @@
 # WebApp.rs
 
-[![CircleCI](https://circleci.com/gh/saschagrunert/webapp.rs.svg?style=svg)](https://circleci.com/gh/saschagrunert/webapp.rs)
+[![CircleCI](https://circleci.com/gh/saschagrunert/webapp.rs.svg?style=shield)](https://circleci.com/gh/saschagrunert/webapp.rs)
 [![Coverage](https://codecov.io/gh/saschagrunert/webapp.rs/branch/master/graph/badge.svg)](https://codecov.io/gh/saschagrunert/webapp.rs)
 [![Doc](https://img.shields.io/badge/doc-webapp-orange.svg)](https://saschagrunert.github.io/webapp.rs/doc/webapp/index.html)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/webapp.rs/blob/master/LICENSE)
