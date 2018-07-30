@@ -45,4 +45,4 @@ jobs:
           at: target
       - run:
           name: Run all tests
-          command: cargo test -p webapp-backend --release
+          command: cargo test
