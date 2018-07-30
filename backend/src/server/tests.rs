@@ -27,6 +27,6 @@ fn fail_to_create_a_server_with_wrong_addr() {
 #[test]
 fn fail_to_create_a_server_with_wrong_port() {
     let mut config = get_config();
-    config.server.port = "10".to_owned();
+    config.server.port = "-1".to_owned();
     assert!(Server::new(&config).is_err());
 }

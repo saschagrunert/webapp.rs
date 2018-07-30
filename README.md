@@ -1,6 +1,8 @@
 # WebApp.rs
 
-[![Build Status](https://travis-ci.org/saschagrunert/webapp.rs.svg)](https://travis-ci.org/saschagrunert/webapp.rs)
+[![CircleCI](https://circleci.com/gh/saschagrunert/webapp.rs.svg?style=svg)](https://circleci.com/gh/saschagrunert/webapp.rs)
+[![Coverage](https://coveralls.io/repos/github/saschagrunert/webapp.rs/badge.svg?branch=master)](https://coveralls.io/github/saschagrunert/webapp.rs?branch=master)
+[![Doc](https://img.shields.io/badge/doc-webapp-blue.svg)](https://saschagrunert.github.io/webapp.rs/doc/webapp/index.html)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/webapp.rs/blob/master/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/webapp.svg)](https://crates.io/crates/webapp)
 

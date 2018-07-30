@@ -19,6 +19,7 @@ PG_DATABASE := $(strip $(call get_config_value,database))
 	build-backend \
 	build-doc \
 	build-frontend \
+	coverage \
 	deploy \
 	lint-rustfmt \
 	lint-clippy \
@@ -43,6 +44,9 @@ build-doc:
 
 build-frontend:
 	cargo web build $(FRONTEND_ARGS)
+
+coverage:
+	cd backend && cargo kcov --coveralls
 
 deploy:
 	# Deploy the frontend
