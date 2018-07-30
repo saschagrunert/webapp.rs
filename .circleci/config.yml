@@ -54,7 +54,7 @@ jobs:
             git config --global user.name "CircleCI"
       - restore_cache:
           keys:
-            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - doc-cache-{{ arch }}
       - run:
           name: Build documentation
           command: make build-doc
@@ -62,7 +62,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: doc-cache-{{ arch }}
       - run:
           name: Deploy documentation
           command: |
@@ -86,7 +86,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - clippy-cache-{{ arch }}
       - run:
           name: Clippy
           command: make lint-clippy
@@ -94,7 +94,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: clippy-cache-{{ arch }}
   test:
     docker:
       - image: saschagrunert/build-rust:latest
