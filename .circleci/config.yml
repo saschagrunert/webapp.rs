@@ -1,0 +1,8 @@
+---
+version: 2
+jobs:
+  build:
+    steps:
+      - run:
+          name: Noop
+          command: exit 0
