@@ -27,7 +27,7 @@ jobs:
           command: cargo generate-lockfile --verbose
       - restore_cache:
           keys:
-            - build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - build-cache-{{ arch }}
       - run:
           name: Build all targets
           command: make build-backend build-frontend
@@ -35,7 +35,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: build-cache-{{ arch }}
       - persist_to_workspace:
           root: target
           paths:
