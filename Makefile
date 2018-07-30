@@ -46,7 +46,7 @@ build-frontend:
 	cargo web build $(FRONTEND_ARGS)
 
 coverage:
-	cd backend && cargo kcov --coveralls
+	cd backend && cargo kcov
 
 deploy:
 	# Deploy the frontend

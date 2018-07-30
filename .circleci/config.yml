@@ -45,7 +45,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a"
+            - c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a
       - checkout
       - run:
           name: Setup git
@@ -96,5 +96,8 @@ jobs:
             diesel migration run \
               --database-url postgres://username:@localhost/database
       - run:
-          name: Run all tests
-          command: cargo test -p webapp-backend --release
+          name: Run tests
+          command: make coverage
+      - run:
+          name: Upload coverage report
+          command: bash <(curl -s https://codecov.io/bash)
