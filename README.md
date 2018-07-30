@@ -16,14 +16,14 @@ Target of this project is to write a complete web application including backend 
 
 The following build dependencies needs to be fulfilled to support the full feature set of this application:
 
-*   [cargo-web](https://github.com/koute/cargo-web)
-*   [diesel_cli](https://github.com/diesel-rs/diesel)
-*   [docker](https://github.com/docker/docker-ce)
-*   [postgresql (libpg)](https://www.postgresql.org/)
+-   [cargo-web](https://github.com/koute/cargo-web)
+-   [diesel_cli](https://github.com/diesel-rs/diesel)
+-   [docker](https://github.com/docker/docker-ce)
+-   [postgresql (libpg)](https://www.postgresql.org/)
 
 The app consist of a frontend and a backend. For getting started with hacking, the backend can tested via
-`make backend`, whereas the frontend can be tested with `make frontend`. You can adapt the application configuration
-within `Config.toml` if needed.
+`make run-backend`, whereas the frontend can be tested with `make run-frontend`. You can adapt the application
+configuration within `Config.toml` if needed.
 
 ## Run
 

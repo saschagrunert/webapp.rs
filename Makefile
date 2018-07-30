@@ -15,7 +15,7 @@ PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
 
-.PHONY: backend deploy frontend run startdb stopdb
+.PHONY: build-backend build-frontend deploy run run-backend run-frontend startdb stopdb
 
 ifndef VERBOSE
 .SILENT:
@@ -23,8 +23,11 @@ else
 GENERAL_ARGS += -v
 endif
 
-backend: startdb
-	cargo run $(BACKEND_ARGS)
+build-backend: startdb
+	cargo build $(BACKEND_ARGS)
+
+build-frontend:
+	cargo web build $(FRONTEND_ARGS)
 
 deploy:
 	# Deploy the frontend
@@ -41,7 +44,10 @@ deploy:
 		--build-arg API_PORT=$(API_PORT) \
 		-t webapp .
 
-frontend:
+run-backend: startdb
+	cargo run $(BACKEND_ARGS)
+
+run-frontend:
 	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
 
 start: startdb
