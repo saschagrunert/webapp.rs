@@ -4,7 +4,8 @@
 
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use database::{CreateSession, DatabaseError};
+use database::CreateSession;
+use failure::Error;
 use http::{
     login_credentials::login_credentials,
     tests::{execute_request, state, DatabaseExecutorMock},
@@ -14,7 +15,7 @@ use token::Token;
 use webapp::protocol::{model::Session, request};
 
 impl Handler<CreateSession> for DatabaseExecutorMock {
-    type Result = Result<Session, DatabaseError>;
+    type Result = Result<Session, Error>;
 
     fn handle(&mut self, _: CreateSession, _: &mut Self::Context) -> Self::Result {
         Ok(Session {
