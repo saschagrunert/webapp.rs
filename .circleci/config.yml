@@ -45,7 +45,7 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints:
-            - "5a:56:75:60:1b:e9:65:63:05:bb:96:eb:4e:09:07:22"
+            - "c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a"
       - checkout
       - run:
           name: Setup git
