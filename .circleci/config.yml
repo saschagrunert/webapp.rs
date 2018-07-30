@@ -63,7 +63,7 @@ jobs:
             rm -rf doc
             mv target/doc .
             git add .
-            git commit -m 'Update documentation'
+            git diff-index --quiet HEAD || git commit -m 'Update documentation'
             git push origin gh-pages
   lint-rustfmt:
     <<: *defaults
@@ -93,9 +93,8 @@ jobs:
       - run:
           name: Prepare database
           command: |
-            sleep 5
             diesel migration run \
-              --database-url postgres://username@localhost/database
+              --database-url postgres://username:@localhost/database
       - run:
           name: Run all tests
           command: cargo test -p webapp-backend --release
