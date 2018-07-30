@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["init_logger","Initialize the static logger"]],"struct":[["RootComponent","Data Model for the Root Component"]]});

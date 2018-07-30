@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ApiConfig","The API configuration"],["Config","The global configuration"],["LogConfig","The logger configuration"],["PostgresConfig","The database configuration"],["ServerConfig","The server configuration"]]});
