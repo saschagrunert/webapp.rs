@@ -1,5 +1,4 @@
 target/
 .*/target/
-Cargo.lock
 **/*.rs.bk
 *.tar
