@@ -61,6 +61,8 @@ deploy:
 
 lint-clippy:
 	cargo clippy -- -D warnings
+	cargo clippy -p webapp-backend -- -D warnings
+	cargo clippy -p webapp-frontend -- -D warnings
 
 lint-rustfmt:
 	cargo fmt

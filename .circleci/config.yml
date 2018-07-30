@@ -65,8 +65,6 @@ jobs:
             git add .
             git commit -m 'Update documentation'
             git push origin gh-pages
-      - store_artifacts:
-          path: target/doc
   lint-rustfmt:
     <<: *defaults
     steps:
