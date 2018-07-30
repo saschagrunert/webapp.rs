@@ -1,9 +1,19 @@
 ---
 version: 2
+defaults: &defaults
+  docker:
+    - image: rust:latest
+workflows:
+  version: 2
+  build-test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
 jobs:
   build:
-    docker:
-      - image: rust:latest
+    <<: *defaults
     steps:
       - checkout
       - run:
@@ -14,7 +24,7 @@ jobs:
           command: cargo generate-lockfile --verbose
       - restore_cache:
           keys:
-            - v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
           command: cargo build
@@ -24,7 +34,15 @@ jobs:
             - target/debug/.fingerprint
             - target/debug/build
             - target/debug/deps
-          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - target
+  test:
+    <<: *defaults
+    steps:
+      - checkout
       - run:
           name: Run all tests
           command: cargo test
