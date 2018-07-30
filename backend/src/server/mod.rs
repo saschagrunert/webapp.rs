@@ -25,7 +25,8 @@ pub struct Server {
 
 /// Shared mutable application state
 pub struct State<T>
-    where T: Actor
+where
+    T: Actor,
 {
     /// The database connection
     pub database: Addr<T>,
@@ -38,11 +39,10 @@ impl Server {
         let runner = actix::System::new("ws");
 
         // Start database executor actors
-        let database_url = format!("postgres://{}:{}@{}/{}",
-                                   config.postgres.username,
-                                   config.postgres.password,
-                                   config.postgres.host,
-                                   config.postgres.database,);
+        let database_url = format!(
+            "postgres://{}:{}@{}/{}",
+            config.postgres.username, config.postgres.password, config.postgres.host, config.postgres.database,
+        );
         let manager = ConnectionManager::<PgConnection>::new(database_url);
         let pool = Pool::builder().build(manager)?;
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
@@ -53,21 +53,18 @@ impl Server {
             App::with_state(State {
                 database: db_addr.clone(),
             }).middleware(middleware::Logger::default())
-                .configure(|app| {
-                    Cors::for_app(app)
-                        .allowed_methods(vec!["GET", "POST"])
-                        .allowed_header(CONTENT_TYPE)
-                        .max_age(3600)
-                        .resource(&config_clone.api.login_credentials, |r| {
-                            r.method(http::Method::POST).f(login_credentials)
-                        })
-                        .resource(&config_clone.api.login_session, |r| {
-                            r.method(http::Method::POST).f(login_session)
-                        })
-                        .resource(&config_clone.api.logout, |r| r.method(http::Method::POST).f(logout))
-                        .register()
-                })
-                .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
+            .configure(|app| {
+                Cors::for_app(app)
+                    .allowed_methods(vec!["GET", "POST"])
+                    .allowed_header(CONTENT_TYPE)
+                    .max_age(3600)
+                    .resource(&config_clone.api.login_credentials, |r| {
+                        r.method(http::Method::POST).f(login_credentials)
+                    }).resource(&config_clone.api.login_session, |r| {
+                        r.method(http::Method::POST).f(login_session)
+                    }).resource(&config_clone.api.logout, |r| r.method(http::Method::POST).f(logout))
+                    .register()
+            }).handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 
         // Create the server url from the given configuration

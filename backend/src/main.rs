@@ -15,8 +15,10 @@ fn main() -> Result<(), Error> {
     let config: Config = toml::from_str(&config_string)?;
 
     // Set the logging verbosity
-    set_var("RUST_LOG",
-            format!("actix_web={},webapp={}", config.log.actix_web, config.log.webapp));
+    set_var(
+        "RUST_LOG",
+        format!("actix_web={},webapp={}", config.log.actix_web, config.log.webapp),
+    );
 
     // Initialize the logger
     env_logger::init();

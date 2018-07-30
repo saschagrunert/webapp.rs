@@ -58,13 +58,15 @@ impl Component for ContentComponent {
         }
 
         // Return the component
-        Self { component_link: link,
-               cookie_service,
-               fetch_task: None,
-               logout_button_disabled: false,
-               router_agent,
-               session_timer_agent,
-               uikit_service: UIkitService::new(), }
+        Self {
+            component_link: link,
+            cookie_service,
+            fetch_task: None,
+            logout_button_disabled: false,
+            router_agent,
+            session_timer_agent,
+            uikit_service: UIkitService::new(),
+        }
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
@@ -78,26 +80,28 @@ impl Component for ContentComponent {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
                     match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
-                    token: token.to_owned(),
-                }))) {
-                    Ok(body) => {
-                        // Disable user interaction
-                        self.logout_button_disabled = true;
+                        token: token.to_owned(),
+                    }))) {
+                        Ok(body) => {
+                            // Disable user interaction
+                            self.logout_button_disabled = true;
 
-                        // Send the request
-                        self.fetch_task =
-                            Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
+                            // Send the request
+                            self.fetch_task = Some(
+                                FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)),
+                            );
+                        }
+                        _ => {
+                            error!("Unable to create logout request");
+                            self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                        }
                     }
-                    _ => {
-                        error!("Unable to create logout request");
-                        self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
-                    }
-                }
                 } else {
                     // It should not happen but in case there is no session cookie on logout, route
                     // back to login
                     error!("No session cookie found");
-                    self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                    self.router_agent
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
             }
 
@@ -121,7 +125,8 @@ impl Component for ContentComponent {
                 // Remove the existing cookie
                 self.cookie_service.remove(SESSION_COOKIE);
                 self.session_timer_agent.send(session_timer::Request::Stop);
-                self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                self.router_agent
+                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 self.logout_button_disabled = true;
 
                 // Remove the ongoing task

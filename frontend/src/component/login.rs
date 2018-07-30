@@ -49,15 +49,17 @@ impl Component for LoginComponent {
     /// Initialization routine
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Return the component
-        Self { cookie_service: CookieService::new(),
-               fetch_task: None,
-               inputs_disabled: false,
-               login_button_disabled: true,
-               password: String::new(),
-               router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
-               component_link: link,
-               uikit_service: UIkitService::new(),
-               username: String::new(), }
+        Self {
+            cookie_service: CookieService::new(),
+            fetch_task: None,
+            inputs_disabled: false,
+            login_button_disabled: true,
+            password: String::new(),
+            router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
+            component_link: link,
+            uikit_service: UIkitService::new(),
+            username: String::new(),
+        }
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
@@ -112,7 +114,8 @@ impl Component for LoginComponent {
                             self.cookie_service.set(SESSION_COOKIE, &token);
 
                             // Route to the content component
-                            self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Content.into()));
+                            self.router_agent
+                                .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                         }
                         _ => {
                             warn!("Got wrong credentials login response");
@@ -122,7 +125,8 @@ impl Component for LoginComponent {
                 } else {
                     // Authentication failed
                     warn!("Credentials login failed with status: {}", meta.status);
-                    self.uikit_service.notify(AUTHENTICATION_ERROR, &NotificationStatus::Warning);
+                    self.uikit_service
+                        .notify(AUTHENTICATION_ERROR, &NotificationStatus::Warning);
                     self.login_button_disabled = false;
                     self.inputs_disabled = false;
                 }

@@ -66,11 +66,13 @@ impl Component for RootComponent {
         }
 
         // Return the component
-        Self { child_component: RouterTarget::Loading,
-               cookie_service,
-               fetch_task,
-               router_agent,
-               uikit_service, }
+        Self {
+            child_component: RouterTarget::Loading,
+            cookie_service,
+            fetch_task,
+            router_agent,
+            uikit_service,
+        }
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
@@ -96,20 +98,23 @@ impl Component for RootComponent {
                             self.cookie_service.set(SESSION_COOKIE, &token);
 
                             // Route to the content component
-                            self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Content.into()));
+                            self.router_agent
+                                .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
                         }
                         _ => {
                             // Send an error notification to the user on any failure
                             warn!("Got wrong session login response");
                             self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
-                            self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                            self.router_agent
+                                .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                         }
                     }
                 } else {
                     // Remove the existing cookie
                     warn!("Session login failed with status: {}", meta.status);
                     self.cookie_service.remove(SESSION_COOKIE);
-                    self.router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                    self.router_agent
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
 
                 // Remove the ongoing task

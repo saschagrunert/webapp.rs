@@ -14,7 +14,9 @@ impl Actor for DatabaseExecutorMock {
 }
 
 pub fn state() -> State<DatabaseExecutorMock> {
-    State { database: SyncArbiter::start(1, move || DatabaseExecutorMock), }
+    State {
+        database: SyncArbiter::start(1, move || DatabaseExecutorMock),
+    }
 }
 
 pub fn execute_request(server: &mut TestServer, body: Vec<u8>) -> ClientResponse {

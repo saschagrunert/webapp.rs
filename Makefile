@@ -15,7 +15,19 @@ PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
 
-.PHONY: build-backend build-frontend deploy run run-backend run-frontend startdb stopdb
+.PHONY: \
+	build-backend \
+	build-doc \
+	build-frontend \
+	deploy \
+	lint-rustfmt \
+	lint-clippy \
+	run-app \
+	run-backend \
+	run-frontend \
+	run-postgres \
+	stop-app \
+	stop-postgres
 
 ifndef VERBOSE
 .SILENT:
@@ -25,6 +37,9 @@ endif
 
 build-backend:
 	cargo build $(BACKEND_ARGS)
+
+build-doc:
+	cargo doc --all --no-deps
 
 build-frontend:
 	cargo web build $(FRONTEND_ARGS)
@@ -44,22 +59,26 @@ deploy:
 		--build-arg API_PORT=$(API_PORT) \
 		-t webapp .
 
-run-backend: startdb
-	cargo run $(BACKEND_ARGS)
+lint-clippy:
+	cargo clippy -- -D warnings
 
-run-frontend:
-	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
+lint-rustfmt:
+	cargo fmt
+	git diff --exit-code
 
-start: startdb
+run-app: run-postgres
 	docker run --rm \
 		--name webapp \
 		--network="host" \
 		-d webapp
 
-stop: stopdb
-	docker stop webapp
+run-backend: run-postgres
+	cargo run $(BACKEND_ARGS)
 
-startdb:
+run-frontend:
+	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
+
+run-postgres:
 	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \
 		docker run --rm --name postgres \
 			-e POSTGRES_USER=$(PG_USERNAME) \
@@ -77,5 +96,8 @@ startdb:
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
 	fi
 
-stopdb:
+stop-app: stop-postgres
+	docker stop webapp
+
+stop-postgres:
 	docker stop postgres

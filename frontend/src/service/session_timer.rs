@@ -45,18 +45,20 @@ pub struct SessionTimerAgent {
 }
 
 impl Agent for SessionTimerAgent {
-    type Reach = Context;
-    type Message = Message;
     type Input = Request;
+    type Message = Message;
     type Output = Response;
+    type Reach = Context;
 
     /// Creates a new SessionTimerAgent
     fn create(link: AgentLink<Self>) -> Self {
-        Self { callback: link.send_back(|_| Message::Update),
-               agent_link: link,
-               cookie_service: CookieService::new(),
-               fetch_task: None,
-               timer_task: None, }
+        Self {
+            callback: link.send_back(|_| Message::Update),
+            agent_link: link,
+            cookie_service: CookieService::new(),
+            fetch_task: None,
+            timer_task: None,
+        }
     }
 
     /// Internal update mechanism based on messages

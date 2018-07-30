@@ -21,35 +21,37 @@ pub struct RouterService<T> {
     phantom_data: PhantomData<T>,
 }
 
-impl<T> RouterService<T> where T: JsSerialize + Clone + TryFrom<Value> + 'static
+impl<T> RouterService<T>
+where
+    T: JsSerialize + Clone + TryFrom<Value> + 'static,
 {
     /// Creates the route service.
     pub fn new() -> RouterService<T> {
         let location = window().location().expect("browser does not support location API");
-        Self { history: window().history(),
-               location,
-               event_listener: None,
-               phantom_data: PhantomData, }
+        Self {
+            history: window().history(),
+            location,
+            event_listener: None,
+            phantom_data: PhantomData,
+        }
     }
 
     /// Registers a callback to the route service. Callbacks will be called
     /// when the History API experiences a change such as popping a state off
     /// of its stack when the forward or back buttons are pressed.
     pub fn register_callback(&mut self, callback: Callback<(String, T)>) {
-        self.event_listener =
-            Some(window().add_event_listener(move |event: PopStateEvent| {
-                                                 let state_value: Value = event.state();
+        self.event_listener = Some(window().add_event_listener(move |event: PopStateEvent| {
+            let state_value: Value = event.state();
 
-                                                 if let Ok(state) = T::try_from(state_value) {
-                                                     if let Some(location) = window().location() {
-                                                         let route: String = Self::get_route_from_location(&location);
-                                                         callback.emit((route.clone(), state.clone()))
-                                                     }
-                                                 } else {
-                                                     eprintln!("Nothing farther back in history, not calling routing \
-                                                                callback.");
-                                                 }
-                                             }));
+            if let Ok(state) = T::try_from(state_value) {
+                if let Some(location) = window().location() {
+                    let route: String = Self::get_route_from_location(&location);
+                    callback.emit((route.clone(), state.clone()))
+                }
+            } else {
+                eprintln!("Nothing farther back in history, not calling routing callback.");
+            }
+        }));
     }
 
     /// Sets the browser's url bar to contain the provided route, and creates a
@@ -64,10 +66,12 @@ impl<T> RouterService<T> where T: JsSerialize + Clone + TryFrom<Value> + 'static
         let path = location.pathname().unwrap_or_else(|_| "".to_owned());
         let query = location.search().unwrap_or_else(|_| "".to_owned());
         let fragment = location.hash().unwrap_or_else(|_| "".to_owned());
-        format!("{path}{query}{fragment}",
-                path = path,
-                query = query,
-                fragment = fragment)
+        format!(
+            "{path}{query}{fragment}",
+            path = path,
+            query = query,
+            fragment = fragment
+        )
     }
 
     /// Gets the concatenated path, query, and fragment strings
@@ -91,7 +95,9 @@ impl<T> RouterService<T> where T: JsSerialize + Clone + TryFrom<Value> + 'static
     }
 }
 
-impl<T> Default for RouterService<T> where T: JsSerialize + Clone + TryFrom<Value> + 'static
+impl<T> Default for RouterService<T>
+where
+    T: JsSerialize + Clone + TryFrom<Value> + 'static,
 {
     fn default() -> Self {
         RouterService::new()
@@ -106,7 +112,9 @@ pub struct Route<T> {
     pub state: T,
 }
 
-impl<T> Route<T> where T: JsSerialize + Clone + TryFrom<Value> + Default + 'static
+impl<T> Route<T>
+where
+    T: JsSerialize + Clone + TryFrom<Value> + Default + 'static,
 {
     /// Convert to a String
     pub fn to_route_string(&self) -> String {
@@ -145,15 +153,18 @@ impl<T> Route<T> where T: JsSerialize + Clone + TryFrom<Value> + Default + 'stat
             None
         };
 
-        Ok(Route { path_segments,
-                   query,
-                   fragment,
-                   state: T::default(), })
+        Ok(Route {
+            path_segments,
+            query,
+            fragment,
+            state: T::default(),
+        })
     }
 }
 
 pub enum Message<T>
-    where T: JsSerialize + Clone + Debug + TryFrom<Value> + 'static
+where
+    T: JsSerialize + Clone + Debug + TryFrom<Value> + 'static,
 {
     BrowserNavigationRouteChanged((String, T)),
 }
@@ -175,7 +186,8 @@ impl<T> Transferable for Request<T> where for<'de> T: Serialize + Deserialize<'d
 /// The RouterAgent worker holds on to the RouterService singleton and mediates
 /// access to it.
 pub struct RouterAgent<T>
-    where for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static
+where
+    for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static,
 {
     link: AgentLink<RouterAgent<T>>,
     route_service: RouterService<T>,
@@ -186,21 +198,24 @@ pub struct RouterAgent<T>
 }
 
 impl<T> Agent for RouterAgent<T>
-    where for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static
+where
+    for<'de> T: JsSerialize + Clone + Debug + TryFrom<Value> + Default + Serialize + Deserialize<'de> + 'static,
 {
-    type Reach = Context;
-    type Message = Message<T>;
     type Input = Request<T>;
+    type Message = Message<T>;
     type Output = Route<T>;
+    type Reach = Context;
 
     fn create(link: AgentLink<Self>) -> Self {
         let callback = link.send_back(Message::BrowserNavigationRouteChanged);
         let mut route_service = RouterService::default();
         route_service.register_callback(callback);
 
-        Self { link,
-               route_service,
-               subscribers: HashSet::new(), }
+        Self {
+            link,
+            route_service,
+            subscribers: HashSet::new(),
+        }
     }
 
     fn update(&mut self, msg: Self::Message) {

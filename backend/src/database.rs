@@ -49,9 +49,10 @@ impl Handler<CreateSession> for DatabaseExecutor {
     fn handle(&mut self, msg: CreateSession, _: &mut Self::Context) -> Self::Result {
         // Insert the session into the database
         debug!("Creating new session: {}", msg.0);
-        insert_into(sessions).values(&Session { token: msg.0 })
-                             .get_result::<Session>(&self.0.get().map_err(|_| DatabaseError::Communication)?)
-                             .map_err(|_| DatabaseError::InsertSession)
+        insert_into(sessions)
+            .values(&Session { token: msg.0 })
+            .get_result::<Session>(&self.0.get().map_err(|_| DatabaseError::Communication)?)
+            .map_err(|_| DatabaseError::InsertSession)
     }
 }
 
@@ -94,8 +95,9 @@ impl Handler<DeleteSession> for DatabaseExecutor {
     fn handle(&mut self, msg: DeleteSession, _: &mut Self::Context) -> Self::Result {
         // Delete the session
         debug!("Deleting session: {}", msg.0);
-        delete(sessions.filter(token.eq(&msg.0))).execute(&self.0.get().map_err(|_| DatabaseError::Communication)?)
-                                                 .map_err(|_| DatabaseError::DeleteSession)?;
+        delete(sessions.filter(token.eq(&msg.0)))
+            .execute(&self.0.get().map_err(|_| DatabaseError::Communication)?)
+            .map_err(|_| DatabaseError::DeleteSession)?;
         Ok(())
     }
 }

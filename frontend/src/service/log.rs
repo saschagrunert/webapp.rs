@@ -8,8 +8,9 @@ static LOGGER: LogService = LogService;
 
 /// Initialize the static logger
 pub fn init_logger() -> Result<(), Error> {
-    set_logger(&LOGGER).map(|()| set_max_level(LevelFilter::Trace))
-                       .map_err(|_| format_err!("Logger init failed"))
+    set_logger(&LOGGER)
+        .map(|()| set_max_level(LevelFilter::Trace))
+        .map_err(|_| format_err!("Logger init failed"))
 }
 
 /// The service used for logging purposes

@@ -12,8 +12,9 @@ use webapp::protocol::{model::Session, request, response};
 mod tests;
 
 pub fn logout<T: Actor>(http_request: &HttpRequest<State<T>>) -> FutureResponse
-    where T: Actor + Handler<DeleteSession>,
-          <T as Actor>::Context: ToEnvelope<T, DeleteSession>
+where
+    T: Actor + Handler<DeleteSession>,
+    <T as Actor>::Context: ToEnvelope<T, DeleteSession>,
 {
     let request_clone = http_request.clone();
     CborRequest::new(http_request)

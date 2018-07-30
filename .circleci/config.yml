@@ -3,18 +3,17 @@ version: 2
 defaults: &defaults
   docker:
     - image: saschagrunert/build-rust:latest
-    - image: circleci/postgres:10.4-alpine
-      environment:
-        POSTGRES_USER: username
-        POSTGRES_DB: database
 workflows:
   version: 2
-  build-test:
+  build-doc-lint-test:
     jobs:
       - build
+      - doc
+      - lint-rustfmt
+      - lint-clippy
       - test:
           requires:
-            - build
+            - lint
 jobs:
   build:
     <<: *defaults
@@ -34,15 +33,61 @@ jobs:
           command: make build-backend build-frontend
       - save_cache:
           paths:
-            - /usr/local/cargo/registry
+            - /root/.cargo/registry
             - target
           key: cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - persist_to_workspace:
           root: target
           paths:
             - '*'
-  test:
+  doc:
     <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "5a:56:75:60:1b:e9:65:63:05:bb:96:eb:4e:09:07:22"
+      - checkout
+      - run:
+          name: Setup git
+          command: |
+            git config --global user.email mail@saschagrunert.de
+            git config --global user.name "CircleCI"
+      - run:
+          name: Build documentation
+          command: make build-doc
+      - run:
+          name: Deploy documentation
+          command: |
+            git fetch origin gh-pages
+            git checkout gh-pages
+            rm -rf doc
+            mv target/doc .
+            git add .
+            git commit -m 'Update documentation'
+            git push origin gh-pages
+      - store_artifacts:
+          path: target/doc
+  lint-rustfmt:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Rust Format
+          command: make lint-rustfmt
+  lint-clippy:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Clippy
+          command: make lint-clippy
+  test:
+    docker:
+      - image: saschagrunert/build-rust:latest
+      - image: circleci/postgres:10.4-alpine
+        environment:
+          POSTGRES_USER: username
+          POSTGRES_DB: database
     steps:
       - checkout
       - attach_workspace:

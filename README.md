@@ -59,7 +59,7 @@ make deploy
 After that you can run the application side by side with a PostgreSQL container via:
 
 ```console
-make start
+make run-app
 ```
 
 The application should now be accessible at [`http://127.0.0.1:30080`](http://127.0.0.1:30080).

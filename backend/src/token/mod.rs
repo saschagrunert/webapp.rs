@@ -40,10 +40,12 @@ impl Token {
     /// Create a new default token for a given username
     pub fn create(username: &str) -> Result<String, TokenError> {
         const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
-        let claim = Token { sub: username.to_owned(),
-                            exp: get_time().sec + DEFAULT_TOKEN_VALIDITY,
-                            iat: get_time().sec,
-                            jti: Uuid::new_v4().to_string(), };
+        let claim = Token {
+            sub: username.to_owned(),
+            exp: get_time().sec + DEFAULT_TOKEN_VALIDITY,
+            iat: get_time().sec,
+            jti: Uuid::new_v4().to_string(),
+        };
         encode(&Header::default(), &claim, SECRET).map_err(|_| TokenError::Create)
     }
 

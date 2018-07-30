@@ -48,10 +48,11 @@ fn succeed_to_login_with_credentials() {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).unwrap();
-    let mut res = Client::new().post(&(url + &config.api.login_credentials))
-                               .body(request)
-                               .send()
-                               .unwrap();
+    let mut res = Client::new()
+        .post(&(url + &config.api.login_credentials))
+        .body(request)
+        .send()
+        .unwrap();
     let mut body = vec![];
     res.copy_to(&mut body).unwrap();
     let response::Login(session) = from_slice(&body).unwrap();
@@ -71,10 +72,11 @@ fn fail_to_login_with_wrong_credentials() {
         username: "username".to_owned(),
         password: "password".to_owned(),
     }).unwrap();
-    let res = Client::new().post(&(url + &config.api.login_credentials))
-                           .body(request)
-                           .send()
-                           .unwrap();
+    let res = Client::new()
+        .post(&(url + &config.api.login_credentials))
+        .body(request)
+        .send()
+        .unwrap();
 
     // Then
     assert_eq!(res.status(), StatusCode::Unauthorized);
@@ -90,19 +92,21 @@ fn succeed_to_login_with_session() {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).unwrap();
-    let mut res = Client::new().post(&(url.clone() + &config.api.login_credentials))
-                               .body(request)
-                               .send()
-                               .unwrap();
+    let mut res = Client::new()
+        .post(&(url.clone() + &config.api.login_credentials))
+        .body(request)
+        .send()
+        .unwrap();
     let mut body = vec![];
     res.copy_to(&mut body).unwrap();
     let response::Login(session) = from_slice(&body).unwrap();
 
     request = to_vec(&request::LoginSession(session)).unwrap();
-    res = Client::new().post(&(url + &config.api.login_session))
-                       .body(request)
-                       .send()
-                       .unwrap();
+    res = Client::new()
+        .post(&(url + &config.api.login_session))
+        .body(request)
+        .send()
+        .unwrap();
     body.clear();
     res.copy_to(&mut body).unwrap();
     let response::Login(new_session) = from_slice(&body).unwrap();
@@ -118,11 +122,14 @@ fn fail_to_login_with_wrong_session() {
     let (url, config) = create_testserver();
 
     // When
-    let request = to_vec(&request::LoginSession(Session { token: "wrong".to_owned(), })).unwrap();
-    let res = Client::new().post(&(url + &config.api.login_session))
-                           .body(request)
-                           .send()
-                           .unwrap();
+    let request = to_vec(&request::LoginSession(Session {
+        token: "wrong".to_owned(),
+    })).unwrap();
+    let res = Client::new()
+        .post(&(url + &config.api.login_session))
+        .body(request)
+        .send()
+        .unwrap();
 
     // Then
     assert_eq!(res.status(), StatusCode::Unauthorized);
@@ -134,11 +141,14 @@ fn succeed_to_logout() {
     let (url, config) = create_testserver();
 
     // When
-    let request = to_vec(&request::Logout(Session { token: "wrong".to_owned(), })).unwrap();
-    let res = Client::new().post(&(url + &config.api.logout))
-                           .body(request)
-                           .send()
-                           .unwrap();
+    let request = to_vec(&request::Logout(Session {
+        token: "wrong".to_owned(),
+    })).unwrap();
+    let res = Client::new()
+        .post(&(url + &config.api.logout))
+        .body(request)
+        .send()
+        .unwrap();
 
     // Then
     assert!(res.status().is_success());

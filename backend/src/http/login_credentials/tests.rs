@@ -17,7 +17,9 @@ impl Handler<CreateSession> for DatabaseExecutorMock {
     type Result = Result<Session, DatabaseError>;
 
     fn handle(&mut self, _: CreateSession, _: &mut Self::Context) -> Self::Result {
-        Ok(Session { token: Token::create("username").unwrap(), })
+        Ok(Session {
+            token: Token::create("username").unwrap(),
+        })
     }
 }
 
