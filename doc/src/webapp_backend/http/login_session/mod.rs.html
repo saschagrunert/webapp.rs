@@ -36,18 +36,11 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! The session based login request</span>
 
 <span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">dev</span>::<span class="ident">ToEnvelope</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">error</span>::<span class="ident">ErrorUnauthorized</span>, <span class="ident">AsyncResponder</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">AsyncResponder</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
 <span class="kw">use</span> <span class="ident">cbor</span>::{<span class="ident">CborRequest</span>, <span class="ident">CborResponseBuilder</span>};
 <span class="kw">use</span> <span class="ident">database</span>::<span class="ident">UpdateSession</span>;
 <span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">Future</span>;
@@ -69,23 +62,16 @@
         <span class="comment">// Create a new token for the already given one</span>
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">request</span>::<span class="ident">LoginSession</span>(<span class="ident">Session</span>{<span class="ident">token</span>})<span class="op">|</span> {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Session token {} wants to be renewed&quot;</span>, <span class="ident">token</span>);
-            <span class="ident">Token</span>::<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">token</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                 <span class="ident">ErrorUnauthorized</span>(<span class="string">&quot;Token verification failed&quot;</span>)
-            }).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">new_token</span><span class="op">|</span> {
-                 <span class="prelude-val">Ok</span>((<span class="ident">token</span>, <span class="ident">new_token</span>))
-            })
+            <span class="prelude-val">Ok</span>((<span class="ident">Token</span>::<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">token</span>)<span class="question-mark">?</span>, <span class="ident">token</span>))
         })
         <span class="comment">// Update the session in the database</span>
-        .<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span>(<span class="ident">old_token</span>, <span class="ident">new_token</span>)<span class="op">|</span> {
+        .<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span>(<span class="ident">new_token</span>, <span class="ident">old_token</span>)<span class="op">|</span> {
             <span class="ident">request_clone</span>
                 .<span class="ident">state</span>()
                 .<span class="ident">database</span>
                 .<span class="ident">send</span>(<span class="ident">UpdateSession</span> { <span class="ident">old_token</span>, <span class="ident">new_token</span> })
                 .<span class="ident">from_err</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">result</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">response</span>::<span class="ident">Login</span>(<span class="ident">r</span>))<span class="question-mark">?</span>),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="ident">InternalServerError</span>().<span class="ident">into</span>()),
-                })
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">response</span>::<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>))<span class="question-mark">?</span>))
         })
         .<span class="ident">responder</span>()
 }
