@@ -3,6 +3,10 @@ version: 2
 defaults: &defaults
   docker:
     - image: saschagrunert/build-rust:latest
+    - image: circleci/postgres:10.4-alpine
+      environment:
+        POSTGRES_USER: username
+        POSTGRES_DB: database
 workflows:
   version: 2
   build-test:
@@ -27,7 +31,7 @@ jobs:
             - cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
-          command: make build-backend build-frontend VERBOSE=1
+          command: make build-backend build-frontend
       - save_cache:
           paths:
             - /usr/local/cargo/registry
@@ -44,5 +48,10 @@ jobs:
       - attach_workspace:
           at: target
       - run:
+          name: Prepare database
+          command: |
+            diesel migration run \
+              --database-url postgres://username@localhost/database
+      - run:
           name: Run all tests
-          command: cargo test
+          command: cargo test -p webapp-backend --release
