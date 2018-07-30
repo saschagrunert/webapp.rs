@@ -27,7 +27,7 @@ jobs:
           command: cargo generate-lockfile --verbose
       - restore_cache:
           keys:
-            - cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
           command: make build-backend build-frontend
@@ -35,7 +35,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - persist_to_workspace:
           root: target
           paths:
@@ -52,9 +52,17 @@ jobs:
           command: |
             git config --global user.email mail@saschagrunert.de
             git config --global user.name "CircleCI"
+      - restore_cache:
+          keys:
+            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build documentation
           command: make build-doc
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Deploy documentation
           command: |
@@ -76,9 +84,17 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Clippy
           command: make lint-clippy
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   test:
     docker:
       - image: saschagrunert/build-rust:latest
