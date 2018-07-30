@@ -27,9 +27,9 @@ where
                 .database
                 .send(DeleteSession(token))
                 .from_err()
-                .and_then(|result| match result {
-                    Ok(()) => Ok(HttpResponse::Ok().cbor(response::Logout)?),
-                    Err(_) => Ok(HttpResponse::InternalServerError().into()),
+                .and_then(|result| {
+                    result?;
+                    Ok(HttpResponse::Ok().cbor(response::Logout)?)
                 })
         })
         .responder()

@@ -1,5 +1,6 @@
 //! Everything related to web token handling
 
+use actix_web::{HttpResponse, ResponseError};
 use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
 use uuid::Uuid;
@@ -18,6 +19,15 @@ pub enum TokenError {
     #[fail(display = "unable to verify session token")]
     /// Session token verification failed
     Verify,
+}
+
+impl ResponseError for TokenError {
+    fn error_response(&self) -> HttpResponse {
+        match self {
+            TokenError::Create => HttpResponse::InternalServerError().into(),
+            TokenError::Verify => HttpResponse::Unauthorized().into(),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]

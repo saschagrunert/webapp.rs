@@ -1,10 +1,7 @@
 //! The credential based login request
 
 use actix::{dev::ToEnvelope, prelude::*};
-use actix_web::{
-    error::{ErrorInternalServerError, ErrorUnauthorized},
-    AsyncResponder, HttpRequest, HttpResponse,
-};
+use actix_web::{error::ErrorUnauthorized, AsyncResponder, HttpRequest, HttpResponse};
 use cbor::{CborRequest, CborResponseBuilder};
 use database::CreateSession;
 use futures::Future;
@@ -32,11 +29,7 @@ where
             Ok(username)
         })
         // Create a new token
-        .and_then(|username| {
-            Token::create(&username).map_err(|_| {
-                 ErrorInternalServerError("token creation failed")
-            })
-        })
+        .and_then(|username| Ok(Token::create(&username)?))
         // Update the session in the database
         .and_then(move |token| {
             request_clone
@@ -44,10 +37,7 @@ where
                 .database
                 .send(CreateSession(token))
                 .from_err()
-                .and_then(|result| match result {
-                    Ok(r) => Ok(HttpResponse::Ok().cbor(response::Login(r))?),
-                    Err(_) => Ok(HttpResponse::InternalServerError().into()),
-                })
+                .and_then(|result| Ok(HttpResponse::Ok().cbor(response::Login(result?))?))
         })
         .responder()
 }
