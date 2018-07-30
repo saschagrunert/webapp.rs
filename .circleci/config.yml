@@ -21,13 +21,13 @@ jobs:
       - checkout
       - run:
           name: Version information
-          command: rustc --version; rustup --version; cargo --version
-      - run:
-          name: Calculate dependencies
-          command: cargo generate-lockfile --verbose
+          command: |
+            rustc --version
+            rustup --version
+            cargo --version
       - restore_cache:
           keys:
-            - build-cache-{{ arch }}
+            - build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
           command: make build-backend build-frontend
@@ -35,7 +35,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: build-cache-{{ arch }}
+          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - persist_to_workspace:
           root: target
           paths:
@@ -54,7 +54,7 @@ jobs:
             git config --global user.name "CircleCI"
       - restore_cache:
           keys:
-            - doc-cache-{{ arch }}
+            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build documentation
           command: make build-doc
@@ -62,7 +62,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: doc-cache-{{ arch }}
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Deploy documentation
           command: |
@@ -86,7 +86,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - clippy-cache-{{ arch }}
+            - clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Clippy
           command: make lint-clippy
@@ -94,7 +94,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-          key: clippy-cache-{{ arch }}
+          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   test:
     docker:
       - image: saschagrunert/build-rust:latest
