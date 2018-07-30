@@ -11,9 +11,7 @@ workflows:
       - doc
       - rustfmt
       - clippy
-      - test:
-          requires:
-            - build
+      - test
 jobs:
   build:
     <<: *defaults
@@ -36,10 +34,6 @@ jobs:
             - /root/.cargo/registry
             - target
           key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-      - persist_to_workspace:
-          root: target
-          paths:
-            - '*'
   doc:
     <<: *defaults
     steps:
@@ -104,12 +98,10 @@ jobs:
           POSTGRES_DB: database
     steps:
       - checkout
-      - attach_workspace:
-          at: target
       - run:
           name: Prepare database
           command: |
-            sleep 15
+            sleep 10
             diesel migration run \
               --database-url postgres://username:@localhost/database
       - run:
