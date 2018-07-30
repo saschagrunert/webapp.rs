@@ -5,12 +5,12 @@ defaults: &defaults
     - image: saschagrunert/build-rust:latest
 workflows:
   version: 2
-  build-doc-lint-test:
+  pipeline:
     jobs:
       - build
       - doc
-      - lint-rustfmt
-      - lint-clippy
+      - rustfmt
+      - clippy
       - test:
           requires:
             - build
@@ -73,14 +73,14 @@ jobs:
             git add .
             git diff-index --quiet HEAD || git commit -m 'Update documentation'
             git push origin gh-pages
-  lint-rustfmt:
+  rustfmt:
     <<: *defaults
     steps:
       - checkout
       - run:
           name: Rust Format
           command: make lint-rustfmt
-  lint-clippy:
+  clippy:
     <<: *defaults
     steps:
       - checkout
