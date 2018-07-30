@@ -1,7 +1,7 @@
 //! The main library interface
 
 #![deny(missing_docs)]
-#![allow(proc_macro_derive_resolution_fallback)]
+#![allow(unknown_lints, proc_macro_derive_resolution_fallback)]
 
 #[cfg(feature = "backend")]
 #[macro_use]
