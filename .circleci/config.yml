@@ -1,0 +1,112 @@
+---
+version: 2
+defaults: &defaults
+  docker:
+    - image: saschagrunert/build-rust:latest
+workflows:
+  version: 2
+  pipeline:
+    jobs:
+      - build
+      - doc
+      - rustfmt
+      - clippy
+      - test
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Version information
+          command: |
+            rustc --version
+            rustup --version
+            cargo --version
+      - restore_cache:
+          keys:
+            - build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build all targets
+          command: make build-backend build-frontend
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  doc:
+    <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a
+      - checkout
+      - run:
+          name: Setup git
+          command: |
+            git config --global user.email mail@saschagrunert.de
+            git config --global user.name "CircleCI"
+      - restore_cache:
+          keys:
+            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build documentation
+          command: make build-doc
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Deploy documentation
+          command: |
+            git fetch origin gh-pages
+            git checkout gh-pages
+            rm -rf doc
+            mv target/doc .
+            git add .
+            git diff-index --quiet HEAD || git commit -m 'Update documentation'
+            git push origin gh-pages
+  rustfmt:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Rust Format
+          command: make lint-rustfmt
+  clippy:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Clippy
+          command: make lint-clippy
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  test:
+    docker:
+      - image: saschagrunert/build-rust:latest
+      - image: circleci/postgres:10.4-alpine
+        environment:
+          POSTGRES_USER: username
+          POSTGRES_DB: database
+    steps:
+      - checkout
+      - run:
+          name: Prepare database
+          command: |
+            sleep 10
+            diesel migration run \
+              --database-url postgres://username:@localhost/database
+      - run:
+          name: Run tests
+          command: make coverage
+      - run:
+          name: Upload coverage report
+          command: bash <(curl -s https://codecov.io/bash)

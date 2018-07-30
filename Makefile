@@ -1,9 +1,7 @@
 # Compiler configuration
 GENERAL_ARGS = --release
-FRONTEND_TARGET = $(GENERAL_ARGS) --target wasm32-unknown-unknown
-FRONTEND_ARGS = $(FRONTEND_TARGET) --no-default-features --features=frontend
-BACKEND_TARGET = $(GENERAL_ARGS)
-BACKEND_ARGS = $(BACKEND_TARGET)
+FRONTEND_ARGS = $(GENERAL_ARGS) -p webapp-frontend --target wasm32-unknown-unknown
+BACKEND_ARGS = $(GENERAL_ARGS) -p webapp-backend
 
 # Application configuration
 define get_config_value
@@ -17,7 +15,20 @@ PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
 
-.PHONY: backend deploy frontend run startdb stopdb
+.PHONY: \
+	build-backend \
+	build-doc \
+	build-frontend \
+	coverage \
+	deploy \
+	lint-rustfmt \
+	lint-clippy \
+	run-app \
+	run-backend \
+	run-frontend \
+	run-postgres \
+	stop-app \
+	stop-postgres
 
 ifndef VERBOSE
 .SILENT:
@@ -25,8 +36,17 @@ else
 GENERAL_ARGS += -v
 endif
 
-backend: startdb
-	cargo run $(BACKEND_ARGS) --bin backend
+build-backend:
+	cargo build $(BACKEND_ARGS)
+
+build-doc:
+	cargo doc --all --no-deps
+
+build-frontend:
+	cargo web build $(FRONTEND_ARGS)
+
+coverage:
+	cd backend && cargo kcov -v
 
 deploy:
 	# Deploy the frontend
@@ -34,32 +54,37 @@ deploy:
 	# Fix applications path to JavaScript file
 	mkdir target/deploy/js
 	mv target/deploy/app.js ./target/deploy/js
-	# Build the docker image for static linking
-	if [[ "$(shell docker images -q webapp-build:latest 2> /dev/null)" == "" ]]; then \
-		docker build -f Dockerfile.build -t webapp-build . ;\
-	fi
 	# Build the backend
 	docker run --rm -it -v $(PWD):/home/rust/src \
-		webapp-build \
-		cargo build \
-			$(BACKEND_ARGS) \
-			--bin backend
+		ekidd/rust-musl-builder:latest \
+		cargo build $(BACKEND_ARGS)
 	# Create the docker image from the executable
 	docker build --no-cache \
 		--build-arg API_PORT=$(API_PORT) \
-		-f Dockerfile.webapp \
 		-t webapp .
 
-frontend:
-	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
+lint-clippy:
+	cargo clippy -- -D warnings
+	cargo clippy -p webapp-backend -- -D warnings
+	cargo clippy -p webapp-frontend -- -D warnings
 
-run: startdb
+lint-rustfmt:
+	cargo fmt
+	git diff --exit-code
+
+run-app: run-postgres
 	docker run --rm \
 		--name webapp \
 		--network="host" \
 		-d webapp
 
-startdb:
+run-backend: run-postgres
+	cargo run $(BACKEND_ARGS)
+
+run-frontend:
+	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
+
+run-postgres:
 	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \
 		docker run --rm --name postgres \
 			-e POSTGRES_USER=$(PG_USERNAME) \
@@ -67,10 +92,18 @@ startdb:
 			-e POSTGRES_DB=$(PG_DATABASE) \
 			-p 5432:5432 \
 			-d postgres ;\
-		sleep 5 ;\
+		while true; do \
+			if docker logs postgres 2>&1 | grep -q "PostgreSQL init process complete"; then \
+				break ;\
+			fi \
+		done ;\
+		sleep 1; \
 		diesel migration run --database-url \
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
 	fi
 
-stopdb:
+stop-app: stop-postgres
+	docker stop webapp
+
+stop-postgres:
 	docker stop postgres

@@ -1,0 +1,152 @@
+//! The Main Content component
+
+use failure::Error;
+use route::RouterTarget;
+use service::{
+    cookie::CookieService,
+    router::{self, RouterAgent},
+    session_timer::{self, SessionTimerAgent},
+    uikit::{NotificationStatus, UIkitService},
+};
+use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
+use webapp::protocol::{model::Session, request, response};
+use yew::{
+    format::Cbor,
+    prelude::*,
+    services::{
+        fetch::{self, FetchTask},
+        FetchService,
+    },
+};
+use API_URL_LOGOUT;
+use SESSION_COOKIE;
+
+/// Data Model for the Content component
+pub struct ContentComponent {
+    component_link: ComponentLink<ContentComponent>,
+    cookie_service: CookieService,
+    fetch_task: Option<FetchTask>,
+    logout_button_disabled: bool,
+    router_agent: Box<Bridge<RouterAgent<()>>>,
+    session_timer_agent: Box<Bridge<SessionTimerAgent>>,
+    uikit_service: UIkitService,
+}
+
+/// Available message types to process
+pub enum Message {
+    Fetch(fetch::Response<Cbor<Result<response::Logout, Error>>>),
+    Ignore,
+    LogoutRequest,
+}
+
+impl Component for ContentComponent {
+    type Message = Message;
+    type Properties = ();
+
+    /// Initialization routine
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+        // Guard the authentication
+        let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
+        let cookie_service = CookieService::new();
+        let mut session_timer_agent = SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
+        if cookie_service.get(SESSION_COOKIE).is_err() {
+            info!("No session token found, routing back to login");
+            router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+        } else {
+            // Start the timer to keep the session active
+            session_timer_agent.send(session_timer::Request::Start);
+        }
+
+        // Return the component
+        Self {
+            component_link: link,
+            cookie_service,
+            fetch_task: None,
+            logout_button_disabled: false,
+            router_agent,
+            session_timer_agent,
+            uikit_service: UIkitService::new(),
+        }
+    }
+
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+        true
+    }
+
+    /// Called everytime when messages are received
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Message::LogoutRequest => {
+                if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
+                    // Create the logout request
+                    match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
+                        token: token.to_owned(),
+                    }))) {
+                        Ok(body) => {
+                            // Disable user interaction
+                            self.logout_button_disabled = true;
+
+                            // Send the request
+                            self.fetch_task = Some(
+                                FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)),
+                            );
+                        }
+                        _ => {
+                            error!("Unable to create logout request");
+                            self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                        }
+                    }
+                } else {
+                    // It should not happen but in case there is no session cookie on logout, route
+                    // back to login
+                    error!("No session cookie found");
+                    self.router_agent
+                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                }
+            }
+
+            // The message for all fetch responses
+            Message::Fetch(response) => {
+                let (meta, Cbor(body)) = response.into_parts();
+
+                // Check the response type
+                if meta.status.is_success() {
+                    match body {
+                        Ok(response::Logout) => info!("Got valid logout response"),
+                        _ => {
+                            warn!("Got wrong logout response");
+                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                        }
+                    }
+                } else {
+                    warn!("Logout failed with status: {}", meta.status);
+                }
+
+                // Remove the existing cookie
+                self.cookie_service.remove(SESSION_COOKIE);
+                self.session_timer_agent.send(session_timer::Request::Stop);
+                self.router_agent
+                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                self.logout_button_disabled = true;
+
+                // Remove the ongoing task
+                self.fetch_task = None;
+            }
+            Message::Ignore => {}
+        }
+        true
+    }
+}
+
+impl Renderable<ContentComponent> for ContentComponent {
+    fn view(&self) -> Html<Self> {
+        html! {
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
+                <h1 class="uk-card-title",>{TEXT_CONTENT}</h1>
+                <button disabled=self.logout_button_disabled,
+                    class="uk-button uk-button-default",
+                    onclick=|_| Message::LogoutRequest,>{TEXT_LOGOUT}</button>
+            </div>
+        }
+    }
+}

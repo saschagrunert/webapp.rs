@@ -1,0 +1,44 @@
+[package]
+authors = ["Sascha Grunert <mail@saschagrunert.de>"]
+categories = ["web-programming"]
+description = "A web application completely written in Rust"
+documentation = "https://docs.rs/webapp"
+homepage = "https://github.com/saschagrunert/webapp.rs"
+keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
+license = "MIT"
+name = "webapp-backend"
+readme = "README.md"
+repository = "https://github.com/saschagrunert/webapp.rs"
+version = "0.1.0"
+
+[badges]
+travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
+
+[[bin]]
+name = "backend"
+path = "src/main.rs"
+
+[dev-dependencies]
+lazy_static = "1.0.2"
+reqwest = "0.8.6"
+
+[dependencies]
+actix = "0.7.2"
+actix-web = { version = "=0.7.1", features = ["alpn"] }
+bytes = "0.4.9"
+diesel = { version = "1.3.2", features = ["r2d2", "postgres"] }
+env_logger = "0.5.11"
+failure = "0.1.1"
+futures = "0.1.23"
+jsonwebtoken = "4.0.1"
+log = "0.4.3"
+num_cpus = "1.8.0"
+openssl = "0.10.10"
+r2d2 = "0.8.2"
+serde = "1.0.70"
+serde_cbor = "0.8.2"
+serde_derive = "1.0.70"
+time = "0.1.40"
+toml = "0.4.6"
+uuid = { version = "0.6.5", features = ["v4"] }
+webapp = { path = "..", features = ["backend"] }

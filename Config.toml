@@ -4,11 +4,16 @@ port = "30080"
 tls = false
 
 [log]
-actix_web = "debug"
+actix-web = "debug"
 webapp = "trace"
 
 [postgres]
 host = "127.0.0.1"
 username = "username"
-password = "password"
+password = ""
 database = "database"
+
+[api]
+login-credentials = "/login/credentials"
+login-session = "/login/session"
+logout = "/logout"

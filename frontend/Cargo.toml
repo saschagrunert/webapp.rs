@@ -6,24 +6,29 @@ documentation = "https://docs.rs/webapp"
 homepage = "https://github.com/saschagrunert/webapp.rs"
 keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
 license = "MIT"
-name = "webapp"
+name = "webapp-frontend"
 readme = "README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
-version = "0.3.0"
+version = "0.1.0"
 
 [badges]
 travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
 
+[[bin]]
+name = "app"
+path = "src/main.rs"
+
+[build-dependencies]
+failure = "0.1.1"
+sass-rs = "0.2.1"
+toml = "0.4.6"
+webapp = { path = ".." }
+
 [dependencies]
-diesel = { version = "1.3.2", optional = true }
+failure = "0.1.1"
+log = "0.4.3"
 serde = "1.0.70"
 serde_derive = "1.0.70"
-
-[features]
-backend = ["diesel"]
-
-[workspace]
-members = [
-    "backend",
-    "frontend",
-]
+stdweb = "0.4.8"
+webapp = { path = ".." }
+yew = { git = "https://github.com/DenisKolodin/yew", features = ["cbor"] }
