@@ -13,7 +13,7 @@ workflows:
       - lint-clippy
       - test:
           requires:
-            - lint
+            - build
 jobs:
   build:
     <<: *defaults
