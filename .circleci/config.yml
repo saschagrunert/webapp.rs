@@ -31,9 +31,7 @@ jobs:
       - save_cache:
           paths:
             - /usr/local/cargo/registry
-            - target/debug/.fingerprint
-            - target/debug/build
-            - target/debug/deps
+            - target
           key: cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - persist_to_workspace:
           root: target
