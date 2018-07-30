@@ -36,7 +36,7 @@ impl Server {
     /// Create a new server instance
     pub fn new(config: &Config) -> Result<Self, Error> {
         // Build a new actor system
-        let runner = actix::System::new("ws");
+        let runner = actix::System::new("backend");
 
         // Start database executor actors
         let database_url = format!(
