@@ -75,6 +75,10 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Configruation related structures</span>
 
@@ -95,6 +99,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
 <span class="doccomment">/// The server configuration</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerConfig</span> {
     <span class="doccomment">/// The server IP address</span>
@@ -105,6 +110,9 @@
 
     <span class="doccomment">/// True if the server should use a tls connection</span>
     <span class="kw">pub</span> <span class="ident">tls</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// The redirecting port if tls is used</span>
+    <span class="kw">pub</span> <span class="ident">redirect_port</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The server certificate</span>
     <span class="kw">pub</span> <span class="ident">cert</span>: <span class="ident">String</span>,
