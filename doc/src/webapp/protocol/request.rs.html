@@ -24,7 +24,7 @@
 
 <span class="kw">use</span> <span class="ident">protocol</span>::<span class="ident">model</span>::<span class="ident">Session</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="doccomment">/// The credentials based login request</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoginCredentials</span> {
     <span class="doccomment">/// The username</span>
@@ -34,11 +34,11 @@
     <span class="kw">pub</span> <span class="ident">password</span>: <span class="ident">String</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="doccomment">/// The session based login request</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoginSession</span>(<span class="kw">pub</span> <span class="ident">Session</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="doccomment">/// The logout request</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Logout</span>(<span class="kw">pub</span> <span class="ident">Session</span>);
 </pre>

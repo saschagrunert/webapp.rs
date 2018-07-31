@@ -69,6 +69,12 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Configruation related structures</span>
 
@@ -99,6 +105,12 @@
 
     <span class="doccomment">/// True if the server should use a tls connection</span>
     <span class="kw">pub</span> <span class="ident">tls</span>: <span class="ident">bool</span>,
+
+    <span class="doccomment">/// The server certificate</span>
+    <span class="kw">pub</span> <span class="ident">cert</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// The server key</span>
+    <span class="kw">pub</span> <span class="ident">key</span>: <span class="ident">String</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
