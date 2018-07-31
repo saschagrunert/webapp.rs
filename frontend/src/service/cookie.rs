@@ -30,7 +30,7 @@ impl CookieService {
         cookies
             .iter()
             .filter_map(|x| {
-                let name_value: Vec<_> = x.split('=').collect();
+                let name_value: Vec<_> = x.splitn(2, '=').collect();
                 match name_value.get(0) {
                     None => None,
                     Some(c) => {
