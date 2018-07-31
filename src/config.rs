@@ -17,6 +17,7 @@ pub struct Config {
 }
 
 #[derive(Clone, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 /// The server configuration
 pub struct ServerConfig {
     /// The server IP address
@@ -27,6 +28,9 @@ pub struct ServerConfig {
 
     /// True if the server should use a tls connection
     pub tls: bool,
+
+    /// The redirecting port if tls is used
+    pub redirect_port: String,
 
     /// The server certificate
     pub cert: String,

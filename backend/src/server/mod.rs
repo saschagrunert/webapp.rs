@@ -3,9 +3,12 @@
 use actix::{prelude::*, SystemRunner};
 use actix_web::{
     fs::StaticFiles,
-    http::{self, header::CONTENT_TYPE},
+    http::{
+        self,
+        header::{CONTENT_TYPE, LOCATION},
+    },
     middleware::{self, cors::Cors},
-    server, App,
+    server, App, HttpResponse,
 };
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
@@ -14,12 +17,14 @@ use http::{login_credentials, login_session, logout};
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
+use std::thread;
 use webapp::config::Config;
 
 mod tests;
 
 /// The server instance
 pub struct Server {
+    config: Config,
     runner: SystemRunner,
 }
 
@@ -80,11 +85,42 @@ impl Server {
             server.bind(server_url)?.shutdown_timeout(0).start();
         }
 
-        Ok(Server { runner })
+        Ok(Server {
+            config: config.clone(),
+            runner,
+        })
     }
 
     /// Start the server
     pub fn start(self) -> i32 {
+        // Create redirecting server
+        if self.config.server.tls {
+            let redirect_addr = format!("https://{}:{}", self.config.server.ip, self.config.server.port);
+            let bind_addr = format!("http://{}:{}", self.config.server.ip, self.config.server.redirect_port);
+            info!(
+                "Starting redirect server to redirect from {} to {}",
+                bind_addr, redirect_addr
+            );
+            thread::spawn(move || {
+                let sys = actix::System::new("redirect-server");
+                if let Ok(s) = server::new(move || {
+                    let location = redirect_addr.to_owned();
+                    App::new().resource("/", |r| {
+                        r.f(move |_| {
+                            HttpResponse::PermanentRedirect()
+                                .header(LOCATION, location.to_owned())
+                                .finish()
+                        })
+                    })
+                }).bind(bind_addr)
+                {
+                    s.start();
+                    sys.run();
+                } else {
+                    error!("Failed to start redirecting server");
+                }
+            });
+        }
         self.runner.run()
     }
 }
