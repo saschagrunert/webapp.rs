@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["CONFIG_FILENAME","The global config file name"]],"mod":[["config","Configruation related structures"],["protocol","The main protocol handling"],["schema",""]]});
+initSidebarItems({"constant":[["CONFIG_FILENAME","The global config file name"]],"mod":[["config","Configuration related structures"],["protocol","The main protocol handling"],["schema",""]]});

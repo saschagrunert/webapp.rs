@@ -80,7 +80,7 @@
 <span id="80">80</span>
 <span id="81">81</span>
 </pre><pre class="rust ">
-<span class="doccomment">//! Configruation related structures</span>
+<span class="doccomment">//! Configuration related structures</span>
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="doccomment">/// The global configuration</span>
@@ -108,17 +108,17 @@
     <span class="doccomment">/// The server port</span>
     <span class="kw">pub</span> <span class="ident">port</span>: <span class="ident">String</span>,
 
-    <span class="doccomment">/// True if the server should use a tls connection</span>
+    <span class="doccomment">/// True if the server should use a TLS connection</span>
     <span class="kw">pub</span> <span class="ident">tls</span>: <span class="ident">bool</span>,
-
-    <span class="doccomment">/// The redirecting port if tls is used</span>
-    <span class="kw">pub</span> <span class="ident">redirect_port</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The server certificate</span>
     <span class="kw">pub</span> <span class="ident">cert</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The server key</span>
     <span class="kw">pub</span> <span class="ident">key</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// The redirecting plain HTTP URLs to the servers target IP</span>
+    <span class="kw">pub</span> <span class="ident">redirect_http_from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>

@@ -150,6 +150,13 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! The Main Content component</span>
 
@@ -201,7 +208,8 @@
         <span class="comment">// Guard the authentication</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">router_agent</span> <span class="op">=</span> <span class="ident">RouterAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">let</span> <span class="ident">cookie_service</span> <span class="op">=</span> <span class="ident">CookieService</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session_timer_agent</span> <span class="op">=</span> <span class="ident">SessionTimerAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session_timer_agent</span> <span class="op">=</span>
+            <span class="ident">SessionTimerAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">if</span> <span class="ident">cookie_service</span>.<span class="ident">get</span>(<span class="ident">SESSION_COOKIE</span>).<span class="ident">is_err</span>() {
             <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;No session token found, routing back to login&quot;</span>);
             <span class="ident">router_agent</span>.<span class="ident">send</span>(<span class="ident">router</span>::<span class="ident">Request</span>::<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
@@ -232,21 +240,26 @@
             <span class="ident">Message</span>::<span class="ident">LogoutRequest</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cookie_service</span>.<span class="ident">get</span>(<span class="ident">SESSION_COOKIE</span>) {
                     <span class="comment">// Create the logout request</span>
-                    <span class="kw">match</span> <span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">body</span>(<span class="ident">Cbor</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>::<span class="ident">Logout</span>(<span class="ident">Session</span> {
-                        <span class="ident">token</span>: <span class="ident">token</span>.<span class="ident">to_owned</span>(),
-                    }))) {
+                    <span class="kw">match</span> <span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">body</span>(<span class="ident">Cbor</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>::<span class="ident">Logout</span>(
+                        <span class="ident">Session</span> {
+                            <span class="ident">token</span>: <span class="ident">token</span>.<span class="ident">to_owned</span>(),
+                        },
+                    ))) {
                         <span class="prelude-val">Ok</span>(<span class="ident">body</span>) <span class="op">=&gt;</span> {
                             <span class="comment">// Disable user interaction</span>
                             <span class="self">self</span>.<span class="ident">logout_button_disabled</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
                             <span class="comment">// Send the request</span>
-                            <span class="self">self</span>.<span class="ident">fetch_task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                                <span class="ident">FetchService</span>::<span class="ident">new</span>().<span class="ident">fetch_binary</span>(<span class="ident">body</span>, <span class="self">self</span>.<span class="ident">component_link</span>.<span class="ident">send_back</span>(<span class="ident">Message</span>::<span class="ident">Fetch</span>)),
-                            );
+                            <span class="self">self</span>.<span class="ident">fetch_task</span> <span class="op">=</span>
+                                <span class="prelude-val">Some</span>(<span class="ident">FetchService</span>::<span class="ident">new</span>().<span class="ident">fetch_binary</span>(
+                                    <span class="ident">body</span>,
+                                    <span class="self">self</span>.<span class="ident">component_link</span>.<span class="ident">send_back</span>(<span class="ident">Message</span>::<span class="ident">Fetch</span>),
+                                ));
                         }
                         <span class="kw">_</span> <span class="op">=&gt;</span> {
                             <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Unable to create logout request&quot;</span>);
-                            <span class="self">self</span>.<span class="ident">uikit_service</span>.<span class="ident">notify</span>(<span class="ident">REQUEST_ERROR</span>, <span class="kw-2">&amp;</span><span class="ident">NotificationStatus</span>::<span class="ident">Danger</span>);
+                            <span class="self">self</span>.<span class="ident">uikit_service</span>
+                                .<span class="ident">notify</span>(<span class="ident">REQUEST_ERROR</span>, <span class="kw-2">&amp;</span><span class="ident">NotificationStatus</span>::<span class="ident">Danger</span>);
                         }
                     }
                 } <span class="kw">else</span> {
@@ -268,7 +281,8 @@
                         <span class="prelude-val">Ok</span>(<span class="ident">response</span>::<span class="ident">Logout</span>) <span class="op">=&gt;</span> <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Got valid logout response&quot;</span>),
                         <span class="kw">_</span> <span class="op">=&gt;</span> {
                             <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Got wrong logout response&quot;</span>);
-                            <span class="self">self</span>.<span class="ident">uikit_service</span>.<span class="ident">notify</span>(<span class="ident">RESPONSE_ERROR</span>, <span class="kw-2">&amp;</span><span class="ident">NotificationStatus</span>::<span class="ident">Danger</span>);
+                            <span class="self">self</span>.<span class="ident">uikit_service</span>
+                                .<span class="ident">notify</span>(<span class="ident">RESPONSE_ERROR</span>, <span class="kw-2">&amp;</span><span class="ident">NotificationStatus</span>::<span class="ident">Danger</span>);
                         }
                     }
                 } <span class="kw">else</span> {

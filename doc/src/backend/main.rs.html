@@ -29,6 +29,9 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><pre class="rust ">
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">failure</span>;
@@ -49,7 +52,10 @@
     <span class="comment">// Set the logging verbosity</span>
     <span class="ident">set_var</span>(
         <span class="string">&quot;RUST_LOG&quot;</span>,
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;actix_web={},webapp={}&quot;</span>, <span class="ident">config</span>.<span class="ident">log</span>.<span class="ident">actix_web</span>, <span class="ident">config</span>.<span class="ident">log</span>.<span class="ident">webapp</span>),
+        <span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;actix_web={},webapp={}&quot;</span>,
+            <span class="ident">config</span>.<span class="ident">log</span>.<span class="ident">actix_web</span>, <span class="ident">config</span>.<span class="ident">log</span>.<span class="ident">webapp</span>
+        ),
     );
 
     <span class="comment">// Initialize the logger</span>
