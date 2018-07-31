@@ -157,6 +157,8 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! The Main Content component</span>
 
@@ -169,7 +171,10 @@
     <span class="ident">uikit</span>::{<span class="ident">NotificationStatus</span>, <span class="ident">UIkitService</span>},
 };
 <span class="kw">use</span> <span class="ident">string</span>::{<span class="ident">REQUEST_ERROR</span>, <span class="ident">RESPONSE_ERROR</span>, <span class="ident">TEXT_CONTENT</span>, <span class="ident">TEXT_LOGOUT</span>};
-<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>};
+<span class="kw">use</span> <span class="ident">webapp</span>::{
+    <span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>},
+    <span class="ident">API_URL_LOGOUT</span>,
+};
 <span class="kw">use</span> <span class="ident">yew</span>::{
     <span class="ident">format</span>::<span class="ident">Cbor</span>,
     <span class="ident">prelude</span>::<span class="kw-2">*</span>,
@@ -178,7 +183,6 @@
         <span class="ident">FetchService</span>,
     },
 };
-<span class="kw">use</span> <span class="ident">API_URL_LOGOUT</span>;
 <span class="kw">use</span> <span class="ident">SESSION_COOKIE</span>;
 
 <span class="doccomment">/// Data Model for the Content component</span>
@@ -240,7 +244,7 @@
             <span class="ident">Message</span>::<span class="ident">LogoutRequest</span> <span class="op">=&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cookie_service</span>.<span class="ident">get</span>(<span class="ident">SESSION_COOKIE</span>) {
                     <span class="comment">// Create the logout request</span>
-                    <span class="kw">match</span> <span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">body</span>(<span class="ident">Cbor</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>::<span class="ident">Logout</span>(
+                    <span class="kw">match</span> <span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="macro">api</span><span class="macro">!</span>(<span class="ident">API_URL_LOGOUT</span>)).<span class="ident">body</span>(<span class="ident">Cbor</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>::<span class="ident">Logout</span>(
                         <span class="ident">Session</span> {
                             <span class="ident">token</span>: <span class="ident">token</span>.<span class="ident">to_owned</span>(),
                         },

@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["CONFIG_FILENAME","The global config file name"]],"mod":[["config","Configuration related structures"],["protocol","The main protocol handling"],["schema",""]]});
+initSidebarItems({"constant":[["API_URL_LOGIN_CREDENTIALS","The API URL for login with credentials"],["API_URL_LOGIN_SESSION","The API URL for login with session"],["API_URL_LOGOUT","The API URL for logout"],["CONFIG_FILENAME","The global config file name"]],"mod":[["config","Configuration related structures"],["protocol","The main protocol handling"],["schema",""]]});
