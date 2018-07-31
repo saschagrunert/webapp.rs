@@ -101,7 +101,7 @@ jobs:
       - run:
           name: Prepare database
           command: |
-            sleep 10
+            sleep 15
             diesel migration run \
               --database-url postgres://username:@localhost/database
       - run:
