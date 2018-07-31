@@ -102,11 +102,19 @@ impl Server {
 
     /// Start the server
     pub fn start(self) -> i32 {
+        // Start the redirecting server
+        self.start_redirect();
+
+        // Start the actual main server
+        self.runner.run()
+    }
+
+    fn start_redirect(&self) {
         // Check if we need to create a redirecting server
         if !self.config.server.redirect_http_from.is_empty() {
             // Prepare needed variables
             let server_url = self.server_url.to_owned();
-            let urls = self.config.server.redirect_http_from;
+            let urls = self.config.server.redirect_http_from.to_owned();
 
             // Create a separate thread for redirecting
             thread::spawn(move || {
@@ -136,6 +144,5 @@ impl Server {
                 system.run();
             });
         }
-        self.runner.run()
     }
 }
