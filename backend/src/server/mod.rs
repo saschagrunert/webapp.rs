@@ -18,7 +18,7 @@ use num_cpus;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use r2d2::Pool;
 use std::thread;
-use webapp::config::Config;
+use webapp::{config::Config, API_URL_LOGIN_CREDENTIALS, API_URL_LOGIN_SESSION, API_URL_LOGOUT};
 
 mod tests;
 
@@ -57,7 +57,6 @@ impl Server {
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
 
         // Create the server
-        let config_clone = config.clone();
         let server = server::new(move || {
             App::with_state(State {
                 database: db_addr.clone(),
@@ -67,13 +66,12 @@ impl Server {
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_header(CONTENT_TYPE)
                     .max_age(3600)
-                    .resource(&config_clone.api.login_credentials, |r| {
+                    .resource(API_URL_LOGIN_CREDENTIALS, |r| {
                         r.method(http::Method::POST).f(login_credentials)
-                    }).resource(&config_clone.api.login_session, |r| {
+                    }).resource(API_URL_LOGIN_SESSION, |r| {
                         r.method(http::Method::POST).f(login_session)
-                    }).resource(&config_clone.api.logout, |r| {
-                        r.method(http::Method::POST).f(logout)
-                    }).register()
+                    }).resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
+                    .register()
             }).handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 

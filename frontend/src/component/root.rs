@@ -9,7 +9,10 @@ use service::{
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{REQUEST_ERROR, RESPONSE_ERROR};
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGIN_SESSION,
+};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -18,7 +21,6 @@ use yew::{
         FetchService,
     },
 };
-use API_URL_LOGIN_SESSION;
 use SESSION_COOKIE;
 
 /// Data Model for the Root Component
@@ -49,11 +51,11 @@ impl Component for RootComponent {
 
         // Verify if a session cookie already exist and try to authenticate if so
         if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
-            match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(
-                Session {
+            match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
+                &request::LoginSession(Session {
                     token: token.to_owned(),
-                },
-            ))) {
+                }),
+            )) {
                 Ok(body) => {
                     fetch_task =
                         Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch)))

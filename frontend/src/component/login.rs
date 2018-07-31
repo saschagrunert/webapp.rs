@@ -10,7 +10,10 @@ use service::{
 use string::{
     AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN,
 };
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGIN_CREDENTIALS,
+};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -19,7 +22,6 @@ use yew::{
         FetchService,
     },
 };
-use API_URL_LOGIN_CREDENTIALS;
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
@@ -73,7 +75,7 @@ impl Component for LoginComponent {
         match msg {
             // Login via username and password
             Message::LoginRequest => {
-                match fetch::Request::post(API_URL_LOGIN_CREDENTIALS).body(Cbor(
+                match fetch::Request::post(api!(API_URL_LOGIN_CREDENTIALS)).body(Cbor(
                     &request::LoginCredentials {
                         username: self.username.to_owned(),
                         password: self.password.to_owned(),

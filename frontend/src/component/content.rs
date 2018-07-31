@@ -9,7 +9,10 @@ use service::{
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGOUT,
+};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -18,7 +21,6 @@ use yew::{
         FetchService,
     },
 };
-use API_URL_LOGOUT;
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
@@ -80,7 +82,7 @@ impl Component for ContentComponent {
             Message::LogoutRequest => {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
-                    match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(
+                    match fetch::Request::post(api!(API_URL_LOGOUT)).body(Cbor(&request::Logout(
                         Session {
                             token: token.to_owned(),
                         },

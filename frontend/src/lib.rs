@@ -16,6 +16,13 @@ extern crate webapp;
 #[macro_use]
 extern crate yew;
 
+/// Generic API access macro
+macro_rules! api {
+    ($url:expr) => {
+        env!("API_URL").to_owned() + $url
+    };
+}
+
 mod component;
 mod route;
 mod service;
@@ -26,8 +33,3 @@ pub use service::log::init_logger;
 
 /// The global session cookie name
 const SESSION_COOKIE: &str = "sessionToken";
-
-/// The API URLs
-const API_URL_LOGIN_CREDENTIALS: &str = env!("API_URL_LOGIN_CREDENTIALS");
-const API_URL_LOGIN_SESSION: &str = env!("API_URL_LOGIN_SESSION");
-const API_URL_LOGOUT: &str = env!("API_URL_LOGOUT");

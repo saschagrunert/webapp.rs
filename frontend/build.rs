@@ -90,18 +90,5 @@ fn prepare_api() -> Result<(), Error> {
     );
 
     println!("cargo:rustc-env=API_URL={}", api_url);
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_CREDENTIALS={}{}",
-        api_url, config.api.login_credentials
-    );
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
-        api_url, config.api.login_session
-    );
-    println!(
-        "cargo:rustc-env=API_URL_LOGOUT={}{}",
-        api_url, config.api.logout
-    );
-
     Ok(())
 }

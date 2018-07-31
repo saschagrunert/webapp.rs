@@ -18,8 +18,3 @@ host = "127.0.0.1"
 username = "username"
 password = ""
 database = "database"
-
-[api]
-login-credentials = "/login/credentials"
-login-session = "/login/session"
-logout = "/logout"

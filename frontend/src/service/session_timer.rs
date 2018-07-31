@@ -3,7 +3,10 @@
 use failure::Error;
 use service::cookie::CookieService;
 use std::time::Duration;
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGIN_SESSION,
+};
 use yew::{
     format::Cbor,
     prelude::{worker::*, *},
@@ -12,7 +15,6 @@ use yew::{
         IntervalService, Task,
     },
 };
-use API_URL_LOGIN_SESSION;
 use SESSION_COOKIE;
 
 /// Possible message types
@@ -67,7 +69,7 @@ impl Agent for SessionTimerAgent {
             Message::Update => {
                 info!("Updating current session");
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(
+                    match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
                         &request::LoginSession(Session {
                             token: token.to_owned(),
                         }),

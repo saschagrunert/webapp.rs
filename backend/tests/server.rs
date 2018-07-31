@@ -12,7 +12,7 @@ use std::{fs::read_to_string, sync::Mutex, thread, time::Duration};
 use webapp::{
     config::Config,
     protocol::{model::Session, request, response},
-    CONFIG_FILENAME,
+    API_URL_LOGIN_CREDENTIALS, API_URL_LOGIN_SESSION, API_URL_LOGOUT, CONFIG_FILENAME,
 };
 use webapp_backend::Server;
 
@@ -20,7 +20,7 @@ lazy_static! {
     static ref PORT: Mutex<u32> = Mutex::new(30000);
 }
 
-fn create_testserver() -> (String, Config) {
+fn create_testserver() -> String {
     // Create the server thread
     let config_string = read_to_string(format!("../{}", CONFIG_FILENAME)).unwrap();
     let mut config: Config = toml::from_str(&config_string).unwrap();
@@ -36,16 +36,13 @@ fn create_testserver() -> (String, Config) {
     // Wait until the server is up
     thread::sleep(Duration::from_millis(300));
 
-    (
-        format!("http://{}:{}", config.server.ip, config.server.port),
-        config,
-    )
+    format!("http://{}:{}", config.server.ip, config.server.port)
 }
 
 #[test]
 fn succeed_to_login_with_credentials() {
     // Given
-    let (url, config) = create_testserver();
+    let url = create_testserver();
 
     // When
     let request = to_vec(&request::LoginCredentials {
@@ -53,7 +50,7 @@ fn succeed_to_login_with_credentials() {
         password: "username".to_owned(),
     }).unwrap();
     let mut res = Client::new()
-        .post(&(url + &config.api.login_credentials))
+        .post(&(url + API_URL_LOGIN_CREDENTIALS))
         .body(request)
         .send()
         .unwrap();
@@ -69,7 +66,7 @@ fn succeed_to_login_with_credentials() {
 #[test]
 fn fail_to_login_with_wrong_credentials() {
     // Given
-    let (url, config) = create_testserver();
+    let url = create_testserver();
 
     // When
     let request = to_vec(&request::LoginCredentials {
@@ -77,7 +74,7 @@ fn fail_to_login_with_wrong_credentials() {
         password: "password".to_owned(),
     }).unwrap();
     let res = Client::new()
-        .post(&(url + &config.api.login_credentials))
+        .post(&(url + API_URL_LOGIN_CREDENTIALS))
         .body(request)
         .send()
         .unwrap();
@@ -89,7 +86,7 @@ fn fail_to_login_with_wrong_credentials() {
 #[test]
 fn succeed_to_login_with_session() {
     // Given
-    let (url, config) = create_testserver();
+    let url = create_testserver();
 
     // When
     let mut request = to_vec(&request::LoginCredentials {
@@ -97,7 +94,7 @@ fn succeed_to_login_with_session() {
         password: "username".to_owned(),
     }).unwrap();
     let mut res = Client::new()
-        .post(&(url.clone() + &config.api.login_credentials))
+        .post(&(url.clone() + API_URL_LOGIN_CREDENTIALS))
         .body(request)
         .send()
         .unwrap();
@@ -107,7 +104,7 @@ fn succeed_to_login_with_session() {
 
     request = to_vec(&request::LoginSession(session)).unwrap();
     res = Client::new()
-        .post(&(url + &config.api.login_session))
+        .post(&(url + API_URL_LOGIN_SESSION))
         .body(request)
         .send()
         .unwrap();
@@ -123,14 +120,14 @@ fn succeed_to_login_with_session() {
 #[test]
 fn fail_to_login_with_wrong_session() {
     // Given
-    let (url, config) = create_testserver();
+    let url = create_testserver();
 
     // When
     let request = to_vec(&request::LoginSession(Session {
         token: "wrong".to_owned(),
     })).unwrap();
     let res = Client::new()
-        .post(&(url + &config.api.login_session))
+        .post(&(url + API_URL_LOGIN_SESSION))
         .body(request)
         .send()
         .unwrap();
@@ -142,14 +139,14 @@ fn fail_to_login_with_wrong_session() {
 #[test]
 fn succeed_to_logout() {
     // Given
-    let (url, config) = create_testserver();
+    let url = create_testserver();
 
     // When
     let request = to_vec(&request::Logout(Session {
         token: "wrong".to_owned(),
     })).unwrap();
     let res = Client::new()
-        .post(&(url + &config.api.logout))
+        .post(&(url + API_URL_LOGOUT))
         .body(request)
         .send()
         .unwrap();
