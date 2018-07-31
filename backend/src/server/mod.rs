@@ -26,6 +26,7 @@ mod tests;
 pub struct Server {
     config: Config,
     runner: SystemRunner,
+    server_url: String,
 }
 
 /// Shared mutable application state
@@ -46,7 +47,10 @@ impl Server {
         // Start database executor actors
         let database_url = format!(
             "postgres://{}:{}@{}/{}",
-            config.postgres.username, config.postgres.password, config.postgres.host, config.postgres.database,
+            config.postgres.username,
+            config.postgres.password,
+            config.postgres.host,
+            config.postgres.database,
         );
         let manager = ConnectionManager::<PgConnection>::new(database_url);
         let pool = Pool::builder().build(manager)?;
@@ -67,8 +71,9 @@ impl Server {
                         r.method(http::Method::POST).f(login_credentials)
                     }).resource(&config_clone.api.login_session, |r| {
                         r.method(http::Method::POST).f(login_session)
-                    }).resource(&config_clone.api.logout, |r| r.method(http::Method::POST).f(logout))
-                    .register()
+                    }).resource(&config_clone.api.logout, |r| {
+                        r.method(http::Method::POST).f(logout)
+                    }).register()
             }).handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
         });
 
@@ -80,31 +85,37 @@ impl Server {
             let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
             builder.set_private_key_file(&config.server.key, SslFiletype::PEM)?;
             builder.set_certificate_chain_file(&config.server.cert)?;
-            server.bind_ssl(server_url, builder)?.shutdown_timeout(0).start();
+            server
+                .bind_ssl(&server_url, builder)?
+                .shutdown_timeout(0)
+                .start();
         } else {
-            server.bind(server_url)?.shutdown_timeout(0).start();
+            server.bind(&server_url)?.shutdown_timeout(0).start();
         }
 
         Ok(Server {
-            config: config.clone(),
+            config: config.to_owned(),
             runner,
+            server_url,
         })
     }
 
     /// Start the server
     pub fn start(self) -> i32 {
-        // Create redirecting server
-        if self.config.server.tls {
-            let redirect_addr = format!("https://{}:{}", self.config.server.ip, self.config.server.port);
-            let bind_addr = format!("http://{}:{}", self.config.server.ip, self.config.server.redirect_port);
-            info!(
-                "Starting redirect server to redirect from {} to {}",
-                bind_addr, redirect_addr
-            );
+        // Check if we need to create a redirecting server
+        if !self.config.server.redirect_http_from.is_empty() {
+            // Prepare needed variables
+            let server_url = self.server_url.to_owned();
+            let urls = self.config.server.redirect_http_from;
+
+            // Create a separate thread for redirecting
             thread::spawn(move || {
-                let sys = actix::System::new("redirect-server");
-                if let Ok(s) = server::new(move || {
-                    let location = redirect_addr.to_owned();
+                let system = actix::System::new("redirect");
+                let url = server_url.to_owned();
+
+                // Create redirecting server
+                let mut server = server::new(move || {
+                    let location = format!("http://{}", url);
                     App::new().resource("/", |r| {
                         r.f(move |_| {
                             HttpResponse::PermanentRedirect()
@@ -112,13 +123,17 @@ impl Server {
                                 .finish()
                         })
                     })
-                }).bind(bind_addr)
-                {
-                    s.start();
-                    sys.run();
-                } else {
-                    error!("Failed to start redirecting server");
+                });
+
+                // Bind the URLs
+                for url in &urls {
+                    info!("Starting server to redirect from {} to {}", url, server_url);
+                    server = server.bind(url).unwrap();
                 }
+
+                // Start the server and the system
+                server.start();
+                system.run();
             });
         }
         self.runner.run()

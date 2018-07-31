@@ -35,6 +35,8 @@ fn fail_to_create_a_server_with_wrong_port() {
 fn succeed_to_create_a_server_with_tls() {
     let mut config = get_config();
     config.server.tls = true;
+    config.server.cert = "tls/cert.pem".to_owned();
+    config.server.key = "tls/key.pem".to_owned();
     config.server.port = "30081".to_owned();
     assert!(Server::new(&config).is_ok());
 }

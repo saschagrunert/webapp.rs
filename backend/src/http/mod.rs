@@ -9,7 +9,9 @@ use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::Error, HttpRequest, HttpResponse};
 use cbor::CborRequest;
 use futures::{future::FromErr, Future};
-pub use http::{login_credentials::login_credentials, login_session::login_session, logout::logout};
+pub use http::{
+    login_credentials::login_credentials, login_session::login_session, logout::logout,
+};
 use serde::de::DeserializeOwned;
 use server::State;
 
@@ -26,5 +28,8 @@ where
     A: Actor + Handler<M>,
     <A as Actor>::Context: ToEnvelope<A, M>,
 {
-    (http_request.clone(), CborRequest::new(http_request).from_err())
+    (
+        http_request.clone(),
+        CborRequest::new(http_request).from_err(),
+    )
 }

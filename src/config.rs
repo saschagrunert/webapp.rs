@@ -1,4 +1,4 @@
-//! Configruation related structures
+//! Configuration related structures
 
 #[derive(Clone, Deserialize)]
 /// The global configuration
@@ -26,17 +26,17 @@ pub struct ServerConfig {
     /// The server port
     pub port: String,
 
-    /// True if the server should use a tls connection
+    /// True if the server should use a TLS connection
     pub tls: bool,
-
-    /// The redirecting port if tls is used
-    pub redirect_port: String,
 
     /// The server certificate
     pub cert: String,
 
     /// The server key
     pub key: String,
+
+    /// The redirecting plain HTTP URLs to the servers target IP
+    pub redirect_http_from: Vec<String>,
 }
 
 #[derive(Clone, Deserialize)]

@@ -84,7 +84,10 @@ fn prepare_api() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME))?)?;
 
     let secure_protocol = if config.server.tls { "s" } else { "" };
-    let api_url = format!("http{}://{}:{}", secure_protocol, config.server.ip, config.server.port);
+    let api_url = format!(
+        "http{}://{}:{}",
+        secure_protocol, config.server.ip, config.server.port
+    );
 
     println!("cargo:rustc-env=API_URL={}", api_url);
     println!(
@@ -95,7 +98,10 @@ fn prepare_api() -> Result<(), Error> {
         "cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
         api_url, config.api.login_session
     );
-    println!("cargo:rustc-env=API_URL_LOGOUT={}{}", api_url, config.api.logout);
+    println!(
+        "cargo:rustc-env=API_URL_LOGOUT={}{}",
+        api_url, config.api.logout
+    );
 
     Ok(())
 }

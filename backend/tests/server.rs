@@ -28,6 +28,7 @@ fn create_testserver() -> (String, Config) {
     *port += 1;
     config.server.port = port.to_string();
     config.server.tls = false;
+    config.server.redirect_http_from = vec![];
 
     let config_clone = config.clone();
     thread::spawn(move || Server::new(&config_clone).unwrap().start());
@@ -35,7 +36,10 @@ fn create_testserver() -> (String, Config) {
     // Wait until the server is up
     thread::sleep(Duration::from_millis(300));
 
-    (format!("http://{}:{}", config.server.ip, config.server.port), config)
+    (
+        format!("http://{}:{}", config.server.ip, config.server.port),
+        config,
+    )
 }
 
 #[test]

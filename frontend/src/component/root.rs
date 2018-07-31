@@ -49,10 +49,15 @@ impl Component for RootComponent {
 
         // Verify if a session cookie already exist and try to authenticate if so
         if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
-            match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(Session {
-                token: token.to_owned(),
-            }))) {
-                Ok(body) => fetch_task = Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch))),
+            match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(
+                Session {
+                    token: token.to_owned(),
+                },
+            ))) {
+                Ok(body) => {
+                    fetch_task =
+                        Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch)))
+                }
                 Err(_) => {
                     error!("Unable to create session login request");
                     uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
@@ -104,7 +109,8 @@ impl Component for RootComponent {
                         _ => {
                             // Send an error notification to the user on any failure
                             warn!("Got wrong session login response");
-                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                            self.uikit_service
+                                .notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                             self.router_agent
                                 .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                         }

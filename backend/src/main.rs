@@ -17,7 +17,10 @@ fn main() -> Result<(), Error> {
     // Set the logging verbosity
     set_var(
         "RUST_LOG",
-        format!("actix_web={},webapp={}", config.log.actix_web, config.log.webapp),
+        format!(
+            "actix_web={},webapp={}",
+            config.log.actix_web, config.log.webapp
+        ),
     );
 
     // Initialize the logger
