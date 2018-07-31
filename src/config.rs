@@ -27,6 +27,12 @@ pub struct ServerConfig {
 
     /// True if the server should use a tls connection
     pub tls: bool,
+
+    /// The server certificate
+    pub cert: String,
+
+    /// The server key
+    pub key: String,
 }
 
 #[derive(Clone, Deserialize)]

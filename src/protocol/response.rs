@@ -2,10 +2,10 @@
 
 use protocol::model::Session;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// The login response
 pub struct Login(pub Session);
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// The logout response
 pub struct Logout;

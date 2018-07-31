@@ -2,6 +2,8 @@
 ip = "127.0.0.1"
 port = "30080"
 tls = false
+cert = "tls/cert.pem"
+key = "tls/key.pem"
 
 [log]
 actix-web = "debug"

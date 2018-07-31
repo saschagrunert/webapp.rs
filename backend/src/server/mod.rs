@@ -73,8 +73,8 @@ impl Server {
         // Load the SSL Certificate if needed
         if config.server.tls {
             let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
-            builder.set_private_key_file("tls/key.pem", SslFiletype::PEM)?;
-            builder.set_certificate_chain_file("tls/crt.pem")?;
+            builder.set_private_key_file(&config.server.key, SslFiletype::PEM)?;
+            builder.set_certificate_chain_file(&config.server.cert)?;
             server.bind_ssl(server_url, builder)?.shutdown_timeout(0).start();
         } else {
             server.bind(server_url)?.shutdown_timeout(0).start();

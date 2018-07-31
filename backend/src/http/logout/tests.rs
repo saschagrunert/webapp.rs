@@ -39,3 +39,18 @@ fn succeed_to_logout() {
     // Then
     assert!(response.status().is_success());
 }
+
+#[test]
+fn fail_to_logout_with_invalid_cbor() {
+    // Given
+    #[derive(Serialize)]
+    struct Invalid;
+    let mut server = create_testserver();
+    let body = to_vec(&Invalid).unwrap();
+
+    // When
+    let response = execute_request(&mut server, body);
+
+    // Then
+    assert_eq!(response.status().is_success(), false);
+}

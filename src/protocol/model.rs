@@ -5,7 +5,7 @@ use schema::sessions;
 
 #[cfg_attr(feature = "backend", derive(Insertable, Queryable))]
 #[cfg_attr(feature = "backend", table_name = "sessions")]
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// A session representation
 pub struct Session {
     /// The actual session token

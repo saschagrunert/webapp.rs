@@ -30,3 +30,20 @@ fn fail_to_create_a_server_with_wrong_port() {
     config.server.port = "-1".to_owned();
     assert!(Server::new(&config).is_err());
 }
+
+#[test]
+fn succeed_to_create_a_server_with_tls() {
+    let mut config = get_config();
+    config.server.tls = true;
+    config.server.port = "30081".to_owned();
+    assert!(Server::new(&config).is_ok());
+}
+
+#[test]
+fn fail_to_create_a_server_with_tls_if_not_found() {
+    let mut config = get_config();
+    config.server.tls = true;
+    config.server.cert = "".to_owned();
+    config.server.key = "".to_owned();
+    assert!(Server::new(&config).is_err());
+}

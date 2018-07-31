@@ -1,5 +1,7 @@
 //! Cbor abstraction for HTTP message handling
 
+mod tests;
+
 use actix_web::{
     dev::HttpResponseBuilder,
     error::{Error as HttpError, PayloadError},
