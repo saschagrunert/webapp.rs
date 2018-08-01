@@ -3,7 +3,7 @@
 pub mod login_credentials;
 pub mod login_session;
 pub mod logout;
-mod tests;
+mod test;
 
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::Error, HttpRequest, HttpResponse};

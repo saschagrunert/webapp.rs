@@ -10,7 +10,7 @@ use server::State;
 use token::Token;
 use webapp::protocol::{model::Session, request, response};
 
-mod tests;
+mod test;
 
 pub fn login_session<T>(http_request: &HttpRequest<State<T>>) -> FutureResponse
 where

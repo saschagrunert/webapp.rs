@@ -5,7 +5,7 @@ use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
 use uuid::Uuid;
 
-mod tests;
+mod test;
 
 const SECRET: &[u8] = b"my_secret";
 

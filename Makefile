@@ -93,9 +93,7 @@ run-postgres:
 			-p 5432:5432 \
 			-d postgres ;\
 		while true; do \
-			if docker logs postgres 2>&1 | grep -q "PostgreSQL init process complete"; then \
-				break ;\
-			fi \
+			if pg_isready -qh $(PG_HOST); then break; fi \
 		done ;\
 		sleep 1; \
 		diesel migration run --database-url \

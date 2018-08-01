@@ -1,6 +1,6 @@
 //! Cbor abstraction for HTTP message handling
 
-mod tests;
+mod test;
 
 use actix_web::{
     dev::HttpResponseBuilder,

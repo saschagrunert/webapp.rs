@@ -17,14 +17,8 @@ pub struct Config {
 #[serde(rename_all = "kebab-case")]
 /// The server configuration
 pub struct ServerConfig {
-    /// The server IP address
-    pub ip: String,
-
-    /// The server port
-    pub port: String,
-
-    /// True if the server should use a TLS connection
-    pub tls: bool,
+    /// The full server url
+    pub url: String,
 
     /// The server certificate
     pub cert: String,
@@ -32,8 +26,8 @@ pub struct ServerConfig {
     /// The server key
     pub key: String,
 
-    /// The redirecting plain HTTP URLs to the servers target IP
-    pub redirect_http_from: Vec<String>,
+    /// The redirecting URLs
+    pub redirect_from: Vec<String>,
 }
 
 #[derive(Clone, Deserialize)]

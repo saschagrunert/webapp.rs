@@ -1,12 +1,10 @@
 [server]
-ip = "127.0.0.1"
-port = "30080"
-tls = false
+url = "http://127.0.0.1:30080"
 cert = "backend/tls/cert.pem"
 key = "backend/tls/key.pem"
-redirect-http-from = [
-    "127.0.0.1:30081",
-    "127.0.0.1:30082",
+redirect-from = [
+    "http://127.0.0.1:30081",
+    "https://127.0.0.1:30082",
 ]
 
 [log]

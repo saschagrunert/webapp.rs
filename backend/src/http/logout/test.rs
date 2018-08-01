@@ -8,7 +8,7 @@ use database::DeleteSession;
 use failure::Error;
 use http::{
     logout::logout,
-    tests::{execute_request, state, DatabaseExecutorMock},
+    test::{execute_request, state, DatabaseExecutorMock},
 };
 use serde_cbor::to_vec;
 use webapp::protocol::{model::Session, request};

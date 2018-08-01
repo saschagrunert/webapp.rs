@@ -8,7 +8,7 @@ use database::UpdateSession;
 use failure::Error;
 use http::{
     login_session::login_session,
-    tests::{execute_request, state, DatabaseExecutorMock},
+    test::{execute_request, state, DatabaseExecutorMock},
 };
 use serde_cbor::to_vec;
 use token::Token;

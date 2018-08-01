@@ -9,7 +9,7 @@ use http::{unpack_cbor, FutureResponse};
 use server::State;
 use webapp::protocol::{model::Session, request, response};
 
-mod tests;
+mod test;
 
 pub fn logout<T: Actor>(http_request: &HttpRequest<State<T>>) -> FutureResponse
 where

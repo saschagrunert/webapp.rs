@@ -19,10 +19,10 @@ pub mod schema;
 pub const CONFIG_FILENAME: &str = "Config.toml";
 
 /// The API URL for login with credentials
-pub const API_URL_LOGIN_CREDENTIALS: &str = "/login/credentials";
+pub const API_URL_LOGIN_CREDENTIALS: &str = "login/credentials";
 
 /// The API URL for login with session
-pub const API_URL_LOGIN_SESSION: &str = "/login/session";
+pub const API_URL_LOGIN_SESSION: &str = "login/session";
 
 /// The API URL for logout
-pub const API_URL_LOGOUT: &str = "/logout";
+pub const API_URL_LOGOUT: &str = "logout";
