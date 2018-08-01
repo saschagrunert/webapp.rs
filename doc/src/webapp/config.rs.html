@@ -56,12 +56,6 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Configuration related structures</span>
 
@@ -82,14 +76,8 @@
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
 <span class="doccomment">/// The server configuration</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerConfig</span> {
-    <span class="doccomment">/// The server IP address</span>
-    <span class="kw">pub</span> <span class="ident">ip</span>: <span class="ident">String</span>,
-
-    <span class="doccomment">/// The server port</span>
-    <span class="kw">pub</span> <span class="ident">port</span>: <span class="ident">String</span>,
-
-    <span class="doccomment">/// True if the server should use a TLS connection</span>
-    <span class="kw">pub</span> <span class="ident">tls</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// The full server url</span>
+    <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
 
     <span class="doccomment">/// The server certificate</span>
     <span class="kw">pub</span> <span class="ident">cert</span>: <span class="ident">String</span>,
@@ -97,8 +85,8 @@
     <span class="doccomment">/// The server key</span>
     <span class="kw">pub</span> <span class="ident">key</span>: <span class="ident">String</span>,
 
-    <span class="doccomment">/// The redirecting plain HTTP URLs to the servers target IP</span>
-    <span class="kw">pub</span> <span class="ident">redirect_http_from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The redirecting URLs</span>
+    <span class="kw">pub</span> <span class="ident">redirect_from</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>

@@ -47,7 +47,7 @@
 <span class="kw">use</span> <span class="ident">token</span>::<span class="ident">Token</span>;
 <span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>};
 
-<span class="kw">mod</span> <span class="ident">tests</span>;
+<span class="kw">mod</span> <span class="ident">test</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">login_session</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">http_request</span>: <span class="kw-2">&amp;</span><span class="ident">HttpRequest</span><span class="op">&lt;</span><span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>) <span class="op">-&gt;</span> <span class="ident">FutureResponse</span>
 <span class="kw">where</span>
