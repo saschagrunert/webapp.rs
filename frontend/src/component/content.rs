@@ -9,7 +9,10 @@ use service::{
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGOUT,
+};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -18,7 +21,6 @@ use yew::{
         FetchService,
     },
 };
-use API_URL_LOGOUT;
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
@@ -48,7 +50,8 @@ impl Component for ContentComponent {
         // Guard the authentication
         let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
-        let mut session_timer_agent = SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
+        let mut session_timer_agent =
+            SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
             info!("No session token found, routing back to login");
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
@@ -79,21 +82,26 @@ impl Component for ContentComponent {
             Message::LogoutRequest => {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     // Create the logout request
-                    match fetch::Request::post(API_URL_LOGOUT).body(Cbor(&request::Logout(Session {
-                        token: token.to_owned(),
-                    }))) {
+                    match fetch::Request::post(api!(API_URL_LOGOUT)).body(Cbor(&request::Logout(
+                        Session {
+                            token: token.to_owned(),
+                        },
+                    ))) {
                         Ok(body) => {
                             // Disable user interaction
                             self.logout_button_disabled = true;
 
                             // Send the request
-                            self.fetch_task = Some(
-                                FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)),
-                            );
+                            self.fetch_task =
+                                Some(FetchService::new().fetch_binary(
+                                    body,
+                                    self.component_link.send_back(Message::Fetch),
+                                ));
                         }
                         _ => {
                             error!("Unable to create logout request");
-                            self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                            self.uikit_service
+                                .notify(REQUEST_ERROR, &NotificationStatus::Danger);
                         }
                     }
                 } else {
@@ -115,7 +123,8 @@ impl Component for ContentComponent {
                         Ok(response::Logout) => info!("Got valid logout response"),
                         _ => {
                             warn!("Got wrong logout response");
-                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                            self.uikit_service
+                                .notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                         }
                     }
                 } else {

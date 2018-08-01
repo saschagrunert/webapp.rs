@@ -8,7 +8,7 @@ use database::CreateSession;
 use failure::Error;
 use http::{
     login_credentials::login_credentials,
-    tests::{execute_request, state, DatabaseExecutorMock},
+    test::{execute_request, state, DatabaseExecutorMock},
 };
 use serde_cbor::to_vec;
 use token::Token;
@@ -52,6 +52,21 @@ fn fail_to_login_with_wrong_credentials() {
         username: "username".to_owned(),
         password: "password".to_owned(),
     }).unwrap();
+
+    // When
+    let response = execute_request(&mut server, body);
+
+    // Then
+    assert_eq!(response.status().is_success(), false);
+}
+
+#[test]
+fn fail_to_login_with_invalid_cbor() {
+    // Given
+    #[derive(Serialize)]
+    struct Invalid;
+    let mut server = create_testserver();
+    let body = to_vec(&Invalid).unwrap();
 
     // When
     let response = execute_request(&mut server, body);

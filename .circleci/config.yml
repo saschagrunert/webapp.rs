@@ -101,7 +101,9 @@ jobs:
       - run:
           name: Prepare database
           command: |
-            sleep 10
+            while true; do
+              if pg_isready -qh localhost; then break; fi
+            done
             diesel migration run \
               --database-url postgres://username:@localhost/database
       - run:

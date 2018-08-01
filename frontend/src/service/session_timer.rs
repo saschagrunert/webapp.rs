@@ -3,7 +3,10 @@
 use failure::Error;
 use service::cookie::CookieService;
 use std::time::Duration;
-use webapp::protocol::{model::Session, request, response};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGIN_SESSION,
+};
 use yew::{
     format::Cbor,
     prelude::{worker::*, *},
@@ -12,7 +15,6 @@ use yew::{
         IntervalService, Task,
     },
 };
-use API_URL_LOGIN_SESSION;
 use SESSION_COOKIE;
 
 /// Possible message types
@@ -67,12 +69,16 @@ impl Agent for SessionTimerAgent {
             Message::Update => {
                 info!("Updating current session");
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match fetch::Request::post(API_URL_LOGIN_SESSION).body(Cbor(&request::LoginSession(Session {
-                        token: token.to_owned(),
-                    }))) {
+                    match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
+                        &request::LoginSession(Session {
+                            token: token.to_owned(),
+                        }),
+                    )) {
                         Ok(body) => {
-                            self.fetch_task =
-                                Some(FetchService::new().fetch_binary(body, self.agent_link.send_back(Message::Fetch)))
+                            self.fetch_task = Some(
+                                FetchService::new()
+                                    .fetch_binary(body, self.agent_link.send_back(Message::Fetch)),
+                            )
                         }
                         Err(_) => {
                             warn!("Unable to create scheduled session login request");
@@ -96,7 +102,10 @@ impl Agent for SessionTimerAgent {
                     }
                 } else {
                     // Authentication failed
-                    info!("Scheduled session login failed with status: {}", meta.status);
+                    info!(
+                        "Scheduled session login failed with status: {}",
+                        meta.status
+                    );
                 }
 
                 // Remove the ongoing task
@@ -109,7 +118,8 @@ impl Agent for SessionTimerAgent {
     fn handle(&mut self, msg: Self::Input, _: HandlerId) {
         match msg {
             Request::Start => {
-                let handle = IntervalService::new().spawn(Duration::from_secs(10), self.callback.clone());
+                let handle =
+                    IntervalService::new().spawn(Duration::from_secs(10), self.callback.clone());
                 self.timer_task = Some(Box::new(handle));
             }
             Request::Stop => {

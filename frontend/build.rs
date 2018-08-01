@@ -1,6 +1,7 @@
 extern crate failure;
 extern crate sass_rs;
 extern crate toml;
+extern crate url;
 extern crate webapp;
 
 use failure::Error;
@@ -11,6 +12,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
+use url::Url;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
@@ -82,20 +84,7 @@ fn prepare_style() -> Result<(), Error> {
 
 fn prepare_api() -> Result<(), Error> {
     let config: Config = toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME))?)?;
-
-    let secure_protocol = if config.server.tls { "s" } else { "" };
-    let api_url = format!("http{}://{}:{}", secure_protocol, config.server.ip, config.server.port);
-
-    println!("cargo:rustc-env=API_URL={}", api_url);
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_CREDENTIALS={}{}",
-        api_url, config.api.login_credentials
-    );
-    println!(
-        "cargo:rustc-env=API_URL_LOGIN_SESSION={}{}",
-        api_url, config.api.login_session
-    );
-    println!("cargo:rustc-env=API_URL_LOGOUT={}{}", api_url, config.api.logout);
-
+    let url = Url::parse(&config.server.url)?;
+    println!("cargo:rustc-env=API_URL={}", url);
     Ok(())
 }

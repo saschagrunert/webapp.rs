@@ -7,8 +7,13 @@ use service::{
     router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN};
-use webapp::protocol::{model::Session, request, response};
+use string::{
+    AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN,
+};
+use webapp::{
+    protocol::{model::Session, request, response},
+    API_URL_LOGIN_CREDENTIALS,
+};
 use yew::{
     format::Cbor,
     prelude::*,
@@ -17,7 +22,6 @@ use yew::{
         FetchService,
     },
 };
-use API_URL_LOGIN_CREDENTIALS;
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
@@ -71,22 +75,27 @@ impl Component for LoginComponent {
         match msg {
             // Login via username and password
             Message::LoginRequest => {
-                match fetch::Request::post(API_URL_LOGIN_CREDENTIALS).body(Cbor(&request::LoginCredentials {
-                    username: self.username.to_owned(),
-                    password: self.password.to_owned(),
-                })) {
+                match fetch::Request::post(api!(API_URL_LOGIN_CREDENTIALS)).body(Cbor(
+                    &request::LoginCredentials {
+                        username: self.username.to_owned(),
+                        password: self.password.to_owned(),
+                    },
+                )) {
                     Ok(body) => {
                         // Disable user interaction
                         self.login_button_disabled = true;
                         self.inputs_disabled = true;
 
                         // Send the request
-                        self.fetch_task =
-                            Some(FetchService::new().fetch_binary(body, self.component_link.send_back(Message::Fetch)));
+                        self.fetch_task = Some(
+                            FetchService::new()
+                                .fetch_binary(body, self.component_link.send_back(Message::Fetch)),
+                        );
                     }
                     _ => {
                         error!("Unable to create credentials login request");
-                        self.uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
+                        self.uikit_service
+                            .notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     }
                 }
             }
@@ -119,7 +128,8 @@ impl Component for LoginComponent {
                         }
                         _ => {
                             warn!("Got wrong credentials login response");
-                            self.uikit_service.notify(RESPONSE_ERROR, &NotificationStatus::Danger);
+                            self.uikit_service
+                                .notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                         }
                     }
                 } else {

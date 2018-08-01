@@ -1,7 +1,11 @@
 [server]
-ip = "127.0.0.1"
-port = "30080"
-tls = false
+url = "http://127.0.0.1:30080"
+cert = "backend/tls/cert.pem"
+key = "backend/tls/key.pem"
+redirect-from = [
+    "http://127.0.0.1:30081",
+    "https://127.0.0.1:30082",
+]
 
 [log]
 actix-web = "debug"
@@ -12,8 +16,3 @@ host = "127.0.0.1"
 username = "username"
 password = ""
 database = "database"
-
-[api]
-login-credentials = "/login/credentials"
-login-session = "/login/session"
-logout = "/logout"

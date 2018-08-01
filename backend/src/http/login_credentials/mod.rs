@@ -2,26 +2,24 @@
 
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::ErrorUnauthorized, AsyncResponder, HttpRequest, HttpResponse};
-use cbor::{CborRequest, CborResponseBuilder};
+use cbor::CborResponseBuilder;
 use database::CreateSession;
 use futures::Future;
-use http::FutureResponse;
+use http::{unpack_cbor, FutureResponse};
 use server::State;
 use token::Token;
 use webapp::protocol::{request, response};
 
-mod tests;
+mod test;
 
 pub fn login_credentials<T>(http_request: &HttpRequest<State<T>>) -> FutureResponse
 where
     T: Actor + Handler<CreateSession>,
     <T as Actor>::Context: ToEnvelope<T, CreateSession>,
 {
-    let request_clone = http_request.clone();
-    CborRequest::new(http_request)
-        .from_err()
-        // Verify username and password
-        .and_then(|request::LoginCredentials{username, password}| {
+    let (request_clone, cbor) = unpack_cbor(http_request);
+    // Verify username and password
+    cbor.and_then(|request::LoginCredentials{username, password}| {
             debug!("User {} is trying to login", username);
             if username.is_empty() || password.is_empty() || username != password {
                 return Err(ErrorUnauthorized("wrong username or password"));

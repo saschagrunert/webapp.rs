@@ -1,4 +1,4 @@
-//! Configruation related structures
+//! Configuration related structures
 
 #[derive(Clone, Deserialize)]
 /// The global configuration
@@ -11,22 +11,23 @@ pub struct Config {
 
     /// The database configuration
     pub postgres: PostgresConfig,
-
-    /// The API configuration
-    pub api: ApiConfig,
 }
 
 #[derive(Clone, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 /// The server configuration
 pub struct ServerConfig {
-    /// The server IP address
-    pub ip: String,
+    /// The full server url
+    pub url: String,
 
-    /// The server port
-    pub port: String,
+    /// The server certificate
+    pub cert: String,
 
-    /// True if the server should use a tls connection
-    pub tls: bool,
+    /// The server key
+    pub key: String,
+
+    /// The redirecting URLs
+    pub redirect_from: Vec<String>,
 }
 
 #[derive(Clone, Deserialize)]
@@ -54,18 +55,4 @@ pub struct PostgresConfig {
 
     /// The database to be used
     pub database: String,
-}
-
-#[derive(Clone, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-/// The API configuration
-pub struct ApiConfig {
-    /// The credentials based login API
-    pub login_credentials: String,
-
-    /// The session based login API
-    pub login_session: String,
-
-    /// The logout API
-    pub logout: String,
 }

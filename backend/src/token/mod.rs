@@ -5,7 +5,7 @@ use jsonwebtoken::{decode, encode, Header, Validation};
 use time::get_time;
 use uuid::Uuid;
 
-mod tests;
+mod test;
 
 const SECRET: &[u8] = b"my_secret";
 
@@ -61,7 +61,8 @@ impl Token {
 
     /// Verify the validity of a token and get a new one
     pub fn verify(token: &str) -> Result<String, TokenError> {
-        let data = decode::<Token>(token, SECRET, &Validation::default()).map_err(|_| TokenError::Verify)?;
+        let data = decode::<Token>(token, SECRET, &Validation::default())
+            .map_err(|_| TokenError::Verify)?;
         Self::create(&data.claims.sub)
     }
 }

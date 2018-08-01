@@ -20,6 +20,7 @@ extern crate serde_cbor;
 #[macro_use]
 extern crate serde_derive;
 extern crate time;
+extern crate url;
 extern crate uuid;
 extern crate webapp;
 
