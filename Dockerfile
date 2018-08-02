@@ -4,13 +4,13 @@ FROM scratch
 COPY target/x86_64-unknown-linux-musl/release/backend /
 
 # Copy the TLS certificates
-COPY backend/tls /tls
+COPY tls /tls
 
 # Copy the configuration
 COPY Config.toml /
 
 # Copy the static files
-COPY target/deploy /
+COPY target/deploy /static
 
 # Expose the target port
 ARG API_PORT=443

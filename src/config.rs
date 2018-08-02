@@ -17,7 +17,7 @@ pub struct Config {
 #[serde(rename_all = "kebab-case")]
 /// The server configuration
 pub struct ServerConfig {
-    /// The full server url
+    /// The full server URL
     pub url: String,
 
     /// The server certificate

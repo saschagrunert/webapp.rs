@@ -12,21 +12,23 @@ repository = "https://github.com/saschagrunert/webapp.rs"
 version = "0.1.0"
 
 [badges]
-travis-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
+circle-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
+codecov = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
+maintenance = { status = "actively-developed" }
 
 [[bin]]
 name = "app"
 path = "src/main.rs"
 
 [build-dependencies]
-failure = "0.1.1"
+failure = "0.1.2"
 sass-rs = "0.2.1"
 toml = "0.4.6"
 url = "1.7.1"
 webapp = { path = ".." }
 
 [dependencies]
-failure = "0.1.1"
+failure = "0.1.2"
 log = "0.4.3"
 serde = "1.0.70"
 serde_derive = "1.0.70"

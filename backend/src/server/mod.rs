@@ -75,7 +75,10 @@ impl Server {
                     }).resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
                     .register()
             }).default_resource(|r| r.h(NormalizePath::default()))
-            .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
+            .handler(
+                "/",
+                StaticFiles::new("static").unwrap().index_file("index.html"),
+            )
         });
 
         // Create the server url from the given configuration

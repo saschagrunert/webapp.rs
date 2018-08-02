@@ -1,7 +1,7 @@
 [server]
 url = "http://127.0.0.1:30080"
-cert = "backend/tls/cert.pem"
-key = "backend/tls/key.pem"
+cert = "tls/cert.pem"
+key = "tls/key.pem"
 redirect-from = [
     "http://127.0.0.1:30081",
     "https://127.0.0.1:30082",

@@ -1,4 +1,4 @@
-//! The main library interface
+//! The backend library
 
 #![deny(missing_docs)]
 

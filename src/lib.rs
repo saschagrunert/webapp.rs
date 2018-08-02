@@ -1,4 +1,4 @@
-//! The main library interface
+//! The core library
 
 #![deny(missing_docs)]
 #![allow(unknown_lints, proc_macro_derive_resolution_fallback)]
@@ -18,11 +18,15 @@ pub mod schema;
 /// The global config file name
 pub const CONFIG_FILENAME: &str = "Config.toml";
 
-/// The API URL for login with credentials
-pub const API_URL_LOGIN_CREDENTIALS: &str = "login/credentials";
+macro_rules! apis {
+    ($($name:ident => $content:expr,)*) => (
+        $(#[allow(missing_docs)] pub const $name: &str = $content;)*
+    )
+}
 
-/// The API URL for login with session
-pub const API_URL_LOGIN_SESSION: &str = "login/session";
-
-/// The API URL for logout
-pub const API_URL_LOGOUT: &str = "logout";
+/// Available API definitions
+apis! {
+    API_URL_LOGIN_CREDENTIALS => "login/credentials",
+    API_URL_LOGIN_SESSION => "login/session",
+    API_URL_LOGOUT => "logout",
+}
