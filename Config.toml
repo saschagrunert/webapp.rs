@@ -1,6 +1,5 @@
 [server]
 url = "http://127.0.0.1:30080"
-use-acme = false
 cert = "tls/cert.pem"
 key = "tls/key.pem"
 redirect-from = [

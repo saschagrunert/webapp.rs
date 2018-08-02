@@ -25,7 +25,6 @@ lazy_static = "1.0.2"
 reqwest = "0.8.7"
 
 [dependencies]
-acme-client = "0.5.2"
 actix = "0.7.3"
 actix-web = { version = "0.7.3", features = ["alpn"] }
 bytes = "0.4.9"
