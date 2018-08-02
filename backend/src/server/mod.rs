@@ -82,16 +82,17 @@ impl Server {
         // Create the server url from the given configuration
         let url = Url::parse(&config.server.url)?;
 
-        // Check if letsencrypt should be used
-        if config.server.use_acme {
-            Self::retrieve_acme_certificates(
-                url.domain()
-                    .ok_or(format_err!("Unable to retrieve domain from URL: {}", url))?,
-            )?;
-        }
-
         // Bind the address
         if url.scheme() == "https" {
+            // Check if letsencrypt should be used
+            if config.server.use_acme {
+                Self::retrieve_acme_certificate(
+                    url.domain().ok_or_else(|| {
+                        format_err!("Unable to retrieve domain from URL: {}", url)
+                    })?,
+                )?;
+            }
+
             server.bind_ssl(&url, Self::build_tls(&config)?)?.start();
         } else {
             server.bind(&url)?.start();
@@ -174,7 +175,8 @@ impl Server {
         }
     }
 
-    fn retrieve_acme_certificates(domain: &str) -> Result<(), Error> {
+    /// Retrieve a letsencrypt certificate for a given domain
+    fn retrieve_acme_certificate(domain: &str) -> Result<(), Error> {
         // Convenient macro for error conversion
         macro_rules! atry {
             ($error:expr) => {
