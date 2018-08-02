@@ -1,6 +1,5 @@
 //! Everything related to the actual server implementation
 
-use acme_client::Directory;
 use actix::{prelude::*, SystemRunner};
 use actix_web::{
     fs::StaticFiles,
@@ -87,19 +86,6 @@ impl Server {
 
         // Bind the address
         if url.scheme() == "https" {
-            // Check if letsencrypt should be used
-            if config.server.use_acme {
-                // Check if a domain is vailable
-                if let Some(domain) = url.domain() {
-                    Self::retrieve_acme_certificate(domain)?;
-                } else {
-                    warn!(
-                        "Will not retrieve letsencrypt certificate because {} contains no domain",
-                        url
-                    );
-                }
-            }
-
             server.bind_ssl(&url, Self::build_tls(&config)?)?.start();
         } else {
             server.bind(&url)?.start();
@@ -180,39 +166,5 @@ impl Server {
                 system.run();
             });
         }
-    }
-
-    /// Retrieve a letsencrypt certificate for a given domain
-    fn retrieve_acme_certificate(domain: &str) -> Result<(), Error> {
-        // Convenient macro for error conversion
-        macro_rules! atry {
-            ($error:expr) => {
-                $error.map_err(|e| format_err!("{}", e))?
-            };
-        }
-
-        warn!("Register ACME account and directory");
-        let directory = atry!(Directory::lets_encrypt());
-        let account = atry!(directory.account_registration().register());
-
-        // Create a identifier authorization
-        warn!("Creating ACME authorization");
-        let authorization = atry!(account.authorization(domain));
-
-        // Validate ownership with http challenge
-        let http_challenge = atry!(
-            authorization
-                .get_http_challenge()
-                .ok_or("HTTP challenge not found")
-        );
-        atry!(http_challenge.save_key_authorization("tls"));
-        atry!(http_challenge.validate());
-
-        warn!("Signing certificate for: {}", domain);
-        let cert = atry!(account.certificate_signer(&[domain]).sign_certificate());
-        atry!(cert.save_signed_certificate(format!("tls/{}-cert.pem", domain)));
-        atry!(cert.save_private_key(format!("tls/{}-key.pem", domain)));
-
-        Ok(())
     }
 }
