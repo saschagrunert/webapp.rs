@@ -20,9 +20,6 @@ pub struct ServerConfig {
     /// The full server URL
     pub url: String,
 
-    /// Use letsencrypt instead of own certificates
-    pub use_acme: bool,
-
     /// The server certificate
     pub cert: String,
 
