@@ -61,8 +61,6 @@ fn succeed_to_create_server_with_common_redirects() {
     let mut url = Url::parse(&config.server.url).unwrap();
     url.set_port(Some(get_next_port())).unwrap();
     config.server.url = url.as_str().to_owned();
-    config.server.cert = "tls/cert.pem".to_owned();
-    config.server.key = "tls/key.pem".to_owned();
 
     let redirect_url = "http://127.0.0.1:30666".to_owned();
     config.server.redirect_from = vec![
