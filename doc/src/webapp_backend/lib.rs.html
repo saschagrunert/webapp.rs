@@ -31,11 +31,13 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
 </pre><pre class="rust ">
-<span class="doccomment">//! The main library interface</span>
+<span class="doccomment">//! The backend library</span>
 
 <span class="attribute">#![<span class="ident">deny</span>(<span class="ident">missing_docs</span>)]</span>
 
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">acme_client</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">actix</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">actix_web</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bytes</span>;

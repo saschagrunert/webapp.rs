@@ -56,6 +56,9 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Configuration related structures</span>
 
@@ -76,8 +79,11 @@
 <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename_all</span> <span class="op">=</span> <span class="string">&quot;kebab-case&quot;</span>)]</span>
 <span class="doccomment">/// The server configuration</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ServerConfig</span> {
-    <span class="doccomment">/// The full server url</span>
+    <span class="doccomment">/// The full server URL</span>
     <span class="kw">pub</span> <span class="ident">url</span>: <span class="ident">String</span>,
+
+    <span class="doccomment">/// Use letsencrypt instead of own certificates</span>
+    <span class="kw">pub</span> <span class="ident">use_acme</span>: <span class="ident">bool</span>,
 
     <span class="doccomment">/// The server certificate</span>
     <span class="kw">pub</span> <span class="ident">cert</span>: <span class="ident">String</span>,
