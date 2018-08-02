@@ -1,4 +1,4 @@
-//! The main library interface
+//! The frontend library
 
 #![deny(missing_docs)]
 #![recursion_limit = "512"]

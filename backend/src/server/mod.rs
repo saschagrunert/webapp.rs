@@ -1,5 +1,6 @@
 //! Everything related to the actual server implementation
 
+use acme_client::Directory;
 use actix::{prelude::*, SystemRunner};
 use actix_web::{
     fs::StaticFiles,
@@ -80,6 +81,14 @@ impl Server {
 
         // Create the server url from the given configuration
         let url = Url::parse(&config.server.url)?;
+
+        // Check if letsencrypt should be used
+        if config.server.use_acme {
+            Self::retrieve_acme_certificates(
+                url.domain()
+                    .ok_or(format_err!("Unable to retrieve domain from URL: {}", url))?,
+            )?;
+        }
 
         // Bind the address
         if url.scheme() == "https" {
@@ -163,5 +172,35 @@ impl Server {
                 system.run();
             });
         }
+    }
+
+    fn retrieve_acme_certificates(domain: &str) -> Result<(), Error> {
+        // Convenient macro for error conversion
+        macro_rules! atry {
+            ($error:expr) => {
+                $error.map_err(|e| format_err!("AcmeError: {}", e))?
+            };
+        }
+
+        let directory = atry!(Directory::lets_encrypt());
+        let account = atry!(directory.account_registration().register());
+
+        // Create a identifier authorization for example.com
+        let authorization = atry!(account.authorization(domain));
+
+        // Validate ownership with http challenge
+        let http_challenge = atry!(
+            authorization
+                .get_http_challenge()
+                .ok_or("HTTP challenge not found")
+        );
+        atry!(http_challenge.save_key_authorization("tls"));
+        atry!(http_challenge.validate());
+
+        let cert = atry!(account.certificate_signer(&[domain]).sign_certificate());
+        atry!(cert.save_signed_certificate(format!("{}-cert.pem", domain)));
+        atry!(cert.save_private_key(format!("{}-key.pem", domain)));
+
+        Ok(())
     }
 }

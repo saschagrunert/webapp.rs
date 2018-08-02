@@ -36,6 +36,8 @@ else
 GENERAL_ARGS += -v
 endif
 
+all: build-backend build-frontend
+
 build-backend:
 	cargo build $(BACKEND_ARGS)
 
@@ -64,9 +66,7 @@ deploy:
 		-t webapp .
 
 lint-clippy:
-	cargo clippy -- -D warnings
-	cargo clippy -p webapp-backend -- -D warnings
-	cargo clippy -p webapp-frontend -- -D warnings
+	cargo clippy --all -- -D warnings
 
 lint-rustfmt:
 	cargo fmt

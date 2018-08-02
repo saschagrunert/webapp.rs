@@ -4,7 +4,7 @@ FROM scratch
 COPY target/x86_64-unknown-linux-musl/release/backend /
 
 # Copy the TLS certificates
-COPY backend/tls /tls
+COPY tls /tls
 
 # Copy the configuration
 COPY Config.toml /

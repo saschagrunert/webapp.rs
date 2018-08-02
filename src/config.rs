@@ -17,8 +17,11 @@ pub struct Config {
 #[serde(rename_all = "kebab-case")]
 /// The server configuration
 pub struct ServerConfig {
-    /// The full server url
+    /// The full server URL
     pub url: String,
+
+    /// Use letsencrypt instead of own certificates
+    pub use_acme: bool,
 
     /// The server certificate
     pub cert: String,

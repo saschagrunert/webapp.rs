@@ -1,7 +1,8 @@
-//! The main library interface
+//! The backend library
 
 #![deny(missing_docs)]
 
+extern crate acme_client;
 extern crate actix;
 extern crate actix_web;
 extern crate bytes;
