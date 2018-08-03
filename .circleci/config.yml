@@ -11,14 +11,14 @@ defaults-postgres: &defaults-postgres
         POSTGRES_USER: username
         POSTGRES_DB: database
 prepare-postgres: &prepare-postgres
-  - run:
-      name: Prepare database
-      command: |
-        while true; do
-          if pg_isready -qh localhost; then break; fi
-        done
-        diesel migration run \
-          --database-url postgres://username:@localhost/database
+  run:
+    name: Prepare database
+    command: |
+      while true; do
+        if pg_isready -qh localhost; then break; fi
+      done
+      diesel migration run \
+        --database-url postgres://username:@localhost/database
 workflows:
   version: 2
   pipeline:
