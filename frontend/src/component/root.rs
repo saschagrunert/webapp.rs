@@ -149,12 +149,12 @@ impl Renderable<RootComponent> for RouterTarget {
             }
             RouterTarget::Login => {
                 html! {
-                   <LoginComponent:/>
+                    <LoginComponent:/>
                 }
             }
             RouterTarget::Content => {
                 html! {
-                   <ContentComponent:/>
+                    <ContentComponent:/>
                 }
             }
             RouterTarget::Error => {
