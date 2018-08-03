@@ -3,7 +3,6 @@
 #![cfg(test)]
 
 use server::Server;
-use std::fs::read_to_string;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 fn get_config() -> Config {
