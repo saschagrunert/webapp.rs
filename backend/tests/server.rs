@@ -76,7 +76,13 @@ fn succeed_to_create_server_with_common_redirects() {
     // When
     let config_clone = config.clone();
     thread::spawn(move || Server::new(&config_clone).unwrap().start());
-    thread::sleep(Duration::from_millis(300));
+    loop {
+        if let Ok(res) = Client::new().get(url.clone()).send() {
+            if res.status().is_success() {
+                break;
+            }
+        }
+    }
     let res = Client::new().get(&redirect_url).send().unwrap();
 
     // Then

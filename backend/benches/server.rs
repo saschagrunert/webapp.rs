@@ -1,6 +1,5 @@
 #![feature(test)]
 
-extern crate log;
 extern crate reqwest;
 extern crate serde_cbor;
 extern crate test;
@@ -18,10 +17,11 @@ use webapp_backend::Server;
 
 pub fn create_testserver() -> Url {
     // Prepare the configuration
-    let config = Config::new(&format!("../{}", CONFIG_FILENAME)).unwrap();
+    let mut config = Config::new(&format!("../{}", CONFIG_FILENAME)).unwrap();
 
     // Set the test configuration
     let url = Url::parse(&config.server.url).unwrap();
+    config.server.redirect_from = vec![];
 
     // Start the server
     let config_clone = config.clone();
@@ -41,7 +41,7 @@ pub fn create_testserver() -> Url {
 }
 
 #[bench]
-fn bench_login_credentials_49bytes(b: &mut Bencher) {
+fn bench_succeed_login_credentials_49bytes(b: &mut Bencher) {
     // Given
     let mut url = create_testserver();
     url.set_path(API_URL_LOGIN_CREDENTIALS);
