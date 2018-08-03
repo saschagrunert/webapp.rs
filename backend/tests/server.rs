@@ -2,14 +2,13 @@
 extern crate lazy_static;
 extern crate reqwest;
 extern crate serde_cbor;
-extern crate toml;
 extern crate url;
 extern crate webapp;
 extern crate webapp_backend;
 
 use reqwest::{Client, StatusCode};
 use serde_cbor::{from_slice, to_vec};
-use std::{fs::read_to_string, sync::Mutex, thread, time::Duration};
+use std::{sync::Mutex, thread};
 use url::Url;
 use webapp::{
     config::Config,
@@ -22,9 +21,8 @@ lazy_static! {
     static ref PORT: Mutex<u16> = Mutex::new(30000);
 }
 
-fn parse_config() -> Config {
-    let config_string = read_to_string(format!("../{}", CONFIG_FILENAME)).unwrap();
-    toml::from_str(&config_string).unwrap()
+fn get_config() -> Config {
+    Config::new(&format!("../{}", CONFIG_FILENAME)).unwrap()
 }
 
 fn get_next_port() -> u16 {
@@ -33,9 +31,9 @@ fn get_next_port() -> u16 {
     *port
 }
 
-fn create_testserver() -> Url {
+pub fn create_testserver() -> Url {
     // Prepare the configuration
-    let mut config = parse_config();
+    let mut config = get_config();
 
     // Set the test configuration
     let mut url = Url::parse(&config.server.url).unwrap();
@@ -48,7 +46,13 @@ fn create_testserver() -> Url {
     thread::spawn(move || Server::new(&config_clone).unwrap().start());
 
     // Wait until the server is up
-    thread::sleep(Duration::from_millis(300));
+    loop {
+        if let Ok(res) = Client::new().get(url.clone()).send() {
+            if res.status().is_success() {
+                break;
+            }
+        }
+    }
 
     // Return the server url
     url
@@ -57,7 +61,7 @@ fn create_testserver() -> Url {
 #[test]
 fn succeed_to_create_server_with_common_redirects() {
     // Given
-    let mut config = parse_config();
+    let mut config = get_config();
     let mut url = Url::parse(&config.server.url).unwrap();
     url.set_port(Some(get_next_port())).unwrap();
     config.server.url = url.as_str().to_owned();
@@ -90,7 +94,6 @@ fn succeed_to_login_with_credentials() {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).unwrap();
-    println!("::: url:: {}", url);
     let mut res = Client::new().post(url).body(request).send().unwrap();
     let mut body = vec![];
     res.copy_to(&mut body).unwrap();

@@ -16,6 +16,7 @@ PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
 
 .PHONY: \
+	bench \
 	build-backend \
 	build-doc \
 	build-frontend \
@@ -37,6 +38,9 @@ GENERAL_ARGS += -v
 endif
 
 all: build-backend build-frontend
+
+bench:
+	cargo bench -p webapp-backend
 
 build-backend:
 	cargo build $(BACKEND_ARGS)

@@ -2,14 +2,12 @@
 
 #![cfg(test)]
 
-extern crate toml;
-
 use server::Server;
 use std::fs::read_to_string;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 fn get_config() -> Config {
-    toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME)).unwrap()).unwrap()
+    Config::new(&format!("../{}", CONFIG_FILENAME)).unwrap()
 }
 
 #[test]

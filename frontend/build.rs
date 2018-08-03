@@ -1,6 +1,5 @@
 extern crate failure;
 extern crate sass_rs;
-extern crate toml;
 extern crate url;
 extern crate webapp;
 
@@ -8,7 +7,7 @@ use failure::Error;
 use sass_rs::{compile_file, Options, OutputStyle};
 use std::{
     env,
-    fs::{copy, read_to_string, write},
+    fs::{copy, write},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -83,7 +82,7 @@ fn prepare_style() -> Result<(), Error> {
 }
 
 fn prepare_api() -> Result<(), Error> {
-    let config: Config = toml::from_str(&read_to_string(format!("../{}", CONFIG_FILENAME))?)?;
+    let config = Config::new(&format!("../{}", CONFIG_FILENAME))?;
     let url = Url::parse(&config.server.url)?;
     println!("cargo:rustc-env=API_URL={}", url);
     Ok(())

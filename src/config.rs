@@ -1,5 +1,9 @@
 //! Configuration related structures
 
+use failure::Error;
+use std::fs::read_to_string;
+use toml;
+
 #[derive(Clone, Deserialize)]
 /// The global configuration
 pub struct Config {
@@ -11,6 +15,15 @@ pub struct Config {
 
     /// The database configuration
     pub postgres: PostgresConfig,
+}
+
+impl Config {
+    /// Creates a new `Config` instance using the parameters found in the given
+    /// TOML configuration file. If the file could not be found or the file is
+    /// invalid, an `Error` will be returned.
+    pub fn new(filename: &str) -> Result<Self, Error> {
+        Ok(toml::from_str(&read_to_string(filename)?)?)
+    }
 }
 
 #[derive(Clone, Deserialize)]
