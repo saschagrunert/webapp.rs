@@ -30,24 +30,20 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
 </pre><pre class="rust ">
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">failure</span>;
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">toml</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">webapp</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">webapp_backend</span>;
 
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Error</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>::<span class="ident">set_var</span>, <span class="ident">fs</span>::<span class="ident">read_to_string</span>, <span class="ident">process</span>::<span class="ident">exit</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>::<span class="ident">set_var</span>, <span class="ident">process</span>::<span class="ident">exit</span>};
 <span class="kw">use</span> <span class="ident">webapp</span>::{<span class="ident">config</span>::<span class="ident">Config</span>, <span class="ident">CONFIG_FILENAME</span>};
 <span class="kw">use</span> <span class="ident">webapp_backend</span>::<span class="ident">Server</span>;
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
     <span class="comment">// Parse the configuration</span>
-    <span class="kw">let</span> <span class="ident">config_string</span> <span class="op">=</span> <span class="ident">read_to_string</span>(<span class="ident">CONFIG_FILENAME</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">config</span>: <span class="ident">Config</span> <span class="op">=</span> <span class="ident">toml</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">config_string</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">new</span>(<span class="ident">CONFIG_FILENAME</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// Set the logging verbosity</span>
     <span class="ident">set_var</span>(
