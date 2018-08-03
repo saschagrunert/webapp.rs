@@ -1,5 +1,6 @@
-target/
-.*/target/
 **/*.rs.bk
 *.tar
+.*/target/
 .gdb_history
+target/
+tls/.well-known

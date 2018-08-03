@@ -76,7 +76,10 @@ impl Server {
                     }).resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
                     .register()
             }).default_resource(|r| r.h(NormalizePath::default()))
-            .handler("/", StaticFiles::new(".").unwrap().index_file("index.html"))
+            .handler(
+                "/",
+                StaticFiles::new("static").unwrap().index_file("index.html"),
+            )
         });
 
         // Create the server url from the given configuration
@@ -86,11 +89,15 @@ impl Server {
         if url.scheme() == "https" {
             // Check if letsencrypt should be used
             if config.server.use_acme {
-                Self::retrieve_acme_certificate(
-                    url.domain().ok_or_else(|| {
-                        format_err!("Unable to retrieve domain from URL: {}", url)
-                    })?,
-                )?;
+                // Check if a domain is vailable
+                if let Some(domain) = url.domain() {
+                    Self::retrieve_acme_certificate(domain)?;
+                } else {
+                    warn!(
+                        "Will not retrieve letsencrypt certificate because {} contains no domain",
+                        url
+                    );
+                }
             }
 
             server.bind_ssl(&url, Self::build_tls(&config)?)?.start();
@@ -180,14 +187,16 @@ impl Server {
         // Convenient macro for error conversion
         macro_rules! atry {
             ($error:expr) => {
-                $error.map_err(|e| format_err!("AcmeError: {}", e))?
+                $error.map_err(|e| format_err!("{}", e))?
             };
         }
 
+        warn!("Register ACME account and directory");
         let directory = atry!(Directory::lets_encrypt());
         let account = atry!(directory.account_registration().register());
 
-        // Create a identifier authorization for example.com
+        // Create a identifier authorization
+        warn!("Creating ACME authorization");
         let authorization = atry!(account.authorization(domain));
 
         // Validate ownership with http challenge
@@ -199,9 +208,10 @@ impl Server {
         atry!(http_challenge.save_key_authorization("tls"));
         atry!(http_challenge.validate());
 
+        warn!("Signing certificate for: {}", domain);
         let cert = atry!(account.certificate_signer(&[domain]).sign_certificate());
-        atry!(cert.save_signed_certificate(format!("{}-cert.pem", domain)));
-        atry!(cert.save_private_key(format!("{}-key.pem", domain)));
+        atry!(cert.save_signed_certificate(format!("tls/{}-cert.pem", domain)));
+        atry!(cert.save_private_key(format!("tls/{}-key.pem", domain)));
 
         Ok(())
     }
