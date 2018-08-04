@@ -188,7 +188,7 @@ jobs:
   docker-test:
     machine: true
     environment:
-      PATH: $HOME/.cargo/bin:$PATH
+      BASH_ENV: ~/.bashrc
     steps:
       - checkout
       - attach_workspace:
@@ -196,6 +196,7 @@ jobs:
       - restore_cache:
           keys:
             - docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run: echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $BASH_ENV
       - run:
           name: Install dependencies
           command: |
