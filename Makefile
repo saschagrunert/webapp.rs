@@ -60,6 +60,7 @@ deploy:
 		saschagrunert/build-rust:latest \
 		cargo web deploy $(FRONTEND_ARGS)
 	# Fix applications path to JavaScript file
+	sudo chown -R $(USER) target
 	mkdir target/deploy/js
 	mv target/deploy/app.js ./target/deploy/js
 	# Build the backend

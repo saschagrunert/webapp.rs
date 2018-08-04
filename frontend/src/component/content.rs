@@ -1,6 +1,6 @@
 //! The Main Content component
 
-use failure::Error;
+use api::Response;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
@@ -13,14 +13,7 @@ use webapp::{
     protocol::{model::Session, request, response},
     API_URL_LOGOUT,
 };
-use yew::{
-    format::Cbor,
-    prelude::*,
-    services::{
-        fetch::{self, FetchTask},
-        FetchService,
-    },
-};
+use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
@@ -36,7 +29,7 @@ pub struct ContentComponent {
 
 /// Available message types to process
 pub enum Message {
-    Fetch(fetch::Response<Cbor<Result<response::Logout, Error>>>),
+    Fetch(Response<response::Logout>),
     Ignore,
     LogoutRequest,
 }
@@ -82,7 +75,7 @@ impl Component for ContentComponent {
             Message::LogoutRequest => {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
                     self.fetch_task = fetch! {
-                        request::Logout(Session {token: token.to_owned()}) => API_URL_LOGOUT,
+                        request::Logout(Session::new(token)) => API_URL_LOGOUT,
                         self.component_link, Message::Fetch,
                         || {
                             // Disable user interaction

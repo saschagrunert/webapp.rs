@@ -8,7 +8,7 @@ use futures::Future;
 use http::{unpack_cbor, FutureResponse};
 use server::State;
 use token::Token;
-use webapp::protocol::{request, response};
+use webapp::protocol::{request::LoginCredentials, response::Login};
 
 mod test;
 
@@ -19,7 +19,7 @@ where
 {
     let (request_clone, cbor) = unpack_cbor(http_request);
     // Verify username and password
-    cbor.and_then(|request::LoginCredentials{username, password}| {
+    cbor.and_then(|LoginCredentials{username, password}| {
             debug!("User {} is trying to login", username);
             if username.is_empty() || password.is_empty() || username != password {
                 return Err(ErrorUnauthorized("wrong username or password"));
@@ -35,7 +35,7 @@ where
                 .database
                 .send(CreateSession(token))
                 .from_err()
-                .and_then(|result| Ok(HttpResponse::Ok().cbor(response::Login(result?))?))
+                .and_then(|result| Ok(HttpResponse::Ok().cbor(Login(result?))?))
         })
         .responder()
 }

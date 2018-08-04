@@ -2,6 +2,7 @@
 
 #[cfg(feature = "backend")]
 use schema::sessions;
+use std::convert::From;
 
 #[cfg_attr(feature = "backend", derive(Insertable, Queryable))]
 #[cfg_attr(feature = "backend", table_name = "sessions")]
@@ -10,4 +11,16 @@ use schema::sessions;
 pub struct Session {
     /// The actual session token
     pub token: String,
+}
+
+impl Session {
+    /// Create a new session from a given token
+    pub fn new<T>(token: T) -> Self
+    where
+        String: From<T>,
+    {
+        Self {
+            token: token.into(),
+        }
+    }
 }

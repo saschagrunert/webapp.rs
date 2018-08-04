@@ -69,11 +69,9 @@ impl Agent for SessionTimerAgent {
             Message::Update => {
                 info!("Updating current session");
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
-                        &request::LoginSession(Session {
-                            token: token.to_owned(),
-                        }),
-                    )) {
+                    match fetch::Request::post(api!(API_URL_LOGIN_SESSION))
+                        .body(Cbor(&request::LoginSession(Session::new(token))))
+                    {
                         Ok(body) => {
                             self.fetch_task = Some(
                                 FetchService::new()

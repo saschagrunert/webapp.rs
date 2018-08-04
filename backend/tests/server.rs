@@ -166,9 +166,7 @@ fn fail_to_login_with_wrong_session() {
     url.set_path(API_URL_LOGIN_SESSION);
 
     // When
-    let request = to_vec(&request::LoginSession(Session {
-        token: "wrong".to_owned(),
-    })).unwrap();
+    let request = to_vec(&request::LoginSession(Session::new("wrong"))).unwrap();
     let res = Client::new().post(url).body(request).send().unwrap();
 
     // Then
@@ -182,9 +180,7 @@ fn succeed_to_logout() {
     url.set_path(API_URL_LOGOUT);
 
     // When
-    let request = to_vec(&request::Logout(Session {
-        token: "wrong".to_owned(),
-    })).unwrap();
+    let request = to_vec(&request::Logout(Session::new("wrong"))).unwrap();
     let res = Client::new().post(url).body(request).send().unwrap();
 
     // Then

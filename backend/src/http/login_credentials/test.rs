@@ -12,15 +12,13 @@ use http::{
 };
 use serde_cbor::to_vec;
 use token::Token;
-use webapp::protocol::{model::Session, request};
+use webapp::protocol::{model::Session, request::LoginCredentials};
 
 impl Handler<CreateSession> for DatabaseExecutorMock {
     type Result = Result<Session, Error>;
 
     fn handle(&mut self, _: CreateSession, _: &mut Self::Context) -> Self::Result {
-        Ok(Session {
-            token: Token::create("username").unwrap(),
-        })
+        Ok(Session::new(Token::create("username").unwrap()))
     }
 }
 
@@ -32,7 +30,7 @@ fn create_testserver() -> TestServer {
 fn succeed_to_login_with_credentials() {
     // Given
     let mut server = create_testserver();
-    let body = to_vec(&request::LoginCredentials {
+    let body = to_vec(&LoginCredentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
     }).unwrap();
@@ -48,7 +46,7 @@ fn succeed_to_login_with_credentials() {
 fn fail_to_login_with_wrong_credentials() {
     // Given
     let mut server = create_testserver();
-    let body = to_vec(&request::LoginCredentials {
+    let body = to_vec(&LoginCredentials {
         username: "username".to_owned(),
         password: "password".to_owned(),
     }).unwrap();

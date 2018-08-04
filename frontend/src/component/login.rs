@@ -1,6 +1,6 @@
 //! The Login component
 
-use failure::Error;
+use api::Response;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
@@ -11,17 +11,10 @@ use string::{
     AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN,
 };
 use webapp::{
-    protocol::{model::Session, request, response},
+    protocol::{model::Session, request::LoginCredentials, response::Login},
     API_URL_LOGIN_CREDENTIALS,
 };
-use yew::{
-    format::Cbor,
-    prelude::*,
-    services::{
-        fetch::{self, FetchTask},
-        FetchService,
-    },
-};
+use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
@@ -39,7 +32,7 @@ pub struct LoginComponent {
 
 /// Available message types to process
 pub enum Message {
-    Fetch(fetch::Response<Cbor<Result<response::Login, Error>>>),
+    Fetch(Response<Login>),
     Ignore,
     LoginRequest,
     UpdatePassword(String),
@@ -76,7 +69,7 @@ impl Component for LoginComponent {
             // Login via username and password
             Message::LoginRequest => {
                 self.fetch_task = fetch! {
-                    request::LoginCredentials {
+                    LoginCredentials {
                         username: self.username.to_owned(),
                         password: self.password.to_owned(),
                     } => API_URL_LOGIN_CREDENTIALS,
@@ -110,7 +103,7 @@ impl Component for LoginComponent {
                 // Check the response type
                 if meta.status.is_success() {
                     match body {
-                        Ok(response::Login(Session { token })) => {
+                        Ok(Login(Session { token })) => {
                             info!("Credential based login succeed");
 
                             // Set the retrieved session cookie

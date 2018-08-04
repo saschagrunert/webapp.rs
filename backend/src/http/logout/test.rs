@@ -29,9 +29,7 @@ fn create_testserver() -> TestServer {
 fn succeed_to_logout() {
     // Given
     let mut server = create_testserver();
-    let body = to_vec(&request::Logout(Session {
-        token: "any-token".to_owned(),
-    })).unwrap();
+    let body = to_vec(&request::Logout(Session::new("any-token"))).unwrap();
 
     // When
     let response = execute_request(&mut server, body);
