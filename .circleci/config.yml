@@ -38,6 +38,9 @@ workflows:
           requires:
             - docker
       - deploy:
+          branches:
+            only:
+              - master
           requires:
             - docker-test
 jobs:
