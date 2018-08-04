@@ -187,8 +187,6 @@ jobs:
             - webapp.tar
   docker-test:
     machine: true
-    environment:
-      BASH_ENV: ~/.bashrc
     steps:
       - checkout
       - attach_workspace:
@@ -197,14 +195,12 @@ jobs:
           keys:
             - docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
-          name: Modify PATH
-          command: echo 'export PATH=$HOME/.cargo/bin:$PATH' >> $BASH_ENV
-      - run:
           name: Install dependencies
           command: |
             sudo apt-get update
             sudo apt-get install -y postgresql-client libpq-dev
             curl https://sh.rustup.rs -sSf | sh -s -- -y
+            export PATH=$HOME/.cargo/bin:$PATH
             cargo install diesel_cli --no-default-features --features "postgres"
       - run:
           name: Load the image
