@@ -24,7 +24,8 @@ workflows:
   pipeline:
     jobs:
       - build
-      - doc:
+      - doc
+      - doc-publish:
           filters:
             branches:
               only: master
@@ -55,6 +56,24 @@ jobs:
             - target
           key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   doc:
+    <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a
+      - checkout
+      - restore_cache:
+          keys:
+            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build documentation
+          command: make build-doc
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  doc-publish:
     <<: *defaults
     steps:
       - add_ssh_keys:
