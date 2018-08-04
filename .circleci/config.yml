@@ -209,6 +209,8 @@ jobs:
           name: Test the application
           command: |
             export PATH=$HOME/.cargo/bin:$PATH
+            make run-app
+            sleep 5
             make test-deploy
       - save_cache:
           paths:
