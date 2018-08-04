@@ -16,13 +16,8 @@ extern crate webapp;
 #[macro_use]
 extern crate yew;
 
-/// Generic API access macro
-macro_rules! api {
-    ($url:expr) => {
-        env!("API_URL").to_owned() + $url
-    };
-}
-
+#[macro_use]
+mod api;
 mod component;
 mod route;
 mod service;

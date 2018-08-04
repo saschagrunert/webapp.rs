@@ -3,6 +3,7 @@
 #![cfg(test)]
 
 use server::Server;
+use std::path::PathBuf;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 fn get_config() -> Config {
@@ -32,7 +33,7 @@ fn succeed_to_create_a_server_with_tls() {
 fn fail_to_create_a_server_with_tls_if_not_found() {
     let mut config = get_config();
     config.server.url = "https://localhost:30082".to_owned();
-    config.server.cert = "".to_owned();
-    config.server.key = "".to_owned();
+    config.server.cert = PathBuf::new();
+    config.server.key = PathBuf::new();
     assert!(Server::new(&config).is_err());
 }

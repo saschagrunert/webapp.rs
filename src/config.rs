@@ -1,7 +1,7 @@
 //! Configuration related structures
 
 use failure::Error;
-use std::fs::read_to_string;
+use std::{fs::read_to_string, path::PathBuf};
 use toml;
 
 #[derive(Clone, Deserialize)]
@@ -34,10 +34,10 @@ pub struct ServerConfig {
     pub url: String,
 
     /// The server certificate
-    pub cert: String,
+    pub cert: PathBuf,
 
     /// The server key
-    pub key: String,
+    pub key: PathBuf,
 
     /// The redirecting URLs
     pub redirect_from: Vec<String>,

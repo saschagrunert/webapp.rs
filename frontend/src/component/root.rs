@@ -51,22 +51,17 @@ impl Component for RootComponent {
 
         // Verify if a session cookie already exist and try to authenticate if so
         if let Ok(token) = cookie_service.get(SESSION_COOKIE) {
-            match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
-                &request::LoginSession(Session {
-                    token: token.to_owned(),
-                }),
-            )) {
-                Ok(body) => {
-                    fetch_task =
-                        Some(FetchService::new().fetch_binary(body, link.send_back(Message::Fetch)))
-                }
-                Err(_) => {
+            fetch_task = fetch! {
+                request::LoginSession(Session{token:token.to_owned()}) => API_URL_LOGIN_SESSION,
+                link, Message::Fetch,
+                || {},
+                || {
                     error!("Unable to create session login request");
                     uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     cookie_service.remove(SESSION_COOKIE);
                     router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
-            }
+            };
         } else {
             info!("No token found, routing to login");
             router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));

@@ -81,29 +81,19 @@ impl Component for ContentComponent {
         match msg {
             Message::LogoutRequest => {
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    // Create the logout request
-                    match fetch::Request::post(api!(API_URL_LOGOUT)).body(Cbor(&request::Logout(
-                        Session {
-                            token: token.to_owned(),
-                        },
-                    ))) {
-                        Ok(body) => {
+                    self.fetch_task = fetch! {
+                        request::Logout(Session {token: token.to_owned()}) => API_URL_LOGOUT,
+                        self.component_link, Message::Fetch,
+                        || {
                             // Disable user interaction
                             self.logout_button_disabled = true;
-
-                            // Send the request
-                            self.fetch_task =
-                                Some(FetchService::new().fetch_binary(
-                                    body,
-                                    self.component_link.send_back(Message::Fetch),
-                                ));
-                        }
-                        _ => {
+                        },
+                        || {
                             error!("Unable to create logout request");
                             self.uikit_service
                                 .notify(REQUEST_ERROR, &NotificationStatus::Danger);
                         }
-                    }
+                    };
                 } else {
                     // It should not happen but in case there is no session cookie on logout, route
                     // back to login

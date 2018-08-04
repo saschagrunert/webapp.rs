@@ -38,7 +38,7 @@ pub fn create_testserver() -> Url {
     // Set the test configuration
     let mut url = Url::parse(&config.server.url).unwrap();
     url.set_port(Some(get_next_port())).unwrap();
-    config.server.url = url.as_str().to_owned();
+    config.server.url = url.to_string();
     config.server.redirect_from = vec![];
 
     // Start the server
@@ -64,7 +64,7 @@ fn succeed_to_create_server_with_common_redirects() {
     let mut config = get_config();
     let mut url = Url::parse(&config.server.url).unwrap();
     url.set_port(Some(get_next_port())).unwrap();
-    config.server.url = url.as_str().to_owned();
+    config.server.url = url.to_string();
 
     let redirect_url = "http://127.0.0.1:30666".to_owned();
     config.server.redirect_from = vec![

@@ -75,29 +75,23 @@ impl Component for LoginComponent {
         match msg {
             // Login via username and password
             Message::LoginRequest => {
-                match fetch::Request::post(api!(API_URL_LOGIN_CREDENTIALS)).body(Cbor(
-                    &request::LoginCredentials {
+                self.fetch_task = fetch! {
+                    request::LoginCredentials {
                         username: self.username.to_owned(),
                         password: self.password.to_owned(),
-                    },
-                )) {
-                    Ok(body) => {
+                    } => API_URL_LOGIN_CREDENTIALS,
+                    self.component_link, Message::Fetch,
+                    || {
                         // Disable user interaction
                         self.login_button_disabled = true;
                         self.inputs_disabled = true;
-
-                        // Send the request
-                        self.fetch_task = Some(
-                            FetchService::new()
-                                .fetch_binary(body, self.component_link.send_back(Message::Fetch)),
-                        );
-                    }
-                    _ => {
+                    },
+                    || {
                         error!("Unable to create credentials login request");
                         self.uikit_service
                             .notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     }
-                }
+                };
             }
 
             Message::UpdateUsername(new_username) => {
