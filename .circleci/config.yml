@@ -33,6 +33,10 @@ workflows:
       - clippy
       - test
       - bench
+      - docker
+      - deploy-test:
+          requires:
+            - docker
 jobs:
   build:
     <<: *defaults
@@ -147,3 +151,30 @@ jobs:
       - run:
           name: Run benchmarks
           command: make bench
+  docker:
+    machine: true
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build docker image
+          command: |
+            make deploy
+            docker save webapp -o webapp.tar
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - store_artifacts:
+          path: webapp.tar
+      - persist_to_workspace:
+          paths:
+            - webapp.tar
+  deploy-test:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
