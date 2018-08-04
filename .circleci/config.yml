@@ -171,6 +171,7 @@ jobs:
       - store_artifacts:
           path: webapp.tar
       - persist_to_workspace:
+          root: .
           paths:
             - webapp.tar
   deploy-test:
