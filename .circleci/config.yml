@@ -2,10 +2,10 @@
 version: 2
 defaults: &defaults
   docker:
-    - image: saschagrunert/build-rust:latest
+    - image: saschagrunert/build-rust
 defaults-postgres: &defaults-postgres
   docker:
-    - image: saschagrunert/build-rust:latest
+    - image: saschagrunert/build-rust
     - image: circleci/postgres:10.4-alpine
       environment:
         POSTGRES_USER: username
@@ -197,6 +197,9 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Install dependencies
+          command: sudo apt-get install -y postgresql-client
+      - run:
           name: Test the application
           command: make test-deploy
   deploy:
@@ -210,7 +213,9 @@ jobs:
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           name: Load the image
-          command: docker load -i webapp.tar
+          command: |
+            docker load -i webapp.tar
+            docker tag webapp saschagrunert/webapp
       - run:
           name: Push the image
-          command: docker push saschagrunert/webapp:latest
+          command: docker push saschagrunert/webapp
