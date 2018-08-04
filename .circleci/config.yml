@@ -154,11 +154,9 @@ jobs:
     steps:
       - checkout
       - <<: *prepare-postgres
-      - save_cache:
-          paths:
-            - /root/.cargo/registry
-            - target
-          key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - restore_cache:
+          keys:
+            - bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Run benchmarks
           command: make bench
