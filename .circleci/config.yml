@@ -200,6 +200,9 @@ jobs:
             export PATH=$HOME/.cargo/bin:$PATH
             cargo install diesel
       - run:
+          name: Load the image
+          command: docker load -i webapp.tar
+      - run:
           name: Test the application
           command: make test-deploy
   deploy:
@@ -212,7 +215,7 @@ jobs:
           name: Login to registry
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
-          name: Load the image
+          name: Load the image and tag
           command: |
             docker load -i webapp.tar
             docker tag webapp saschagrunert/webapp
