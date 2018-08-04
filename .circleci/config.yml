@@ -34,9 +34,12 @@ workflows:
       - test
       - bench
       - docker
-      - deploy-test:
+      - docker-test:
           requires:
             - docker
+      - deploy:
+          requires:
+            - docker-test
 jobs:
   build:
     <<: *defaults
@@ -174,8 +177,25 @@ jobs:
           root: .
           paths:
             - webapp.tar
-  deploy-test:
+  docker-test:
     machine: true
     steps:
       - attach_workspace:
           at: .
+      - run:
+          name: Test the application
+          command: make test-deploy
+  deploy:
+    machine: true
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Login to registry
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: Load the image
+          command: docker load -i webapp.tar
+      - run:
+          name: Push the image
+          command: docker push saschagrunert/webapp:latest

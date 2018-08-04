@@ -12,10 +12,5 @@ COPY Config.toml /
 # Copy the static files
 COPY target/deploy /static
 
-# Expose the target port
-ARG API_PORT=443
-ENV API_PORT ${API_PORT}
-EXPOSE ${API_PORT}
-
 # Run the application by default
 CMD ["/backend"]

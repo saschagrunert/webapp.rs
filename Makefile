@@ -8,8 +8,7 @@ define get_config_value
 	$(shell sed -ne 's/^$(1).*"\(.*\)"/\1/p' Config.toml)
 endef
 
-API_HOST := $(strip $(call get_config_value,ip))
-API_PORT := $(strip $(call get_config_value,port))
+API_URL := $(strip $(call get_config_value,url))
 PG_HOST := $(strip $(call get_config_value,host))
 PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
@@ -29,7 +28,8 @@ PG_DATABASE := $(strip $(call get_config_value,database))
 	run-frontend \
 	run-postgres \
 	stop-app \
-	stop-postgres
+	stop-postgres \
+	test-deploy
 
 ifndef VERBOSE
 .SILENT:
@@ -56,7 +56,9 @@ coverage:
 
 deploy:
 	# Deploy the frontend
-	cargo web deploy $(FRONTEND_ARGS)
+	docker run --rm -it -w /deploy -v $(PWD):/deploy \
+		saschagrunert/build-rust:latest \
+		cargo web deploy $(FRONTEND_ARGS)
 	# Fix applications path to JavaScript file
 	mkdir target/deploy/js
 	mv target/deploy/app.js ./target/deploy/js
@@ -65,9 +67,7 @@ deploy:
 		ekidd/rust-musl-builder:latest \
 		cargo build $(BACKEND_ARGS)
 	# Create the docker image from the executable
-	docker build --no-cache \
-		--build-arg API_PORT=$(API_PORT) \
-		-t webapp .
+	docker build --no-cache -t webapp .
 
 lint-clippy:
 	cargo clippy --all -- -D warnings
@@ -77,10 +77,12 @@ lint-rustfmt:
 	git diff --exit-code
 
 run-app: run-postgres
-	docker run --rm \
-		--name webapp \
-		--network="host" \
-		-d webapp
+	if [ ! "$(shell docker ps -q -f name=webapp)" ]; then \
+		docker run --rm \
+			--name webapp \
+			--network="host" \
+			-d webapp ;\
+	fi
 
 run-backend: run-postgres
 	cargo run $(BACKEND_ARGS)
@@ -109,3 +111,12 @@ stop-app: stop-postgres
 
 stop-postgres:
 	docker stop postgres
+
+test-deploy: run-app
+	echo "Testing $(API_URL)"
+	RESPONSE_CODE=$(shell curl -sw %{http_code} -o /dev/null $(API_URL)/index.html) &&\
+	if [ $$RESPONSE_CODE -ne 200 ]; then \
+		echo "Error: Wrong response code: $$RESPONSE_CODE" ;\
+		curl -v $(API_URL) ;\
+		exit 1 ;\
+	fi
