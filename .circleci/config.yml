@@ -207,7 +207,9 @@ jobs:
           command: docker load -i webapp.tar
       - run:
           name: Test the application
-          command: make test-deploy
+          command: |
+            export PATH=$HOME/.cargo/bin:$PATH
+            make test-deploy
       - save_cache:
           paths:
             - ~/.cargo
