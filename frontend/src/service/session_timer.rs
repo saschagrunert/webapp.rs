@@ -1,25 +1,22 @@
 //! The SessionTimer agent
 
-use failure::Error;
+use api::Response;
 use service::cookie::CookieService;
 use std::time::Duration;
 use webapp::{
-    protocol::{model::Session, request, response},
+    protocol::{model::Session, request::LoginSession, response::Login},
     API_URL_LOGIN_SESSION,
 };
 use yew::{
     format::Cbor,
     prelude::{worker::*, *},
-    services::{
-        fetch::{self, FetchService, FetchTask},
-        IntervalService, Task,
-    },
+    services::{fetch::FetchTask, IntervalService, Task},
 };
 use SESSION_COOKIE;
 
 /// Possible message types
 pub enum Message {
-    Fetch(fetch::Response<Cbor<Result<response::Login, Error>>>),
+    Fetch(Response<Login>),
     Update,
 }
 
@@ -33,10 +30,9 @@ pub enum Request {
 impl Transferable for Request {}
 
 #[derive(Deserialize, Serialize)]
-/// Available reducer requests
-pub struct Response;
+pub struct TimerResponse;
 
-impl Transferable for Response {}
+impl Transferable for TimerResponse {}
 
 pub struct SessionTimerAgent {
     agent_link: AgentLink<SessionTimerAgent>,
@@ -49,7 +45,7 @@ pub struct SessionTimerAgent {
 impl Agent for SessionTimerAgent {
     type Input = Request;
     type Message = Message;
-    type Output = Response;
+    type Output = TimerResponse;
     type Reach = Context;
 
     /// Creates a new SessionTimerAgent
@@ -69,21 +65,14 @@ impl Agent for SessionTimerAgent {
             Message::Update => {
                 info!("Updating current session");
                 if let Ok(token) = self.cookie_service.get(SESSION_COOKIE) {
-                    match fetch::Request::post(api!(API_URL_LOGIN_SESSION)).body(Cbor(
-                        &request::LoginSession(Session {
-                            token: token.to_owned(),
-                        }),
-                    )) {
-                        Ok(body) => {
-                            self.fetch_task = Some(
-                                FetchService::new()
-                                    .fetch_binary(body, self.agent_link.send_back(Message::Fetch)),
-                            )
-                        }
-                        Err(_) => {
+                    self.fetch_task = fetch! {
+                        LoginSession(Session::new(token)) => API_URL_LOGIN_SESSION,
+                        self.agent_link, Message::Fetch,
+                        || {},
+                        || {
                             warn!("Unable to create scheduled session login request");
                         }
-                    }
+                    };
                 }
             }
             Message::Fetch(response) => {
@@ -92,7 +81,7 @@ impl Agent for SessionTimerAgent {
                 // Check the response type
                 if meta.status.is_success() {
                     match body {
-                        Ok(response::Login(Session { token })) => {
+                        Ok(Login(Session { token })) => {
                             info!("Scheduled session based login succeed");
 
                             // Set the retrieved session cookie

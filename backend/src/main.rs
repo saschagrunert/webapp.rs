@@ -1,18 +1,16 @@
 extern crate env_logger;
 extern crate failure;
-extern crate toml;
 extern crate webapp;
 extern crate webapp_backend;
 
 use failure::Error;
-use std::{env::set_var, fs::read_to_string, process::exit};
+use std::{env::set_var, process::exit};
 use webapp::{config::Config, CONFIG_FILENAME};
 use webapp_backend::Server;
 
 fn main() -> Result<(), Error> {
     // Parse the configuration
-    let config_string = read_to_string(CONFIG_FILENAME)?;
-    let config: Config = toml::from_str(&config_string)?;
+    let config = Config::new(CONFIG_FILENAME)?;
 
     // Set the logging verbosity
     set_var(

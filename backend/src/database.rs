@@ -31,7 +31,7 @@ impl Handler<CreateSession> for DatabaseExecutor {
         // Insert the session into the database
         debug!("Creating new session: {}", msg.0);
         Ok(insert_into(sessions)
-            .values(&Session { token: msg.0 })
+            .values(&Session::new(msg.0))
             .get_result::<Session>(&self.0.get()?)?)
     }
 }

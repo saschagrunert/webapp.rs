@@ -2,16 +2,38 @@
 version: 2
 defaults: &defaults
   docker:
-    - image: saschagrunert/build-rust:latest
+    - image: saschagrunert/build-rust
+defaults-postgres: &defaults-postgres
+  docker:
+    - image: saschagrunert/build-rust
+    - image: circleci/postgres:10.4-alpine
+      environment:
+        POSTGRES_USER: username
+        POSTGRES_DB: database
+prepare-postgres: &prepare-postgres
+  run:
+    name: Prepare database
+    command: |
+      while true; do
+        if pg_isready -qh localhost; then break; fi
+      done
+      diesel migration run \
+        --database-url postgres://username:@localhost/database
 workflows:
   version: 2
   pipeline:
     jobs:
       - build
       - doc
+      - doc-publish:
+          filters:
+            branches:
+              only: master
       - rustfmt
       - clippy
       - test
+      - bench
+      - docker
 jobs:
   build:
     <<: *defaults
@@ -35,6 +57,24 @@ jobs:
             - target
           key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   doc:
+    <<: *defaults
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a
+      - checkout
+      - restore_cache:
+          keys:
+            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build documentation
+          command: make build-doc
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  doc-publish:
     <<: *defaults
     steps:
       - add_ssh_keys:
@@ -90,25 +130,52 @@ jobs:
             - target
           key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   test:
-    docker:
-      - image: saschagrunert/build-rust:latest
-      - image: circleci/postgres:10.4-alpine
-        environment:
-          POSTGRES_USER: username
-          POSTGRES_DB: database
+    <<: *defaults-postgres
     steps:
       - checkout
-      - run:
-          name: Prepare database
-          command: |
-            while true; do
-              if pg_isready -qh localhost; then break; fi
-            done
-            diesel migration run \
-              --database-url postgres://username:@localhost/database
+      - <<: *prepare-postgres
       - run:
           name: Run tests
           command: make coverage
       - run:
           name: Upload coverage report
           command: bash <(curl -s https://codecov.io/bash)
+  bench:
+    <<: *defaults-postgres
+    steps:
+      - checkout
+      - <<: *prepare-postgres
+      - restore_cache:
+          keys:
+            - bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Run benchmarks
+          command: make bench
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  docker:
+    machine: true
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build docker image
+          command: |
+            make deploy
+            docker save webapp -o webapp.tar
+      - save_cache:
+          paths:
+            - /root/.cargo/registry
+            - target
+          key: docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - store_artifacts:
+          path: webapp.tar
+      - persist_to_workspace:
+          root: .
+          paths:
+            - webapp.tar

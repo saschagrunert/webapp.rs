@@ -29,7 +29,7 @@ actix = "0.7.3"
 actix-web = { version = "0.7.3", features = ["alpn"] }
 bytes = "0.4.9"
 diesel = { version = "1.3.2", features = ["r2d2", "postgres"] }
-env_logger = "0.5.11"
+env_logger = "0.5.12"
 failure = "0.1.2"
 futures = "0.1.23"
 jsonwebtoken = { git = "https://github.com/Keats/jsonwebtoken", branch = "next" }
@@ -41,7 +41,6 @@ serde = "1.0.70"
 serde_cbor = "0.8.2"
 serde_derive = "1.0.70"
 time = "0.1.40"
-toml = "0.4.6"
 url = "1.7.1"
 uuid = { version = "0.6.5", features = ["v4"] }
 webapp = { path = "..", features = ["backend"] }
