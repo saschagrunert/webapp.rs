@@ -7,18 +7,12 @@ use yew::{format::Cbor, services::fetch::Response as FetchResponse};
 pub type Response<T> = FetchResponse<Cbor<Result<T, Error>>>;
 
 #[macro_export]
-/// Generic API access macro
-macro_rules! api {
-    ($url:expr) => {
-        env!("API_URL").to_owned() + $url
-    };
-}
-
-#[macro_export]
 /// Generic API fetch macro
 macro_rules! fetch {
     ($request:expr => $api:expr, $link:expr, $msg:expr, $succ:expr, $err:expr) => {
-        match ::yew::services::fetch::Request::post(api!($api)).body(Cbor(&$request)) {
+        match ::yew::services::fetch::Request::post(env!("API_URL").to_owned() + $api)
+            .body(Cbor(&$request))
+        {
             Ok(body) => {
                 $succ();
                 Some(

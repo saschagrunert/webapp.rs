@@ -64,6 +64,7 @@ deploy:
 	mkdir target/deploy/js
 	mv target/deploy/app.js ./target/deploy/js
 	# Build the backend
+	sudo chown -R 1000:1000 target
 	docker run --rm -it -v $(PWD):/home/rust/src \
 		ekidd/rust-musl-builder:latest \
 		cargo build $(BACKEND_ARGS)

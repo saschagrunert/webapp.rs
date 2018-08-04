@@ -1,5 +1,5 @@
 [server]
-url = "http://127.0.0.1:30080"
+url = "http://saschagrunert.de:30080"
 cert = "tls/cert.pem"
 key = "tls/key.pem"
 redirect-from = [
