@@ -28,11 +28,6 @@
 <span id="28">28</span>
 <span id="29">29</span>
 <span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! The frontend library</span>
 
@@ -52,13 +47,8 @@
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">yew</span>;
 
-<span class="doccomment">/// Generic API access macro</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">api</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">url</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {
-        <span class="macro">env</span><span class="macro">!</span>(<span class="string">&quot;API_URL&quot;</span>).<span class="ident">to_owned</span>() <span class="op">+</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">url</span>
-    };
-}
-
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">mod</span> <span class="ident">api</span>;
 <span class="kw">mod</span> <span class="ident">component</span>;
 <span class="kw">mod</span> <span class="ident">route</span>;
 <span class="kw">mod</span> <span class="ident">service</span>;

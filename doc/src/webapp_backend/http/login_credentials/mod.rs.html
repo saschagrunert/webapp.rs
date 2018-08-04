@@ -50,7 +50,7 @@
 <span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">unpack_cbor</span>, <span class="ident">FutureResponse</span>};
 <span class="kw">use</span> <span class="ident">server</span>::<span class="ident">State</span>;
 <span class="kw">use</span> <span class="ident">token</span>::<span class="ident">Token</span>;
-<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">request</span>, <span class="ident">response</span>};
+<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">request</span>::<span class="ident">LoginCredentials</span>, <span class="ident">response</span>::<span class="ident">Login</span>};
 
 <span class="kw">mod</span> <span class="ident">test</span>;
 
@@ -61,7 +61,7 @@
 {
     <span class="kw">let</span> (<span class="ident">request_clone</span>, <span class="ident">cbor</span>) <span class="op">=</span> <span class="ident">unpack_cbor</span>(<span class="ident">http_request</span>);
     <span class="comment">// Verify username and password</span>
-    <span class="ident">cbor</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">request</span>::<span class="ident">LoginCredentials</span>{<span class="ident">username</span>, <span class="ident">password</span>}<span class="op">|</span> {
+    <span class="ident">cbor</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">LoginCredentials</span>{<span class="ident">username</span>, <span class="ident">password</span>}<span class="op">|</span> {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;User {} is trying to login&quot;</span>, <span class="ident">username</span>);
             <span class="kw">if</span> <span class="ident">username</span>.<span class="ident">is_empty</span>() <span class="op">||</span> <span class="ident">password</span>.<span class="ident">is_empty</span>() <span class="op">||</span> <span class="ident">username</span> <span class="op">!=</span> <span class="ident">password</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorUnauthorized</span>(<span class="string">&quot;wrong username or password&quot;</span>));
@@ -77,7 +77,7 @@
                 .<span class="ident">database</span>
                 .<span class="ident">send</span>(<span class="ident">CreateSession</span>(<span class="ident">token</span>))
                 .<span class="ident">from_err</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">response</span>::<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>))<span class="question-mark">?</span>))
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>))<span class="question-mark">?</span>))
         })
         .<span class="ident">responder</span>()
 }

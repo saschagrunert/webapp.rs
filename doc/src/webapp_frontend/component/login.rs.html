@@ -171,23 +171,10 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! The Login component</span>
 
-<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">api</span>::<span class="ident">Response</span>;
 <span class="kw">use</span> <span class="ident">route</span>::<span class="ident">RouterTarget</span>;
 <span class="kw">use</span> <span class="ident">service</span>::{
     <span class="ident">cookie</span>::<span class="ident">CookieService</span>,
@@ -198,17 +185,10 @@
     <span class="ident">AUTHENTICATION_ERROR</span>, <span class="ident">INPUT_PASSWORD</span>, <span class="ident">INPUT_USERNAME</span>, <span class="ident">REQUEST_ERROR</span>, <span class="ident">RESPONSE_ERROR</span>, <span class="ident">TEXT_LOGIN</span>,
 };
 <span class="kw">use</span> <span class="ident">webapp</span>::{
-    <span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>},
+    <span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>::<span class="ident">LoginCredentials</span>, <span class="ident">response</span>::<span class="ident">Login</span>},
     <span class="ident">API_URL_LOGIN_CREDENTIALS</span>,
 };
-<span class="kw">use</span> <span class="ident">yew</span>::{
-    <span class="ident">format</span>::<span class="ident">Cbor</span>,
-    <span class="ident">prelude</span>::<span class="kw-2">*</span>,
-    <span class="ident">services</span>::{
-        <span class="ident">fetch</span>::{<span class="self">self</span>, <span class="ident">FetchTask</span>},
-        <span class="ident">FetchService</span>,
-    },
-};
+<span class="kw">use</span> <span class="ident">yew</span>::{<span class="ident">format</span>::<span class="ident">Cbor</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">FetchTask</span>};
 <span class="kw">use</span> <span class="ident">SESSION_COOKIE</span>;
 
 <span class="doccomment">/// Data Model for the Login component</span>
@@ -226,7 +206,7 @@
 
 <span class="doccomment">/// Available message types to process</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Message</span> {
-    <span class="ident">Fetch</span>(<span class="ident">fetch</span>::<span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Cbor</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">response</span>::<span class="ident">Login</span>, <span class="ident">Error</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">Fetch</span>(<span class="ident">Response</span><span class="op">&lt;</span><span class="ident">Login</span><span class="op">&gt;</span>),
     <span class="ident">Ignore</span>,
     <span class="ident">LoginRequest</span>,
     <span class="ident">UpdatePassword</span>(<span class="ident">String</span>),
@@ -262,29 +242,23 @@
         <span class="kw">match</span> <span class="ident">msg</span> {
             <span class="comment">// Login via username and password</span>
             <span class="ident">Message</span>::<span class="ident">LoginRequest</span> <span class="op">=&gt;</span> {
-                <span class="kw">match</span> <span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="macro">api</span><span class="macro">!</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>)).<span class="ident">body</span>(<span class="ident">Cbor</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">request</span>::<span class="ident">LoginCredentials</span> {
+                <span class="self">self</span>.<span class="ident">fetch_task</span> <span class="op">=</span> <span class="macro">fetch</span><span class="macro">!</span> {
+                    <span class="ident">LoginCredentials</span> {
                         <span class="ident">username</span>: <span class="self">self</span>.<span class="ident">username</span>.<span class="ident">to_owned</span>(),
                         <span class="ident">password</span>: <span class="self">self</span>.<span class="ident">password</span>.<span class="ident">to_owned</span>(),
-                    },
-                )) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">body</span>) <span class="op">=&gt;</span> {
+                    } <span class="op">=&gt;</span> <span class="ident">API_URL_LOGIN_CREDENTIALS</span>,
+                    <span class="self">self</span>.<span class="ident">component_link</span>, <span class="ident">Message</span>::<span class="ident">Fetch</span>,
+                    <span class="op">||</span> {
                         <span class="comment">// Disable user interaction</span>
                         <span class="self">self</span>.<span class="ident">login_button_disabled</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="self">self</span>.<span class="ident">inputs_disabled</span> <span class="op">=</span> <span class="bool-val">true</span>;
-
-                        <span class="comment">// Send the request</span>
-                        <span class="self">self</span>.<span class="ident">fetch_task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                            <span class="ident">FetchService</span>::<span class="ident">new</span>()
-                                .<span class="ident">fetch_binary</span>(<span class="ident">body</span>, <span class="self">self</span>.<span class="ident">component_link</span>.<span class="ident">send_back</span>(<span class="ident">Message</span>::<span class="ident">Fetch</span>)),
-                        );
-                    }
-                    <span class="kw">_</span> <span class="op">=&gt;</span> {
+                    },
+                    <span class="op">||</span> {
                         <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Unable to create credentials login request&quot;</span>);
                         <span class="self">self</span>.<span class="ident">uikit_service</span>
                             .<span class="ident">notify</span>(<span class="ident">REQUEST_ERROR</span>, <span class="kw-2">&amp;</span><span class="ident">NotificationStatus</span>::<span class="ident">Danger</span>);
                     }
-                }
+                };
             }
 
             <span class="ident">Message</span>::<span class="ident">UpdateUsername</span>(<span class="ident">new_username</span>) <span class="op">=&gt;</span> {
@@ -303,7 +277,7 @@
                 <span class="comment">// Check the response type</span>
                 <span class="kw">if</span> <span class="ident">meta</span>.<span class="ident">status</span>.<span class="ident">is_success</span>() {
                     <span class="kw">match</span> <span class="ident">body</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">response</span>::<span class="ident">Login</span>(<span class="ident">Session</span> { <span class="ident">token</span> })) <span class="op">=&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">Login</span>(<span class="ident">Session</span> { <span class="ident">token</span> })) <span class="op">=&gt;</span> {
                             <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Credential based login succeed&quot;</span>);
 
                             <span class="comment">// Set the retrieved session cookie</span>

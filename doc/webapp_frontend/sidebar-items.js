@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["init_logger","Initialize the static logger"]],"struct":[["RootComponent","Data Model for the Root Component"]]});
+initSidebarItems({"fn":[["init_logger","Initialize the static logger"]],"macro":[["fetch","Generic API fetch macro"]],"struct":[["RootComponent","Data Model for the Root Component"]]});

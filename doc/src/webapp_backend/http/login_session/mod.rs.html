@@ -45,7 +45,7 @@
 <span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">unpack_cbor</span>, <span class="ident">FutureResponse</span>};
 <span class="kw">use</span> <span class="ident">server</span>::<span class="ident">State</span>;
 <span class="kw">use</span> <span class="ident">token</span>::<span class="ident">Token</span>;
-<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>};
+<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>::<span class="ident">LoginSession</span>, <span class="ident">response</span>::<span class="ident">Login</span>};
 
 <span class="kw">mod</span> <span class="ident">test</span>;
 
@@ -56,7 +56,7 @@
 {
     <span class="kw">let</span> (<span class="ident">request_clone</span>, <span class="ident">cbor</span>) <span class="op">=</span> <span class="ident">unpack_cbor</span>(<span class="ident">http_request</span>);
     <span class="comment">// Create a new token for the already given one</span>
-    <span class="ident">cbor</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">request</span>::<span class="ident">LoginSession</span>(<span class="ident">Session</span>{<span class="ident">token</span>})<span class="op">|</span> {
+    <span class="ident">cbor</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">LoginSession</span>(<span class="ident">Session</span> {<span class="ident">token</span>})<span class="op">|</span> {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Session token {} wants to be renewed&quot;</span>, <span class="ident">token</span>);
             <span class="prelude-val">Ok</span>((<span class="ident">Token</span>::<span class="ident">verify</span>(<span class="kw-2">&amp;</span><span class="ident">token</span>)<span class="question-mark">?</span>, <span class="ident">token</span>))
         })
@@ -67,7 +67,7 @@
                 .<span class="ident">database</span>
                 .<span class="ident">send</span>(<span class="ident">UpdateSession</span> { <span class="ident">old_token</span>, <span class="ident">new_token</span> })
                 .<span class="ident">from_err</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">response</span>::<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>))<span class="question-mark">?</span>))
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>))<span class="question-mark">?</span>))
         })
         .<span class="ident">responder</span>()
 }
