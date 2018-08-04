@@ -34,15 +34,6 @@ workflows:
       - test
       - bench
       - docker
-      - docker-test:
-          requires:
-            - docker
-      - deploy:
-          requires:
-            - docker-test
-          # filters:
-            # branches:
-              # only: master
 jobs:
   build:
     <<: *defaults
@@ -188,34 +179,3 @@ jobs:
           root: .
           paths:
             - webapp.tar
-  docker-test:
-    machine: true
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y postgresql-client
-      - run:
-          name: Test the application
-          command: make test-deploy
-  deploy:
-    machine: true
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Login to registry
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run:
-          name: Load the image
-          command: |
-            docker load -i webapp.tar
-            docker tag webapp saschagrunert/webapp
-      - run:
-          name: Push the image
-          command: docker push saschagrunert/webapp
