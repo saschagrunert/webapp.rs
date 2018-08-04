@@ -191,6 +191,9 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - restore_cache:
+          keys:
+            - docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Install dependencies
           command: |
@@ -205,6 +208,12 @@ jobs:
       - run:
           name: Test the application
           command: make test-deploy
+      - save_cache:
+          paths:
+            - ~/.cargo
+            - target
+          key: docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  
   deploy:
     machine: true
     steps:
