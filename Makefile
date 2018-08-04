@@ -84,6 +84,8 @@ run-app: run-postgres
 			--name webapp \
 			--network="host" \
 			-d webapp ;\
+	else \
+		echo "App already running" ;\
 	fi
 
 run-backend: run-postgres
@@ -106,6 +108,8 @@ run-postgres:
 		sleep 1; \
 		diesel migration run --database-url \
 			postgres://$(PG_USERNAME):$(PG_PASSWORD)@$(PG_HOST)/$(PG_DATABASE) ;\
+	else \
+		echo "Database already running" ;\
 	fi
 
 stop-app: stop-postgres
@@ -121,4 +125,6 @@ test-deploy: run-app
 		echo "Error: Wrong response code: $$RESPONSE_CODE" ;\
 		curl -v $(API_URL) ;\
 		exit 1 ;\
+	else \
+		echo "Got correct response code 200" ;\
 	fi

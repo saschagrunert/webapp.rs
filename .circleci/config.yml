@@ -40,6 +40,9 @@ workflows:
       - deploy:
           requires:
             - docker-test
+          # filters:
+            # branches:
+              # only: master
 jobs:
   build:
     <<: *defaults
@@ -180,6 +183,7 @@ jobs:
   docker-test:
     machine: true
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - run:
@@ -188,6 +192,7 @@ jobs:
   deploy:
     machine: true
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - run:
