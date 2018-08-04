@@ -53,6 +53,9 @@ jobs:
           key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   doc:
     <<: *defaults
+    branches:
+      only:
+        - master
     steps:
       - add_ssh_keys:
           fingerprints:
