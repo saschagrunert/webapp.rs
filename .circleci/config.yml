@@ -122,7 +122,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Rust Format
+          name: Rust-Format
           command: make lint-rustfmt
   clippy:
     <<: *defaults
