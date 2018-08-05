@@ -34,6 +34,16 @@ workflows:
       - test
       - bench
       - docker
+      - docker-test:
+          requires:
+            - docker
+      - deploy:
+          requires:
+            - docker-test
+          filters:
+            branches:
+              only:
+                - master
 jobs:
   build:
     <<: *defaults
@@ -112,7 +122,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Rust Format
+          name: Rust-Format
           command: make lint-rustfmt
   clippy:
     <<: *defaults
@@ -179,3 +189,53 @@ jobs:
           root: .
           paths:
             - webapp.tar
+  docker-test:
+    machine: true
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          keys:
+            - docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client libpq-dev
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            export PATH=$HOME/.cargo/bin:$PATH
+            cargo install diesel_cli --force --no-default-features --features "postgres"
+      - run:
+          name: Load the image
+          command: docker load -i webapp.tar
+      - run:
+          name: Test the application
+          command: |
+            export PATH=$HOME/.cargo/bin:$PATH
+            make run-app
+            sleep 3
+            make test-deploy
+      - save_cache:
+          paths:
+            - ~/.cargo
+            - target
+          key: docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+  
+  deploy:
+    machine: true
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Login to registry
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
+          name: Load the image and tag
+          command: |
+            docker load -i webapp.tar
+            docker tag webapp saschagrunert/webapp
+      - run:
+          name: Push the image
+          command: docker push saschagrunert/webapp
