@@ -213,7 +213,7 @@ jobs:
           command: |
             export PATH=$HOME/.cargo/bin:$PATH
             make run-app
-            sleep 5
+            sleep 3
             make test-deploy
       - save_cache:
           paths:
