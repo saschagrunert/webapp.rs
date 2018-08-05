@@ -40,6 +40,10 @@ workflows:
       - deploy:
           requires:
             - docker-test
+          filters:
+            branches:
+              only:
+                - master
 jobs:
   build:
     <<: *defaults
