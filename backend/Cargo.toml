@@ -21,7 +21,7 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
-lazy_static = "1.0.2"
+lazy_static = "1.1.0"
 reqwest = "0.8.7"
 
 [dependencies]
@@ -35,11 +35,11 @@ futures = "0.1.23"
 jsonwebtoken = { git = "https://github.com/Keats/jsonwebtoken", branch = "next" }
 log = "0.4.3"
 num_cpus = "1.8.0"
-openssl = "0.10.10"
+openssl = "0.10.11"
 r2d2 = "0.8.2"
-serde = "1.0.70"
+serde = "1.0.71"
 serde_cbor = "0.8.2"
-serde_derive = "1.0.70"
+serde_derive = "1.0.71"
 time = "0.1.40"
 url = "1.7.1"
 uuid = { version = "0.6.5", features = ["v4"] }
