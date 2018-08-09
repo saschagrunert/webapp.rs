@@ -29,8 +29,8 @@ webapp = { path = ".." }
 [dependencies]
 failure = "0.1.2"
 log = "0.4.3"
-serde = "1.0.70"
-serde_derive = "1.0.70"
+serde = "1.0.71"
+serde_derive = "1.0.71"
 stdweb = "0.4.8"
 webapp = { path = ".." }
 yew = { git = "https://github.com/DenisKolodin/yew", features = ["cbor"] }
