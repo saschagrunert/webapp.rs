@@ -14,13 +14,13 @@ use std::{
 use url::Url;
 use webapp::{config::Config, CONFIG_FILENAME};
 
-const REPOSITORY: &str = "https://github.com/uikit/uikit.git";
-const TAG: &str = "v3.0.0-rc.10";
+const REPOSITORY: &str = "https://github.com/uikit/uikit";
+const TAG: &str = "v3.0.0-rc.11";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 
 pub fn main() -> Result<(), Error> {
-    // Prepeare UIKit and build the complete style
+    // Prepeare UIkit and build the complete style
     prepare_style()?;
 
     // Prepare the API URL paths
@@ -48,7 +48,7 @@ fn prepare_style() -> Result<(), Error> {
     target.push("uikit");
 
     // Clone the repo if needed
-    if !Path::new(&target.join(".git")).exists() {
+    if !Path::new(&target).exists() {
         run("git", |command| {
             command
                 .arg("clone")
