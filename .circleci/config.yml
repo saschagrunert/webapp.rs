@@ -111,7 +111,7 @@ jobs:
           name: Deploy documentation
           command: |
             git fetch origin gh-pages
-            git checkout gh-pages
+            git checkout -f gh-pages
             rm -rf doc
             mv target/doc .
             git add .
