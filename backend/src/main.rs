@@ -3,12 +3,12 @@ extern crate failure;
 extern crate webapp;
 extern crate webapp_backend;
 
-use failure::Error;
+use failure::Fallible;
 use std::{env::set_var, process::exit};
 use webapp::{config::Config, CONFIG_FILENAME};
 use webapp_backend::Server;
 
-fn main() -> Result<(), Error> {
+fn main() -> Fallible<()> {
     // Parse the configuration
     let config = Config::new(CONFIG_FILENAME)?;
 

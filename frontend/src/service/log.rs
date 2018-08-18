@@ -1,13 +1,13 @@
 //! The log service
 
-use failure::Error;
+use failure::Fallible;
 use log::{set_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record};
 
 /// The public static logger instance
 static LOGGER: LogService = LogService;
 
 /// Initialize the static logger
-pub fn init_logger() -> Result<(), Error> {
+pub fn init_logger() -> Fallible<()> {
     set_logger(&LOGGER)
         .map(|()| set_max_level(LevelFilter::Trace))
         .map_err(|_| format_err!("Logger init failed"))

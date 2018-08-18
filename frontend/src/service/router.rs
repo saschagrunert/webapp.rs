@@ -82,17 +82,17 @@ where
     }
 
     /// Gets the path name of the current url.
-    pub fn get_path(&self) -> Result<String, Error> {
+    pub fn get_path(&self) -> Fallible<String> {
         Ok(self.location.pathname()?)
     }
 
     /// Gets the query string of the current url.
-    pub fn get_query(&self) -> Result<String, Error> {
+    pub fn get_query(&self) -> Fallible<String> {
         Ok(self.location.search()?)
     }
 
     /// Gets the fragment of the current url.
-    pub fn get_fragment(&self) -> Result<String, Error> {
+    pub fn get_fragment(&self) -> Fallible<String> {
         Ok(self.location.hash()?)
     }
 }
@@ -132,7 +132,7 @@ where
     }
 
     /// Retrieve the current route
-    pub fn current_route(route_service: &RouterService<T>) -> Result<Self, Error> {
+    pub fn current_route(route_service: &RouterService<T>) -> Fallible<Self> {
         // guaranteed to always start with a '/'
         let path = route_service.get_path()?;
         let mut path_segments: Vec<String> = path.split('/').map(String::from).collect();

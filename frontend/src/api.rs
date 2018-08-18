@@ -1,10 +1,10 @@
 //! Api related helpers and utilities
 
-use failure::Error;
+use failure::Fallible;
 use yew::{format::Cbor, services::fetch::Response as FetchResponse};
 
 /// A generic response type of the API
-pub type Response<T> = FetchResponse<Cbor<Result<T, Error>>>;
+pub type Response<T> = FetchResponse<Cbor<Fallible<T>>>;
 
 #[macro_export]
 /// Generic API fetch macro

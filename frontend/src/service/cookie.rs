@@ -1,6 +1,6 @@
 //! A cookie handling service to read and write cookies
 
-use failure::Error;
+use failure::Fallible;
 use stdweb::unstable::TryInto;
 
 #[derive(Debug, Fail)]
@@ -24,7 +24,7 @@ impl CookieService {
     }
 
     /// Retrieve a cookie for a given name
-    pub fn get(&self, name: &str) -> Result<String, Error> {
+    pub fn get(&self, name: &str) -> Fallible<String> {
         let cookie_strings = js! { return document.cookie.split(';') };
         let cookies: Vec<String> = cookie_strings.try_into()?;
         cookies

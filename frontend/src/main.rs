@@ -2,11 +2,11 @@ extern crate failure;
 extern crate webapp_frontend;
 extern crate yew;
 
-use failure::Error;
+use failure::Fallible;
 use webapp_frontend::{init_logger, RootComponent};
 use yew::prelude::*;
 
-fn main() -> Result<(), Error> {
+fn main() -> Fallible<()> {
     // Initialize the application
     yew::initialize();
 

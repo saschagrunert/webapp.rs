@@ -3,7 +3,7 @@ extern crate sass_rs;
 extern crate url;
 extern crate webapp;
 
-use failure::Error;
+use failure::Fallible;
 use sass_rs::{compile_file, Options, OutputStyle};
 use std::{
     env,
@@ -19,7 +19,7 @@ const TAG: &str = "v3.0.0-rc.11";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 
-pub fn main() -> Result<(), Error> {
+pub fn main() -> Fallible<()> {
     // Prepeare UIkit and build the complete style
     prepare_style()?;
 
@@ -29,7 +29,7 @@ pub fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn run<F>(name: &str, mut configure: F) -> Result<(), Error>
+fn run<F>(name: &str, mut configure: F) -> Fallible<()>
 where
     F: FnMut(&mut Command) -> &mut Command,
 {
@@ -41,7 +41,7 @@ where
     Ok(())
 }
 
-fn prepare_style() -> Result<(), Error> {
+fn prepare_style() -> Fallible<()> {
     // Prepare the directory
     let out_dir = env::var("OUT_DIR")?;
     let mut target = PathBuf::from(out_dir);
@@ -81,7 +81,7 @@ fn prepare_style() -> Result<(), Error> {
     Ok(())
 }
 
-fn prepare_api() -> Result<(), Error> {
+fn prepare_api() -> Fallible<()> {
     let config = Config::new(&format!("../{}", CONFIG_FILENAME))?;
     let url = Url::parse(&config.server.url)?;
     println!("cargo:rustc-env=API_URL={}", url);

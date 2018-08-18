@@ -13,7 +13,7 @@ use actix_web::{
 };
 use database::DatabaseExecutor;
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use failure::Error;
+use failure::Fallible;
 use http::{login_credentials, login_session, logout};
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
@@ -42,7 +42,7 @@ where
 
 impl Server {
     /// Create a new server instance
-    pub fn new(config: &Config) -> Result<Self, Error> {
+    pub fn new(config: &Config) -> Fallible<Self> {
         // Build a new actor system
         let runner = actix::System::new("backend");
 
@@ -108,7 +108,7 @@ impl Server {
     }
 
     /// Build an SslAcceptorBuilder from a config
-    fn build_tls(config: &Config) -> Result<SslAcceptorBuilder, Error> {
+    fn build_tls(config: &Config) -> Fallible<SslAcceptorBuilder> {
         let mut tls_builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
         tls_builder.set_private_key_file(&config.server.key, SslFiletype::PEM)?;
         tls_builder.set_certificate_chain_file(&config.server.cert)?;

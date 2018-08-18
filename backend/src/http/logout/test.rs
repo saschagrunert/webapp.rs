@@ -5,7 +5,7 @@
 use actix::prelude::*;
 use actix_web::test::TestServer;
 use database::DeleteSession;
-use failure::Error;
+use failure::Fallible;
 use http::{
     logout::logout,
     test::{execute_request, state, DatabaseExecutorMock},
@@ -14,7 +14,7 @@ use serde_cbor::to_vec;
 use webapp::protocol::{model::Session, request};
 
 impl Handler<DeleteSession> for DatabaseExecutorMock {
-    type Result = Result<(), Error>;
+    type Result = Fallible<()>;
 
     fn handle(&mut self, _: DeleteSession, _: &mut Self::Context) -> Self::Result {
         Ok(())
