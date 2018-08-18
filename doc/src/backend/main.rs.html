@@ -36,12 +36,12 @@
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">webapp</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">webapp_backend</span>;
 
-<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>::<span class="ident">set_var</span>, <span class="ident">process</span>::<span class="ident">exit</span>};
 <span class="kw">use</span> <span class="ident">webapp</span>::{<span class="ident">config</span>::<span class="ident">Config</span>, <span class="ident">CONFIG_FILENAME</span>};
 <span class="kw">use</span> <span class="ident">webapp_backend</span>::<span class="ident">Server</span>;
 
-<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// Parse the configuration</span>
     <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">new</span>(<span class="ident">CONFIG_FILENAME</span>)<span class="question-mark">?</span>;
 
