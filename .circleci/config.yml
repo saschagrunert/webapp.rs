@@ -26,6 +26,8 @@ workflows:
       - build
       - doc
       - doc-publish:
+          requires:
+            - doc
           filters:
             branches:
               only: master
@@ -62,16 +64,13 @@ jobs:
           name: Build all targets
           command: make
       - save_cache:
+          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
-          key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   doc:
     <<: *defaults
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - c2:05:c6:97:5c:9d:17:b7:c8:84:fa:6d:05:55:75:8a
       - checkout
       - restore_cache:
           keys:
@@ -80,10 +79,14 @@ jobs:
           name: Build documentation
           command: make build-doc
       - save_cache:
+          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
-          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target/doc
   doc-publish:
     <<: *defaults
     steps:
@@ -96,17 +99,8 @@ jobs:
           command: |
             git config --global user.email mail@saschagrunert.de
             git config --global user.name "CircleCI"
-      - restore_cache:
-          keys:
-            - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-      - run:
-          name: Build documentation
-          command: make build-doc
-      - save_cache:
-          paths:
-            - /root/.cargo/registry
-            - target
-          key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - attach_workspace:
+          at: .
       - run:
           name: Deploy documentation
           command: |
@@ -135,10 +129,10 @@ jobs:
           name: Clippy
           command: make lint-clippy
       - save_cache:
+          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
-          key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   test:
     <<: *defaults-postgres
     steps:
@@ -162,10 +156,10 @@ jobs:
           name: Run benchmarks
           command: make bench
       - save_cache:
+          key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
-          key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
   docker:
     machine: true
     steps:
@@ -179,10 +173,10 @@ jobs:
             make deploy
             docker save webapp -o webapp.tar
       - save_cache:
+          key: docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
-          key: docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - store_artifacts:
           path: webapp.tar
       - persist_to_workspace:
@@ -205,7 +199,8 @@ jobs:
             sudo apt-get install -y postgresql-client libpq-dev
             curl https://sh.rustup.rs -sSf | sh -s -- -y
             export PATH=$HOME/.cargo/bin:$PATH
-            cargo install diesel_cli --force --no-default-features --features "postgres"
+            cargo install diesel_cli --force \
+              --no-default-features --features "postgres"
       - run:
           name: Load the image
           command: docker load -i webapp.tar
@@ -217,11 +212,10 @@ jobs:
             sleep 3
             make test-deploy
       - save_cache:
+          key: docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
             - target
-          key: docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-  
   deploy:
     machine: true
     steps:
