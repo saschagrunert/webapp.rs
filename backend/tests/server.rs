@@ -1,11 +1,14 @@
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate failure;
 extern crate reqwest;
 extern crate serde_cbor;
 extern crate url;
 extern crate webapp;
 extern crate webapp_backend;
 
+use failure::Fallible;
 use reqwest::{Client, StatusCode};
 use serde_cbor::{from_slice, to_vec};
 use std::{sync::Mutex, thread};
@@ -21,8 +24,8 @@ lazy_static! {
     static ref PORT: Mutex<u16> = Mutex::new(30000);
 }
 
-fn get_config() -> Config {
-    Config::new(&format!("../{}", CONFIG_FILENAME)).unwrap()
+fn get_config() -> Fallible<Config> {
+    Ok(Config::new(&format!("../{}", CONFIG_FILENAME))?)
 }
 
 fn get_next_port() -> u16 {
@@ -31,13 +34,14 @@ fn get_next_port() -> u16 {
     *port
 }
 
-pub fn create_testserver() -> Url {
+pub fn create_testserver() -> Fallible<Url> {
     // Prepare the configuration
-    let mut config = get_config();
+    let mut config = get_config()?;
 
     // Set the test configuration
-    let mut url = Url::parse(&config.server.url).unwrap();
-    url.set_port(Some(get_next_port())).unwrap();
+    let mut url = Url::parse(&config.server.url)?;
+    url.set_port(Some(get_next_port()))
+        .map_err(|_| format_err!("Unable to set server port"))?;
     config.server.url = url.to_string();
     config.server.redirect_from = vec![];
 
@@ -55,15 +59,16 @@ pub fn create_testserver() -> Url {
     }
 
     // Return the server url
-    url
+    Ok(url)
 }
 
 #[test]
-fn succeed_to_create_server_with_common_redirects() {
+fn succeed_to_create_server_with_common_redirects() -> Fallible<()> {
     // Given
-    let mut config = get_config();
-    let mut url = Url::parse(&config.server.url).unwrap();
-    url.set_port(Some(get_next_port())).unwrap();
+    let mut config = get_config()?;
+    let mut url = Url::parse(&config.server.url)?;
+    url.set_port(Some(get_next_port()))
+        .map_err(|_| format_err!("Unable to set server port"))?;
     config.server.url = url.to_string();
 
     let redirect_url = "http://127.0.0.1:30666".to_owned();
@@ -83,106 +88,108 @@ fn succeed_to_create_server_with_common_redirects() {
             }
         }
     }
-    let res = Client::new().get(&redirect_url).send().unwrap();
+    let res = Client::new().get(&redirect_url).send()?;
 
     // Then
     assert_eq!(res.url().as_str().contains(&redirect_url), false);
+    Ok(())
 }
 
 #[test]
-fn succeed_to_login_with_credentials() {
+fn succeed_to_login_with_credentials() -> Fallible<()> {
     // Given
-    let mut url = create_testserver();
+    let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
     let request = to_vec(&request::LoginCredentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
-    }).unwrap();
-    let mut res = Client::new().post(url).body(request).send().unwrap();
+    })?;
+    let mut res = Client::new().post(url).body(request).send()?;
     let mut body = vec![];
-    res.copy_to(&mut body).unwrap();
-    let response::Login(session) = from_slice(&body).unwrap();
+    res.copy_to(&mut body)?;
+    let response::Login(session) = from_slice(&body)?;
 
     // Then
     assert!(res.status().is_success());
     assert_eq!(session.token.len(), 211);
+    Ok(())
 }
 
 #[test]
-fn fail_to_login_with_wrong_credentials() {
+fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
     // Given
-    let mut url = create_testserver();
+    let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
     let request = to_vec(&request::LoginCredentials {
         username: "username".to_owned(),
         password: "password".to_owned(),
-    }).unwrap();
-    let res = Client::new().post(url).body(request).send().unwrap();
+    })?;
+    let res = Client::new().post(url).body(request).send()?;
 
     // Then
     assert_eq!(res.status(), StatusCode::Unauthorized);
+    Ok(())
 }
 
 #[test]
-fn succeed_to_login_with_session() {
+fn succeed_to_login_with_session() -> Fallible<()> {
     // Given
-    let mut url = create_testserver();
+    let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
     let mut request = to_vec(&request::LoginCredentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
-    }).unwrap();
-    let mut res = Client::new()
-        .post(url.clone())
-        .body(request)
-        .send()
-        .unwrap();
+    })?;
+    let mut res = Client::new().post(url.clone()).body(request).send()?;
     let mut body = vec![];
-    res.copy_to(&mut body).unwrap();
-    let response::Login(session) = from_slice(&body).unwrap();
+    res.copy_to(&mut body)?;
+    let response::Login(session) = from_slice(&body)?;
 
-    request = to_vec(&request::LoginSession(session)).unwrap();
+    request = to_vec(&request::LoginSession(session))?;
     url.set_path(API_URL_LOGIN_SESSION);
-    res = Client::new().post(url).body(request).send().unwrap();
+    res = Client::new().post(url).body(request).send()?;
     body.clear();
-    res.copy_to(&mut body).unwrap();
-    let response::Login(new_session) = from_slice(&body).unwrap();
+    res.copy_to(&mut body)?;
+    let response::Login(new_session) = from_slice(&body)?;
 
     // Then
     assert!(res.status().is_success());
     assert_eq!(new_session.token.len(), 211);
+    Ok(())
 }
 
 #[test]
-fn fail_to_login_with_wrong_session() {
+fn fail_to_login_with_wrong_session() -> Fallible<()> {
     // Given
-    let mut url = create_testserver();
+    let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_SESSION);
 
     // When
-    let request = to_vec(&request::LoginSession(Session::new("wrong"))).unwrap();
-    let res = Client::new().post(url).body(request).send().unwrap();
+    let request = to_vec(&request::LoginSession(Session::new("wrong")))?;
+    let res = Client::new().post(url).body(request).send()?;
 
     // Then
     assert_eq!(res.status(), StatusCode::Unauthorized);
+    Ok(())
 }
 
 #[test]
-fn succeed_to_logout() {
+fn succeed_to_logout() -> Fallible<()> {
     // Given
-    let mut url = create_testserver();
+    let mut url = create_testserver()?;
     url.set_path(API_URL_LOGOUT);
 
     // When
-    let request = to_vec(&request::Logout(Session::new("wrong"))).unwrap();
-    let res = Client::new().post(url).body(request).send().unwrap();
+    let request = to_vec(&request::Logout(Session::new("wrong")))?;
+    let res = Client::new().post(url).body(request).send()?;
 
     // Then
     assert!(res.status().is_success());
+    Ok(())
 }
