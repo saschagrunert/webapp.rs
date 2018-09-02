@@ -4,7 +4,6 @@ use api::Response;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
-    router::{self, RouterAgent},
     session_timer::{self, SessionTimerAgent},
     uikit::{NotificationStatus, UIkitService},
 };
@@ -14,6 +13,7 @@ use webapp::{
     API_URL_LOGOUT,
 };
 use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
+use yew_router::{self, RouterAgent};
 use SESSION_COOKIE;
 
 /// Data Model for the Content component
@@ -47,7 +47,7 @@ impl Component for ContentComponent {
             SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
             info!("No session token found, routing back to login");
-            router_agent.send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+            router_agent.send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
         } else {
             // Start the timer to keep the session active
             session_timer_agent.send(session_timer::Request::Start);
@@ -92,7 +92,7 @@ impl Component for ContentComponent {
                     // back to login
                     error!("No session cookie found");
                     self.router_agent
-                        .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                        .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
                 }
             }
 
@@ -118,7 +118,7 @@ impl Component for ContentComponent {
                 self.cookie_service.remove(SESSION_COOKIE);
                 self.session_timer_agent.send(session_timer::Request::Stop);
                 self.router_agent
-                    .send(router::Request::ChangeRoute(RouterTarget::Login.into()));
+                    .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
                 self.logout_button_disabled = true;
 
                 // Remove the ongoing task
