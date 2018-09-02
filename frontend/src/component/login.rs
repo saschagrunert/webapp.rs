@@ -4,7 +4,6 @@ use api::Response;
 use route::RouterTarget;
 use service::{
     cookie::CookieService,
-    router::{self, RouterAgent},
     uikit::{NotificationStatus, UIkitService},
 };
 use string::{
@@ -15,6 +14,7 @@ use webapp::{
     API_URL_LOGIN_CREDENTIALS,
 };
 use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
+use yew_router::{self, RouterAgent};
 use SESSION_COOKIE;
 
 /// Data Model for the Login component
@@ -110,8 +110,9 @@ impl Component for LoginComponent {
                             self.cookie_service.set(SESSION_COOKIE, &token);
 
                             // Route to the content component
-                            self.router_agent
-                                .send(router::Request::ChangeRoute(RouterTarget::Content.into()));
+                            self.router_agent.send(yew_router::Request::ChangeRoute(
+                                RouterTarget::Content.into(),
+                            ));
                         }
                         _ => {
                             warn!("Got wrong credentials login response");

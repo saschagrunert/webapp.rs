@@ -15,6 +15,8 @@ extern crate stdweb;
 extern crate webapp;
 #[macro_use]
 extern crate yew;
+#[macro_use]
+extern crate yew_router;
 
 #[macro_use]
 mod api;
