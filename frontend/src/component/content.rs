@@ -39,7 +39,7 @@ impl Component for ContentComponent {
     type Properties = ();
 
     /// Initialization routine
-    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         // Guard the authentication
         let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
