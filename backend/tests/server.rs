@@ -9,7 +9,7 @@ extern crate webapp;
 extern crate webapp_backend;
 
 use failure::Fallible;
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use serde_cbor::{from_slice, to_vec};
 use std::{sync::Mutex, thread};
 use url::Url;
@@ -131,7 +131,7 @@ fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
     let res = Client::new().post(url).body(request).send()?;
 
     // Then
-    assert_eq!(res.status(), StatusCode::Unauthorized);
+    assert_eq!(res.status().as_u16(), 401);
     Ok(())
 }
 
@@ -175,7 +175,7 @@ fn fail_to_login_with_wrong_session() -> Fallible<()> {
     let res = Client::new().post(url).body(request).send()?;
 
     // Then
-    assert_eq!(res.status(), StatusCode::Unauthorized);
+    assert_eq!(res.status().as_u16(), 401);
     Ok(())
 }
 
