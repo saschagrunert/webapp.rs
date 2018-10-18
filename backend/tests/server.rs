@@ -25,7 +25,7 @@ lazy_static! {
 }
 
 fn get_config() -> Fallible<Config> {
-    Ok(Config::new(&format!("../{}", CONFIG_FILENAME))?)
+    Ok(Config::from_file(&format!("../{}", CONFIG_FILENAME))?)
 }
 
 fn get_next_port() -> u16 {
@@ -47,7 +47,7 @@ pub fn create_testserver() -> Fallible<Url> {
 
     // Start the server
     let config_clone = config.clone();
-    thread::spawn(move || Server::new(&config_clone).unwrap().start());
+    thread::spawn(move || Server::from_config(&config_clone).unwrap().start());
 
     // Wait until the server is up
     loop {
@@ -80,7 +80,7 @@ fn succeed_to_create_server_with_common_redirects() -> Fallible<()> {
 
     // When
     let config_clone = config.clone();
-    thread::spawn(move || Server::new(&config_clone).unwrap().start());
+    thread::spawn(move || Server::from_config(&config_clone).unwrap().start());
     loop {
         if let Ok(res) = Client::new().get(url.clone()).send() {
             if res.status().is_success() {

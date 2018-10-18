@@ -41,7 +41,8 @@ impl CookieService {
                         }
                     }
                 }
-            }).collect::<Vec<String>>()
+            })
+            .collect::<Vec<String>>()
             .pop()
             .ok_or_else(|| CookieError::NotFound.into())
     }

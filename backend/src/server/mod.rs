@@ -42,7 +42,7 @@ where
 
 impl Server {
     /// Create a new server instance
-    pub fn new(config: &Config) -> Fallible<Self> {
+    pub fn from_config(config: &Config) -> Fallible<Self> {
         // Build a new actor system
         let runner = actix::System::new("backend");
 
@@ -62,7 +62,8 @@ impl Server {
         let server = server::new(move || {
             App::with_state(State {
                 database: db_addr.clone(),
-            }).middleware(middleware::Logger::default())
+            })
+            .middleware(middleware::Logger::default())
             .configure(|app| {
                 Cors::for_app(app)
                     .allowed_methods(vec!["GET", "POST"])
@@ -70,11 +71,14 @@ impl Server {
                     .max_age(3600)
                     .resource(API_URL_LOGIN_CREDENTIALS, |r| {
                         r.method(http::Method::POST).f(login_credentials)
-                    }).resource(API_URL_LOGIN_SESSION, |r| {
+                    })
+                    .resource(API_URL_LOGIN_SESSION, |r| {
                         r.method(http::Method::POST).f(login_session)
-                    }).resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
+                    })
+                    .resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
                     .register()
-            }).default_resource(|r| r.h(NormalizePath::default()))
+            })
+            .default_resource(|r| r.h(NormalizePath::default()))
             .handler(
                 "/",
                 StaticFiles::new("static").unwrap().index_file("index.html"),

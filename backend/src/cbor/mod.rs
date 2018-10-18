@@ -54,7 +54,8 @@ where
                 .fold(BytesMut::new(), move |mut body, chunk| {
                     body.extend_from_slice(&chunk);
                     Ok::<_, CborError>(body)
-                }).and_then(|body| Ok(from_slice(&body)?)),
+                })
+                .and_then(|body| Ok(from_slice(&body)?)),
         ))
     }
 }

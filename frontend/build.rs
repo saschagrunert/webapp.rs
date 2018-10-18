@@ -82,7 +82,7 @@ fn prepare_style() -> Fallible<()> {
 }
 
 fn prepare_api() -> Fallible<()> {
-    let config = Config::new(&format!("../{}", CONFIG_FILENAME))?;
+    let config = Config::from_file(&format!("../{}", CONFIG_FILENAME))?;
     let url = Url::parse(&config.server.url)?;
     println!("cargo:rustc-env=API_URL={}", url);
     Ok(())

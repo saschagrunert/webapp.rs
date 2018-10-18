@@ -10,7 +10,7 @@ use webapp_backend::Server;
 
 fn main() -> Fallible<()> {
     // Parse the configuration
-    let config = Config::new(CONFIG_FILENAME)?;
+    let config = Config::from_file(CONFIG_FILENAME)?;
 
     // Set the logging verbosity
     set_var(
@@ -25,7 +25,7 @@ fn main() -> Fallible<()> {
     env_logger::init();
 
     // Create and start the server
-    let server = Server::new(&config)?;
+    let server = Server::from_config(&config)?;
 
     // Start the server
     exit(server.start());

@@ -29,5 +29,6 @@ where
                 result?;
                 Ok(HttpResponse::Ok().cbor(response::Logout)?)
             })
-    }).responder()
+    })
+    .responder()
 }

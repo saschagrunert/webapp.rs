@@ -32,7 +32,7 @@ fn get_next_port() -> u16 {
 
 pub fn create_testserver() -> Fallible<Url> {
     // Prepare the configuration
-    let mut config = Config::new(&format!("../{}", CONFIG_FILENAME))?;
+    let mut config = Config::from_file(&format!("../{}", CONFIG_FILENAME))?;
 
     // Set the test configuration
     let mut url = Url::parse(&config.server.url)?;
@@ -43,7 +43,7 @@ pub fn create_testserver() -> Fallible<Url> {
 
     // Start the server
     let config_clone = config.clone();
-    thread::spawn(move || Server::new(&config_clone).unwrap().start());
+    thread::spawn(move || Server::from_config(&config_clone).unwrap().start());
 
     // Wait until the server is up
     loop {
