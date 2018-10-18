@@ -59,6 +59,7 @@
 <span id="59">59</span>
 <span id="60">60</span>
 <span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! A cookie handling service to read and write cookies</span>
 
@@ -103,7 +104,8 @@
                         }
                     }
                 }
-            }).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>()
+            })
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;&gt;</span>()
             .<span class="ident">pop</span>()
             .<span class="ident">ok_or_else</span>(<span class="op">||</span> <span class="ident">CookieError</span>::<span class="ident">NotFound</span>.<span class="ident">into</span>())
     }

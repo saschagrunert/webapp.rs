@@ -79,6 +79,7 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Cbor abstraction for HTTP message handling</span>
 
@@ -136,7 +137,8 @@
                 .<span class="ident">fold</span>(<span class="ident">BytesMut</span>::<span class="ident">new</span>(), <span class="kw">move</span> <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">body</span>, <span class="ident">chunk</span><span class="op">|</span> {
                     <span class="ident">body</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>);
                     <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">CborError</span><span class="op">&gt;</span>(<span class="ident">body</span>)
-                }).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)<span class="question-mark">?</span>)),
+                })
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">body</span><span class="op">|</span> <span class="prelude-val">Ok</span>(<span class="ident">from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)<span class="question-mark">?</span>)),
         ))
     }
 }
