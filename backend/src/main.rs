@@ -10,7 +10,7 @@ use webapp_backend::Server;
 
 fn main() -> Fallible<()> {
     // Parse the configuration
-    let config = Config::new(CONFIG_FILENAME)?;
+    let config = Config::from_file(CONFIG_FILENAME)?;
 
     // Set the logging verbosity
     set_var(

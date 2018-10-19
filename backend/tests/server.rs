@@ -25,7 +25,7 @@ lazy_static! {
 }
 
 fn get_config() -> Fallible<Config> {
-    Ok(Config::new(&format!("../{}", CONFIG_FILENAME))?)
+    Ok(Config::from_file(&format!("../{}", CONFIG_FILENAME))?)
 }
 
 fn get_next_port() -> u16 {

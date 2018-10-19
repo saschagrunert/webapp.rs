@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 fn get_config() -> Fallible<Config> {
-    Ok(Config::new(&format!("../{}", CONFIG_FILENAME))?)
+    Ok(Config::from_file(&format!("../{}", CONFIG_FILENAME))?)
 }
 
 #[test]

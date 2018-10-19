@@ -32,7 +32,7 @@ fn get_next_port() -> u16 {
 
 pub fn create_testserver() -> Fallible<Url> {
     // Prepare the configuration
-    let mut config = Config::new(&format!("../{}", CONFIG_FILENAME))?;
+    let mut config = Config::from_file(&format!("../{}", CONFIG_FILENAME))?;
 
     // Set the test configuration
     let mut url = Url::parse(&config.server.url)?;
