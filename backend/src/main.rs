@@ -25,7 +25,7 @@ fn main() -> Fallible<()> {
     env_logger::init();
 
     // Create and start the server
-    let server = Server::new(&config)?;
+    let server = Server::from_config(&config)?;
 
     // Start the server
     exit(server.start());

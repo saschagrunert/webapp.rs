@@ -43,7 +43,7 @@ pub fn create_testserver() -> Fallible<Url> {
 
     // Start the server
     let config_clone = config.clone();
-    thread::spawn(move || Server::new(&config_clone).unwrap().start());
+    thread::spawn(move || Server::from_config(&config_clone).unwrap().start());
 
     // Wait until the server is up
     loop {

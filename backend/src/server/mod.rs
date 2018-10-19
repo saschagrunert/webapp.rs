@@ -42,7 +42,7 @@ where
 
 impl Server {
     /// Create a new server instance
-    pub fn new(config: &Config) -> Fallible<Self> {
+    pub fn from_config(config: &Config) -> Fallible<Self> {
         // Build a new actor system
         let runner = actix::System::new("backend");
 
