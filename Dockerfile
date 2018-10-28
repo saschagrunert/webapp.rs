@@ -13,4 +13,4 @@ COPY Config.toml /
 COPY target/deploy /static
 
 # Run the application by default
-CMD ["/backend"]
+ENTRYPOINT ["/backend"]
