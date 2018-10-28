@@ -40,14 +40,12 @@ fn fail_to_decode_empty_request() -> Fallible<()> {
     let result: Result<(), _> = CborRequest::new(&request).wait();
 
     // When
-    assert!(
-        &result
-            .unwrap_err()
-            .cause()
-            .unwrap()
-            .to_string()
-            .contains("EOF")
-    );
+    assert!(&result
+        .unwrap_err()
+        .cause()
+        .unwrap()
+        .to_string()
+        .contains("EOF"));
     Ok(())
 }
 
@@ -61,14 +59,12 @@ fn fail_to_decode_wrong_request() -> Fallible<()> {
     let result: Result<(), _> = CborRequest::new(&request).wait();
 
     // Then
-    assert!(
-        &result
-            .unwrap_err()
-            .cause()
-            .unwrap()
-            .to_string()
-            .contains("invalid type")
-    );
+    assert!(&result
+        .unwrap_err()
+        .cause()
+        .unwrap()
+        .to_string()
+        .contains("invalid type"));
     Ok(())
 }
 
@@ -86,14 +82,12 @@ fn fail_to_decode_wrong_typed_request() -> Fallible<()> {
     let result: Result<request::Logout, _> = CborRequest::new(&request).wait();
 
     // Then
-    assert!(
-        &result
-            .unwrap_err()
-            .cause()
-            .unwrap()
-            .to_string()
-            .contains("missing field")
-    );
+    assert!(&result
+        .unwrap_err()
+        .cause()
+        .unwrap()
+        .to_string()
+        .contains("missing field"));
     Ok(())
 }
 

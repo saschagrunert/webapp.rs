@@ -74,15 +74,13 @@ fn bench_login_credentials_low(b: &mut Bencher) -> Fallible<()> {
 
     // Then
     b.iter(|| {
-        assert!(
-            Client::new()
-                .post(url.clone())
-                .body(request.clone())
-                .send()
-                .unwrap()
-                .status()
-                .is_success()
-        );
+        assert!(Client::new()
+            .post(url.clone())
+            .body(request.clone())
+            .send()
+            .unwrap()
+            .status()
+            .is_success());
     });
     Ok(())
 }
@@ -103,15 +101,13 @@ fn bench_login_credentials_mid(b: &mut Bencher) -> Fallible<()> {
 
     // Then
     b.iter(|| {
-        assert!(
-            Client::new()
-                .post(url.clone())
-                .body(request.clone())
-                .send()
-                .unwrap()
-                .status()
-                .is_success()
-        );
+        assert!(Client::new()
+            .post(url.clone())
+            .body(request.clone())
+            .send()
+            .unwrap()
+            .status()
+            .is_success());
     });
     Ok(())
 }
@@ -132,15 +128,13 @@ fn bench_login_credentials_high(b: &mut Bencher) -> Fallible<()> {
 
     // Then
     b.iter(|| {
-        assert!(
-            Client::new()
-                .post(url.clone())
-                .body(request.clone())
-                .send()
-                .unwrap()
-                .status()
-                .is_success()
-        );
+        assert!(Client::new()
+            .post(url.clone())
+            .body(request.clone())
+            .send()
+            .unwrap()
+            .status()
+            .is_success());
     });
     Ok(())
 }
