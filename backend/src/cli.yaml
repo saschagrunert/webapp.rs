@@ -1,0 +1,17 @@
+---
+name: webapp.rs
+bin_name: backend
+author: Sascha Grunert <mail@saschagrunert.de>
+about: The web server backend of webapp.rs
+after_help: 'More info at: https://github.com/saschagrunert/webapp.rs'
+global_settings:
+  - ColoredHelp
+
+args:
+  - config:
+      default_value: Config.toml
+      env: CONFIG_FILE
+      help: File path to the configuration file
+      long: config-file
+      short: c
+      value_name: PATH

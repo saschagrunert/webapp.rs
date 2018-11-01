@@ -83,6 +83,8 @@ run-app: run-postgres
 		docker run --rm \
 			--name webapp \
 			--network="host" \
+			-v $(PWD)/backend/tls:/tls \
+			-v $(PWD)/Config.toml:/Config.toml \
 			-d webapp ;\
 	else \
 		echo "App already running" ;\
