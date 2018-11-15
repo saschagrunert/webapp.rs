@@ -23,7 +23,7 @@ path = "src/main.rs"
 [build-dependencies]
 failure = "0.1.3"
 sass-rs = "0.2.1"
-url = "1.7.1"
+url = "1.7.2"
 webapp = { path = ".." }
 
 [dependencies]
