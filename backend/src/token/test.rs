@@ -2,8 +2,8 @@
 
 #![cfg(test)]
 
-use failure::Fallible;
 use crate::token::Token;
+use failure::Fallible;
 
 #[test]
 fn succeed_to_create_a_token() {

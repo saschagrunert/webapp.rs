@@ -4,14 +4,16 @@
 
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use crate::database::CreateSession;
-use failure::Fallible;
-use crate::http::{
-    login_credentials::login_credentials,
-    test::{execute_request, state, DatabaseExecutorMock},
+use crate::{
+    database::CreateSession,
+    http::{
+        login_credentials::login_credentials,
+        test::{execute_request, state, DatabaseExecutorMock},
+    },
+    token::Token,
 };
+use failure::Fallible;
 use serde_cbor::to_vec;
-use crate::token::Token;
 use webapp::protocol::{model::Session, request::LoginCredentials};
 
 impl Handler<CreateSession> for DatabaseExecutorMock {

@@ -2,12 +2,14 @@
 
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::ErrorUnauthorized, AsyncResponder, HttpRequest, HttpResponse};
-use crate::cbor::CborResponseBuilder;
-use crate::database::CreateSession;
+use crate::{
+    cbor::CborResponseBuilder,
+    database::CreateSession,
+    http::{unpack_cbor, FutureResponse},
+    server::State,
+    token::Token,
+};
 use futures::Future;
-use crate::http::{unpack_cbor, FutureResponse};
-use crate::server::State;
-use crate::token::Token;
 use webapp::protocol::{request::LoginCredentials, response::Login};
 
 mod test;

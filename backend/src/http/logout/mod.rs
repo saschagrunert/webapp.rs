@@ -2,11 +2,13 @@
 
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{AsyncResponder, HttpRequest, HttpResponse};
-use crate::cbor::CborResponseBuilder;
-use crate::database::DeleteSession;
+use crate::{
+    cbor::CborResponseBuilder,
+    database::DeleteSession,
+    http::{unpack_cbor, FutureResponse},
+    server::State,
+};
 use futures::Future;
-use crate::http::{unpack_cbor, FutureResponse};
-use crate::server::State;
 use webapp::protocol::{model::Session, request, response};
 
 mod test;
