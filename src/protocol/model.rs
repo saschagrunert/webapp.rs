@@ -1,7 +1,7 @@
 //! Basic models
 
 #[cfg(feature = "backend")]
-use schema::sessions;
+use crate::schema::sessions;
 use std::convert::From;
 
 #[cfg_attr(feature = "backend", derive(Insertable, Queryable))]

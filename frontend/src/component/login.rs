@@ -1,12 +1,12 @@
 //! The Login component
 
-use api::Response;
-use route::RouterTarget;
-use service::{
+use crate::api::Response;
+use crate::route::RouterTarget;
+use crate::service::{
     cookie::CookieService,
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{
+use crate::string::{
     AUTHENTICATION_ERROR, INPUT_PASSWORD, INPUT_USERNAME, REQUEST_ERROR, RESPONSE_ERROR, TEXT_LOGIN,
 };
 use webapp::{
@@ -15,7 +15,7 @@ use webapp::{
 };
 use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
-use SESSION_COOKIE;
+use crate::SESSION_COOKIE;
 
 /// Data Model for the Login component
 pub struct LoginComponent {

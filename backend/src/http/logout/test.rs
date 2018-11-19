@@ -4,9 +4,9 @@
 
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use database::DeleteSession;
+use crate::database::DeleteSession;
 use failure::Fallible;
-use http::{
+use crate::http::{
     logout::logout,
     test::{execute_request, state, DatabaseExecutorMock},
 };

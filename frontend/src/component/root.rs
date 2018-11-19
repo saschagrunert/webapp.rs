@@ -1,20 +1,20 @@
 //! The Root component as main entry point of the frontend application
 
-use api::Response;
-use component::{content::ContentComponent, login::LoginComponent};
-use route::RouterTarget;
-use service::{
+use crate::api::Response;
+use crate::component::{content::ContentComponent, login::LoginComponent};
+use crate::route::RouterTarget;
+use crate::service::{
     cookie::CookieService,
     uikit::{NotificationStatus, UIkitService},
 };
-use string::{REQUEST_ERROR, RESPONSE_ERROR};
+use crate::string::{REQUEST_ERROR, RESPONSE_ERROR};
 use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
     API_URL_LOGIN_SESSION,
 };
 use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, Route, RouterAgent};
-use SESSION_COOKIE;
+use crate::SESSION_COOKIE;
 
 /// Data Model for the Root Component
 pub struct RootComponent {
