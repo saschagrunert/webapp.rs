@@ -172,17 +172,24 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The Login component</span>
 
-<span class="kw">use</span> <span class="ident">api</span>::<span class="ident">Response</span>;
-<span class="kw">use</span> <span class="ident">route</span>::<span class="ident">RouterTarget</span>;
-<span class="kw">use</span> <span class="ident">service</span>::{
-    <span class="ident">cookie</span>::<span class="ident">CookieService</span>,
-    <span class="ident">uikit</span>::{<span class="ident">NotificationStatus</span>, <span class="ident">UIkitService</span>},
-};
-<span class="kw">use</span> <span class="ident">string</span>::{
-    <span class="ident">AUTHENTICATION_ERROR</span>, <span class="ident">INPUT_PASSWORD</span>, <span class="ident">INPUT_USERNAME</span>, <span class="ident">REQUEST_ERROR</span>, <span class="ident">RESPONSE_ERROR</span>, <span class="ident">TEXT_LOGIN</span>,
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">api</span>::<span class="ident">Response</span>,
+    <span class="ident">route</span>::<span class="ident">RouterTarget</span>,
+    <span class="ident">service</span>::{
+        <span class="ident">cookie</span>::<span class="ident">CookieService</span>,
+        <span class="ident">uikit</span>::{<span class="ident">NotificationStatus</span>, <span class="ident">UIkitService</span>},
+    },
+    <span class="ident">string</span>::{
+        <span class="ident">AUTHENTICATION_ERROR</span>, <span class="ident">INPUT_PASSWORD</span>, <span class="ident">INPUT_USERNAME</span>, <span class="ident">REQUEST_ERROR</span>, <span class="ident">RESPONSE_ERROR</span>,
+        <span class="ident">TEXT_LOGIN</span>,
+    },
+    <span class="ident">SESSION_COOKIE</span>,
 };
 <span class="kw">use</span> <span class="ident">webapp</span>::{
     <span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>::<span class="ident">LoginCredentials</span>, <span class="ident">response</span>::<span class="ident">Login</span>},
@@ -190,7 +197,6 @@
 };
 <span class="kw">use</span> <span class="ident">yew</span>::{<span class="ident">format</span>::<span class="ident">Cbor</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">FetchTask</span>};
 <span class="kw">use</span> <span class="ident">yew_router</span>::{<span class="self">self</span>, <span class="ident">RouterAgent</span>};
-<span class="kw">use</span> <span class="ident">SESSION_COOKIE</span>;
 
 <span class="doccomment">/// Data Model for the Login component</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoginComponent</span> {

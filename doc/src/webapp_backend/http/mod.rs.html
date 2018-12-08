@@ -32,7 +32,6 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
-<span id="35">35</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! HTTP message handling</span>
 
@@ -41,15 +40,14 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">logout</span>;
 <span class="kw">mod</span> <span class="ident">test</span>;
 
-<span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">dev</span>::<span class="ident">ToEnvelope</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
-<span class="kw">use</span> <span class="ident">cbor</span>::<span class="ident">CborRequest</span>;
-<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future</span>::<span class="ident">FromErr</span>, <span class="ident">Future</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">http</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">http</span>::{
     <span class="ident">login_credentials</span>::<span class="ident">login_credentials</span>, <span class="ident">login_session</span>::<span class="ident">login_session</span>, <span class="ident">logout</span>::<span class="ident">logout</span>,
 };
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cbor</span>::<span class="ident">CborRequest</span>, <span class="ident">server</span>::<span class="ident">State</span>};
+<span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">dev</span>::<span class="ident">ToEnvelope</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
+<span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
+<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future</span>::<span class="ident">FromErr</span>, <span class="ident">Future</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">DeserializeOwned</span>;
-<span class="kw">use</span> <span class="ident">server</span>::<span class="ident">State</span>;
 
 <span class="doccomment">/// The generic response</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">FutureResponse</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">HttpResponse</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;&gt;</span>;

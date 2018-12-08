@@ -172,9 +172,15 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to the actual server implementation</span>
 
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">database</span>::<span class="ident">DatabaseExecutor</span>,
+    <span class="ident">http</span>::{<span class="ident">login_credentials</span>, <span class="ident">login_session</span>, <span class="ident">logout</span>},
+};
 <span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">SystemRunner</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
     <span class="ident">fs</span>::<span class="ident">StaticFiles</span>,
@@ -186,10 +192,8 @@
     <span class="ident">middleware</span>::{<span class="self">self</span>, <span class="ident">cors</span>::<span class="ident">Cors</span>},
     <span class="ident">server</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>,
 };
-<span class="kw">use</span> <span class="ident">database</span>::<span class="ident">DatabaseExecutor</span>;
 <span class="kw">use</span> <span class="ident">diesel</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">r2d2</span>::<span class="ident">ConnectionManager</span>};
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
-<span class="kw">use</span> <span class="ident">http</span>::{<span class="ident">login_credentials</span>, <span class="ident">login_session</span>, <span class="ident">logout</span>};
 <span class="kw">use</span> <span class="ident">num_cpus</span>;
 <span class="kw">use</span> <span class="ident">openssl</span>::<span class="ident">ssl</span>::{<span class="ident">SslAcceptor</span>, <span class="ident">SslAcceptorBuilder</span>, <span class="ident">SslFiletype</span>, <span class="ident">SslMethod</span>};
 <span class="kw">use</span> <span class="ident">r2d2</span>::<span class="ident">Pool</span>;
