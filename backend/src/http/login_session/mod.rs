@@ -1,13 +1,15 @@
 //! The session based login request
 
+use crate::{
+    cbor::CborResponseBuilder,
+    database::UpdateSession,
+    http::{unpack_cbor, FutureResponse},
+    server::State,
+    token::Token,
+};
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{AsyncResponder, HttpRequest, HttpResponse};
-use cbor::CborResponseBuilder;
-use database::UpdateSession;
 use futures::Future;
-use http::{unpack_cbor, FutureResponse};
-use server::State;
-use token::Token;
 use webapp::protocol::{model::Session, request::LoginSession, response::Login};
 
 mod test;

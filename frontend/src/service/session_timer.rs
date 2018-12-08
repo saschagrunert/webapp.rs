@@ -1,7 +1,6 @@
 //! The SessionTimer agent
 
-use api::Response;
-use service::cookie::CookieService;
+use crate::{api::Response, service::cookie::CookieService, SESSION_COOKIE};
 use std::time::Duration;
 use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
@@ -12,7 +11,6 @@ use yew::{
     prelude::{worker::*, *},
     services::{fetch::FetchTask, IntervalService, Task},
 };
-use SESSION_COOKIE;
 
 /// Possible message types
 pub enum Message {

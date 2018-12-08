@@ -2,8 +2,8 @@
 
 #![cfg(test)]
 
+use crate::server::Server;
 use failure::Fallible;
-use server::Server;
 use std::path::PathBuf;
 use webapp::{config::Config, CONFIG_FILENAME};
 

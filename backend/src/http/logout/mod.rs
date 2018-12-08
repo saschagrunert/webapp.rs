@@ -1,12 +1,14 @@
 //! The logout request
 
+use crate::{
+    cbor::CborResponseBuilder,
+    database::DeleteSession,
+    http::{unpack_cbor, FutureResponse},
+    server::State,
+};
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{AsyncResponder, HttpRequest, HttpResponse};
-use cbor::CborResponseBuilder;
-use database::DeleteSession;
 use futures::Future;
-use http::{unpack_cbor, FutureResponse};
-use server::State;
 use webapp::protocol::{model::Session, request, response};
 
 mod test;

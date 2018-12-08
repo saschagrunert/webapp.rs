@@ -1,6 +1,6 @@
 //! Response specific implementations
 
-use protocol::model::Session;
+use crate::protocol::model::Session;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// The login response

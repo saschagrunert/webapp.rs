@@ -1,13 +1,15 @@
 //! The credential based login request
 
+use crate::{
+    cbor::CborResponseBuilder,
+    database::CreateSession,
+    http::{unpack_cbor, FutureResponse},
+    server::State,
+    token::Token,
+};
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::ErrorUnauthorized, AsyncResponder, HttpRequest, HttpResponse};
-use cbor::CborResponseBuilder;
-use database::CreateSession;
 use futures::Future;
-use http::{unpack_cbor, FutureResponse};
-use server::State;
-use token::Token;
 use webapp::protocol::{request::LoginCredentials, response::Login};
 
 mod test;

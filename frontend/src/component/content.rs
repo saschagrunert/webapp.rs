@@ -1,20 +1,22 @@
 //! The Main Content component
 
-use api::Response;
-use route::RouterTarget;
-use service::{
-    cookie::CookieService,
-    session_timer::{self, SessionTimerAgent},
-    uikit::{NotificationStatus, UIkitService},
+use crate::{
+    api::Response,
+    route::RouterTarget,
+    service::{
+        cookie::CookieService,
+        session_timer::{self, SessionTimerAgent},
+        uikit::{NotificationStatus, UIkitService},
+    },
+    string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT},
+    SESSION_COOKIE,
 };
-use string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT};
 use webapp::{
     protocol::{model::Session, request, response},
     API_URL_LOGOUT,
 };
 use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
-use SESSION_COOKIE;
 
 /// Data Model for the Content component
 pub struct ContentComponent {

@@ -25,8 +25,7 @@ mod route;
 mod service;
 mod string;
 
-pub use component::root::RootComponent;
-pub use service::log::init_logger;
+pub use crate::{component::root::RootComponent, service::log::init_logger};
 
 /// The global session cookie name
 const SESSION_COOKIE: &str = "sessionToken";

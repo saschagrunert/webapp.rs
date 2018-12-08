@@ -2,8 +2,8 @@
 
 #![cfg(test)]
 
+use crate::cbor::{CborRequest, CborResponseBuilder};
 use actix_web::{test::TestRequest, HttpRequest, HttpResponse};
-use cbor::{CborRequest, CborResponseBuilder};
 use failure::{Fail, Fallible};
 use futures::Future;
 use serde_cbor::to_vec;

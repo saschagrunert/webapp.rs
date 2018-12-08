@@ -2,16 +2,18 @@
 
 #![cfg(test)]
 
+use crate::{
+    database::UpdateSession,
+    http::{
+        login_session::login_session,
+        test::{execute_request, state, DatabaseExecutorMock},
+    },
+    token::Token,
+};
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use database::UpdateSession;
 use failure::Fallible;
-use http::{
-    login_session::login_session,
-    test::{execute_request, state, DatabaseExecutorMock},
-};
 use serde_cbor::to_vec;
-use token::Token;
 use webapp::protocol::{model::Session, request};
 
 impl Handler<UpdateSession> for DatabaseExecutorMock {

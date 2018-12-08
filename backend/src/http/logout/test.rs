@@ -2,14 +2,16 @@
 
 #![cfg(test)]
 
+use crate::{
+    database::DeleteSession,
+    http::{
+        logout::logout,
+        test::{execute_request, state, DatabaseExecutorMock},
+    },
+};
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use database::DeleteSession;
 use failure::Fallible;
-use http::{
-    logout::logout,
-    test::{execute_request, state, DatabaseExecutorMock},
-};
 use serde_cbor::to_vec;
 use webapp::protocol::{model::Session, request};
 
