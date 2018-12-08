@@ -2,8 +2,6 @@
 
 #![cfg(test)]
 
-use actix::prelude::*;
-use actix_web::test::TestServer;
 use crate::{
     database::UpdateSession,
     http::{
@@ -12,6 +10,8 @@ use crate::{
     },
     token::Token,
 };
+use actix::prelude::*;
+use actix_web::test::TestServer;
 use failure::Fallible;
 use serde_cbor::to_vec;
 use webapp::protocol::{model::Session, request};

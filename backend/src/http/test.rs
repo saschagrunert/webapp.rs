@@ -2,9 +2,9 @@
 
 #![cfg(test)]
 
+use crate::server::State;
 use actix::prelude::*;
 use actix_web::{client::ClientResponse, test::TestServer};
-use crate::server::State;
 use failure::Fallible;
 
 /// The mock database executor actor

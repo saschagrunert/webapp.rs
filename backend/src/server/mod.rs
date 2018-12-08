@@ -1,5 +1,9 @@
 //! Everything related to the actual server implementation
 
+use crate::{
+    database::DatabaseExecutor,
+    http::{login_credentials, login_session, logout},
+};
 use actix::{prelude::*, SystemRunner};
 use actix_web::{
     fs::StaticFiles,
@@ -10,10 +14,6 @@ use actix_web::{
     },
     middleware::{self, cors::Cors},
     server, App, HttpResponse,
-};
-use crate::{
-    database::DatabaseExecutor,
-    http::{login_credentials, login_session, logout},
 };
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Fallible;

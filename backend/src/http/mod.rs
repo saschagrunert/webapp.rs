@@ -5,12 +5,12 @@ pub mod login_session;
 pub mod logout;
 mod test;
 
-use actix::{dev::ToEnvelope, prelude::*};
-use actix_web::{error::Error, HttpRequest, HttpResponse};
 pub use crate::http::{
     login_credentials::login_credentials, login_session::login_session, logout::logout,
 };
 use crate::{cbor::CborRequest, server::State};
+use actix::{dev::ToEnvelope, prelude::*};
+use actix_web::{error::Error, HttpRequest, HttpResponse};
 use futures::{future::FromErr, Future};
 use serde::de::DeserializeOwned;
 
