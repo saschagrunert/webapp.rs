@@ -2148,7 +2148,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "yew"
 version = "0.5.0"
-source = "git+https://github.com/DenisKolodin/yew#5a040a19bf11e5260b45d4dcb2c95bf3aaf27865"
+source = "git+https://github.com/DenisKolodin/yew#886e63da52d9b9f127aeb2613bd59355f14314fe"
 dependencies = [
  "anymap 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bincode 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
