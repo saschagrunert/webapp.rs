@@ -34,7 +34,7 @@ impl CookieService {
                 match name_value.get(0) {
                     None => None,
                     Some(c) => {
-                        if c.trim_left() == name {
+                        if c.trim_start() == name {
                             name_value.get(1).map(|x| (*x).to_owned())
                         } else {
                             None
