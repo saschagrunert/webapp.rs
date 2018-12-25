@@ -25,7 +25,7 @@ lazy_static = "1.2.0"
 reqwest = "0.9.5"
 
 [dependencies]
-actix = "0.7.8"
+actix = "0.7.9"
 actix-web = { version = "0.7.15", features = ["alpn"] }
 bytes = "0.4.11"
 clap = { version = "2.32.0", features = ["yaml"] }
