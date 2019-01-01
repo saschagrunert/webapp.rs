@@ -30,7 +30,7 @@ webapp = { path = ".." }
 failure = "0.1.4"
 log = "0.4.6"
 serde = "1.0.83"
-serde_derive = "1.0.83"
+serde_derive = "1.0.84"
 stdweb = "0.4.12"
 webapp = { path = ".." }
 yew = { git = "https://github.com/DenisKolodin/yew", features = ["cbor"] }
