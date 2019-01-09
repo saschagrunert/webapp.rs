@@ -1,6 +1,6 @@
 //! Configuration related structures
-
 use failure::Fallible;
+use serde_derive::Deserialize;
 use std::{fs::read_to_string, path::PathBuf};
 use toml;
 

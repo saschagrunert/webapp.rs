@@ -1,7 +1,10 @@
 //! The core library
-
 #![deny(missing_docs)]
 #![allow(unknown_lints, proc_macro_derive_resolution_fallback)]
+
+#[cfg(feature = "backend")]
+#[macro_use]
+extern crate diesel;
 
 pub mod config;
 pub mod protocol;
