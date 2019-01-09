@@ -1,16 +1,4 @@
 #![feature(test)]
-
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate failure;
-extern crate reqwest;
-extern crate serde_cbor;
-extern crate test;
-extern crate url;
-extern crate webapp;
-extern crate webapp_backend;
-
 use failure::Fallible;
 use reqwest::Client;
 use serde_cbor::to_vec;
