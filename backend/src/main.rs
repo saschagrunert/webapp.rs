@@ -1,5 +1,6 @@
-use clap::App;
-use failure::Fallible;
+use clap::{crate_version, load_yaml, App};
+use failure::{format_err, Fallible};
+use log::info;
 use std::{env::set_var, process::exit};
 use webapp::config::Config;
 use webapp_backend::Server;

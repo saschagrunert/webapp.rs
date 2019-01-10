@@ -17,6 +17,7 @@ use actix_web::{
 };
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Fallible;
+use log::{info, warn};
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use r2d2::Pool;

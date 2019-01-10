@@ -1,7 +1,8 @@
 //! The log service
 
-use failure::Fallible;
+use failure::{format_err, Fallible};
 use log::{set_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record};
+use stdweb::{_js_impl, js};
 
 /// The public static logger instance
 static LOGGER: LogService = LogService;

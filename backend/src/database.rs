@@ -8,6 +8,7 @@ use diesel::{
     update,
 };
 use failure::Fallible;
+use log::debug;
 use webapp::{protocol::model::Session, schema::sessions::dsl::*};
 
 /// The database executor actor

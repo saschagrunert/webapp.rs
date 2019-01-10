@@ -11,11 +11,12 @@ use crate::{
     string::{REQUEST_ERROR, RESPONSE_ERROR, TEXT_CONTENT, TEXT_LOGOUT},
     SESSION_COOKIE,
 };
+use log::{error, info, warn};
 use webapp::{
     protocol::{model::Session, request, response},
     API_URL_LOGOUT,
 };
-use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
+use yew::{format::Cbor, html, html_impl, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
 
 /// Data Model for the Content component

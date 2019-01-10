@@ -11,11 +11,12 @@ use crate::{
     string::{REQUEST_ERROR, RESPONSE_ERROR},
     SESSION_COOKIE,
 };
+use log::{error, info, warn};
 use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
     API_URL_LOGIN_SESSION,
 };
-use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
+use yew::{format::Cbor, html, html_impl, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, Route, RouterAgent};
 
 /// Data Model for the Root Component

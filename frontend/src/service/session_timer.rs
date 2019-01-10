@@ -1,6 +1,8 @@
 //! The SessionTimer agent
 
 use crate::{api::Response, service::cookie::CookieService, SESSION_COOKIE};
+use log::{info, warn};
+use serde_derive::{Deserialize, Serialize};
 use std::time::Duration;
 use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
