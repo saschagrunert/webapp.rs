@@ -1,5 +1,6 @@
 #![feature(test)]
 use failure::{format_err, Fallible};
+use lazy_static::lazy_static;
 use reqwest::Client;
 use serde_cbor::to_vec;
 use std::{sync::Mutex, thread};
