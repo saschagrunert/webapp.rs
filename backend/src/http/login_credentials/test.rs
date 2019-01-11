@@ -12,7 +12,7 @@ use crate::{
 };
 use actix::prelude::*;
 use actix_web::test::TestServer;
-use failure::{format_err, Fallible};
+use failure::Fallible;
 use serde_cbor::to_vec;
 use serde_derive::Serialize;
 use webapp::protocol::{model::Session, request::LoginCredentials};

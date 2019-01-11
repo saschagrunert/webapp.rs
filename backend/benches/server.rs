@@ -1,5 +1,5 @@
 #![feature(test)]
-use failure::Fallible;
+use failure::{format_err, Fallible};
 use reqwest::Client;
 use serde_cbor::to_vec;
 use std::{sync::Mutex, thread};
