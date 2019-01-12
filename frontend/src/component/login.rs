@@ -13,11 +13,12 @@ use crate::{
     },
     SESSION_COOKIE,
 };
+use log::{error, info, warn};
 use webapp::{
     protocol::{model::Session, request::LoginCredentials, response::Login},
     API_URL_LOGIN_CREDENTIALS,
 };
-use yew::{format::Cbor, prelude::*, services::fetch::FetchTask};
+use yew::{format::Cbor, html, html_impl, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
 
 /// Data Model for the Login component

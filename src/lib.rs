@@ -1,15 +1,10 @@
 //! The core library
-
 #![deny(missing_docs)]
 #![allow(unknown_lints, proc_macro_derive_resolution_fallback)]
 
-extern crate failure;
 #[cfg(feature = "backend")]
 #[macro_use]
 extern crate diesel;
-#[macro_use]
-extern crate serde_derive;
-extern crate toml;
 
 pub mod config;
 pub mod protocol;

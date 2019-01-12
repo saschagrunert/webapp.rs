@@ -1,6 +1,7 @@
 //! UIkit related helpers
 
 use std::fmt;
+use stdweb::{_js_impl, js};
 
 /// The UIkit service
 pub struct UIkitService;

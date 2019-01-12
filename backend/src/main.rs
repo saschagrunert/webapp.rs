@@ -1,15 +1,6 @@
-#[macro_use]
-extern crate clap;
-extern crate env_logger;
-#[macro_use]
-extern crate failure;
-#[macro_use]
-extern crate log;
-extern crate webapp;
-extern crate webapp_backend;
-
-use clap::App;
-use failure::Fallible;
+use clap::{crate_version, load_yaml, App};
+use failure::{format_err, Fallible};
+use log::info;
 use std::{env::set_var, process::exit};
 use webapp::config::Config;
 use webapp_backend::Server;

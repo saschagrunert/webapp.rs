@@ -14,6 +14,7 @@ use actix::prelude::*;
 use actix_web::test::TestServer;
 use failure::Fallible;
 use serde_cbor::to_vec;
+use serde_derive::Serialize;
 use webapp::protocol::{model::Session, request};
 
 impl Handler<UpdateSession> for DatabaseExecutorMock {

@@ -1,7 +1,7 @@
 //! A cookie handling service to read and write cookies
 
-use failure::Fallible;
-use stdweb::unstable::TryInto;
+use failure::{Fail, Fallible};
+use stdweb::{_js_impl, js, unstable::TryInto};
 
 #[derive(Debug, Fail)]
 pub enum CookieError {

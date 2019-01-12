@@ -10,6 +10,7 @@ use crate::{
 use actix::{dev::ToEnvelope, prelude::*};
 use actix_web::{error::ErrorUnauthorized, AsyncResponder, HttpRequest, HttpResponse};
 use futures::Future;
+use log::debug;
 use webapp::protocol::{request::LoginCredentials, response::Login};
 
 mod test;
