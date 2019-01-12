@@ -78,6 +78,7 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to database handling</span>
 
@@ -89,6 +90,7 @@
     <span class="ident">update</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
+<span class="kw">use</span> <span class="ident">log</span>::<span class="ident">debug</span>;
 <span class="kw">use</span> <span class="ident">webapp</span>::{<span class="ident">protocol</span>::<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">schema</span>::<span class="ident">sessions</span>::<span class="ident">dsl</span>::<span class="kw-2">*</span>};
 
 <span class="doccomment">/// The database executor actor</span>

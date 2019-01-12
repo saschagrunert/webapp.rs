@@ -63,8 +63,8 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A cookie handling service to read and write cookies</span>
 
-<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
-<span class="kw">use</span> <span class="ident">stdweb</span>::<span class="ident">unstable</span>::<span class="ident">TryInto</span>;
+<span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Fail</span>, <span class="ident">Fallible</span>};
+<span class="kw">use</span> <span class="ident">stdweb</span>::{<span class="ident">_js_impl</span>, <span class="ident">js</span>, <span class="ident">unstable</span>::<span class="ident">TryInto</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Fail</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CookieError</span> {

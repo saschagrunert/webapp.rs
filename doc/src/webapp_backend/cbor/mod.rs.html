@@ -80,10 +80,12 @@
 <span id="80">80</span>
 <span id="81">81</span>
 <span id="82">82</span>
+<span id="83">83</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Cbor abstraction for HTTP message handling</span>
 
 <span class="kw">mod</span> <span class="ident">test</span>;
+<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fail</span>;
 
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
     <span class="ident">dev</span>::<span class="ident">HttpResponseBuilder</span>,

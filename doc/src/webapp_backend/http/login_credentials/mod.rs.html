@@ -41,6 +41,7 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The credential based login request</span>
 
@@ -54,6 +55,7 @@
 <span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">dev</span>::<span class="ident">ToEnvelope</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">error</span>::<span class="ident">ErrorUnauthorized</span>, <span class="ident">AsyncResponder</span>, <span class="ident">HttpRequest</span>, <span class="ident">HttpResponse</span>};
 <span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">Future</span>;
+<span class="kw">use</span> <span class="ident">log</span>::<span class="ident">debug</span>;
 <span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">request</span>::<span class="ident">LoginCredentials</span>, <span class="ident">response</span>::<span class="ident">Login</span>};
 
 <span class="kw">mod</span> <span class="ident">test</span>;
