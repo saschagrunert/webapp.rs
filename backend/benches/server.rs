@@ -1,4 +1,6 @@
 #![feature(test)]
+extern crate test;
+
 use failure::{format_err, Fallible};
 use lazy_static::lazy_static;
 use reqwest::Client;
