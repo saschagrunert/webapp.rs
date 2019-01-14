@@ -23,7 +23,7 @@ path = "src/main.rs"
 
 [dev-dependencies]
 lazy_static = "1.2.0"
-reqwest = "0.9.7"
+reqwest = "0.9.8"
 
 [dependencies]
 actix = "0.7.9"
