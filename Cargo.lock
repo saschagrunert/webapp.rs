@@ -2201,7 +2201,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "yew"
 version = "0.5.0"
-source = "git+https://github.com/DenisKolodin/yew#886e63da52d9b9f127aeb2613bd59355f14314fe"
+source = "git+https://github.com/DenisKolodin/yew#23931596cca1923c986103f1dd16cd8a1ad18897"
 dependencies = [
  "anymap 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bincode 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2219,7 +2219,7 @@ dependencies = [
 [[package]]
 name = "yew-router"
 version = "0.1.0"
-source = "git+https://github.com/saschagrunert/yew-router#0d5f83e9a42b8414e150c633e49b7328914e118a"
+source = "git+https://github.com/saschagrunert/yew-router#0ef0d57c6a19f9f6106c9c62093a159446065cb2"
 dependencies = [
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.84 (registry+https://github.com/rust-lang/crates.io-index)",
