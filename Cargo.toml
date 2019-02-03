@@ -18,10 +18,10 @@ codecov = { repository = "saschagrunert/webapp.rs", branch = "master", service =
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-diesel = { version = "1.3.3", optional = true }
+diesel = { version = "1.4.1", optional = true }
 failure = "0.1.5"
-serde = "1.0.84"
-serde_derive = "1.0.84"
+serde = "1.0.86"
+serde_derive = "1.0.86"
 toml = "0.4.10"
 
 [features]
