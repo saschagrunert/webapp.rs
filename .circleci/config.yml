@@ -159,7 +159,7 @@ jobs:
             IMAGE: *image
           command: |
             docker pull $IMAGE
-            docker run -t -v $(pwd):/build -w /build --network=host $IMAGE \
+            docker run -t --security-opt seccomp=unconfined -v $(pwd):/build -w /build --network=host $IMAGE \
               bash -c "\
                 while true; do \
                   if pg_isready -qh localhost; then break; fi \
