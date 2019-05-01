@@ -1,15 +1,23 @@
 ---
-version: 2
-defaults: &defaults
+version: 2.1
+
+executors:
   docker:
-    - image: saschagrunert/build-rust
-defaults-postgres: &defaults-postgres
-  docker:
-    - image: saschagrunert/build-rust
-    - image: circleci/postgres:10.4-alpine
-      environment:
-        POSTGRES_USER: username
-        POSTGRES_DB: database
+    docker:
+      - image: &image saschagrunert/build-rust
+  docker-with-postgres:
+    docker:
+      - image: *image
+      - image: &postgresimage circleci/postgres:10.4-alpine
+        environment: &defaultEnv
+          POSTGRES_USER: username
+          POSTGRES_DB: database
+  machine:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-1604:201903-01
+    environment: *defaultEnv
+
 prepare-postgres: &prepare-postgres
   run:
     name: Prepare database
@@ -19,6 +27,7 @@ prepare-postgres: &prepare-postgres
       done
       diesel migration run \
         --database-url postgres://username:@localhost/database
+
 workflows:
   version: 2
   pipeline:
@@ -48,7 +57,7 @@ workflows:
                 - master
 jobs:
   build:
-    <<: *defaults
+    executor: docker
     steps:
       - checkout
       - run:
@@ -69,7 +78,7 @@ jobs:
             - /root/.cargo/registry
             - target
   doc:
-    <<: *defaults
+    executor: docker
     steps:
       - checkout
       - restore_cache:
@@ -88,7 +97,7 @@ jobs:
           paths:
             - target/doc
   doc-publish:
-    <<: *defaults
+    executor: docker
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -112,14 +121,14 @@ jobs:
             git diff-index --quiet HEAD || git commit -m 'Update documentation'
             git push -f origin gh-pages
   rustfmt:
-    <<: *defaults
+    executor: docker
     steps:
       - checkout
       - run:
           name: Rust-Format
           command: make lint-rustfmt
   clippy:
-    <<: *defaults
+    executor: docker
     steps:
       - checkout
       - restore_cache:
@@ -134,18 +143,34 @@ jobs:
             - /root/.cargo/registry
             - target
   test:
-    <<: *defaults-postgres
+    executor: machine
     steps:
       - checkout
-      - <<: *prepare-postgres
+      - run:
+          name: Start postgres
+          environment:
+            IMAGE: *postgresimage
+          command: |
+            docker pull $IMAGE
+            docker run -d --network=host -e POSTGRES_USER -e POSTGRES_DB $IMAGE
       - run:
           name: Run tests
-          command: make coverage
-      - run:
-          name: Upload coverage report
-          command: bash <(curl -s https://codecov.io/bash)
+          environment:
+            IMAGE: *image
+          command: |
+            docker pull $IMAGE
+            docker run -t --security-opt seccomp=unconfined -v $(pwd):/build \
+              -w /build --network=host -e CODECOV_TOKEN $IMAGE \
+              bash -c "\
+                while true; do \
+                  if pg_isready -qh localhost; then break; fi \
+                done && \
+                diesel migration run \
+                  --database-url postgres://username:@localhost/database && \
+                make coverage && \
+                bash <(curl -s https://codecov.io/bash)"
   bench:
-    <<: *defaults-postgres
+    executor: docker-with-postgres
     steps:
       - checkout
       - <<: *prepare-postgres
@@ -154,14 +179,16 @@ jobs:
             - bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Run benchmarks
-          command: make bench
+          command: |
+            rustup default nightly
+            make bench
       - save_cache:
           key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
   docker:
-    machine: true
+    executor: machine
     steps:
       - checkout
       - restore_cache:
@@ -184,7 +211,7 @@ jobs:
           paths:
             - webapp.tar
   docker-test:
-    machine: true
+    executor: machine
     steps:
       - checkout
       - attach_workspace:
@@ -217,7 +244,7 @@ jobs:
             - ~/.cargo
             - target
   deploy:
-    machine: true
+    executor: machine
     steps:
       - checkout
       - attach_workspace:

@@ -18,7 +18,7 @@ use webapp::{
     protocol::{model::Session, request::LoginCredentials, response::Login},
     API_URL_LOGIN_CREDENTIALS,
 };
-use yew::{format::Cbor, html, html_impl, prelude::*, services::fetch::FetchTask};
+use yew::{format::Cbor, html, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
 
 /// Data Model for the Login component

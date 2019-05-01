@@ -16,7 +16,7 @@ use webapp::{
     protocol::{model::Session, request, response},
     API_URL_LOGOUT,
 };
-use yew::{format::Cbor, html, html_impl, prelude::*, services::fetch::FetchTask};
+use yew::{format::Cbor, html, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, RouterAgent};
 
 /// Data Model for the Content component
