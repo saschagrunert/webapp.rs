@@ -21,7 +21,7 @@ maintenance = { status = "actively-developed" }
 diesel = { version = "1.4.1", optional = true }
 failure = "0.1.5"
 serde = "1.0.86"
-serde_derive = "1.0.86"
+serde_derive = "1.0.90"
 toml = "0.4.10"
 
 [features]
