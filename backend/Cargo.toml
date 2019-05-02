@@ -44,5 +44,5 @@ serde_cbor = "0.9.0"
 serde_derive = "1.0.90"
 time = "0.1.42"
 url = "1.7.2"
-uuid = { version = "0.7.1", features = ["v4"] }
+uuid = { version = "0.7.4", features = ["v4"] }
 webapp = { path = "..", features = ["backend"] }
