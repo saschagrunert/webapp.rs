@@ -2333,7 +2333,7 @@ dependencies = [
 [[package]]
 name = "yew-router"
 version = "0.1.0"
-source = "git+https://github.com/saschagrunert/yew-router#d2384de5b537ef69252ed3375b22ef7bb51459a9"
+source = "git+https://github.com/saschagrunert/yew-router#615581f52c11038760d52ab8837b7f5a5f7c27f5"
 dependencies = [
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.90 (registry+https://github.com/rust-lang/crates.io-index)",
