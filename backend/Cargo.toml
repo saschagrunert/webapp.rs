@@ -41,7 +41,7 @@ openssl = "0.10.21"
 r2d2 = "0.8.4"
 serde = "1.0.91"
 serde_cbor = "0.9.0"
-serde_derive = "1.0.90"
+serde_derive = "1.0.91"
 time = "0.1.42"
 url = "1.7.2"
 uuid = { version = "0.7.4", features = ["v4"] }
