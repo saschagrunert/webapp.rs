@@ -21,7 +21,6 @@ macro_rules! apis {
     )
 }
 
-/// Available API definitions
 apis! {
     API_URL_LOGIN_CREDENTIALS => "login/credentials",
     API_URL_LOGIN_SESSION => "login/session",
