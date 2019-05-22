@@ -23,7 +23,7 @@ path = "src/main.rs"
 
 [build-dependencies]
 failure = "0.1.5"
-sass-rs = "0.2.1"
+sass-rs = "0.2.2"
 url = "1.7.2"
 webapp = { path = ".." }
 
