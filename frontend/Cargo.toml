@@ -30,7 +30,7 @@ webapp = { path = ".." }
 [dependencies]
 failure = "0.1.5"
 log = "0.4.6"
-serde = "1.0.91"
+serde = "1.0.92"
 serde_derive = "1.0.92"
 stdweb = "0.4.17"
 webapp = { path = ".." }
