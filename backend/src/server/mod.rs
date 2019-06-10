@@ -5,15 +5,13 @@ use crate::{
     http::{login_credentials, login_session, logout},
 };
 use actix::{prelude::*, SystemRunner};
+use actix_cors::Cors;
+use actix_files::Files;
 use actix_web::{
-    fs::StaticFiles,
-    http::{
-        self,
-        header::{CONTENT_TYPE, LOCATION},
-        NormalizePath,
-    },
-    middleware::{self, cors::Cors},
-    server, App, HttpResponse,
+    http::header::{CONTENT_TYPE, LOCATION},
+    middleware,
+    web::{get, post, resource},
+    App, HttpResponse, HttpServer,
 };
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use failure::Fallible;
@@ -32,15 +30,6 @@ pub struct Server {
     config: Config,
     runner: SystemRunner,
     url: Url,
-}
-
-/// Shared mutable application state
-pub struct State<T>
-where
-    T: Actor,
-{
-    /// The database connection
-    pub database: Addr<T>,
 }
 
 impl Server {
@@ -62,30 +51,22 @@ impl Server {
         let db_addr = SyncArbiter::start(num_cpus::get(), move || DatabaseExecutor(pool.clone()));
 
         // Create the server
-        let server = server::new(move || {
-            App::with_state(State {
-                database: db_addr.clone(),
-            })
-            .middleware(middleware::Logger::default())
-            .configure(|app| {
-                Cors::for_app(app)
-                    .allowed_methods(vec!["GET", "POST"])
-                    .allowed_header(CONTENT_TYPE)
-                    .max_age(3600)
-                    .resource(API_URL_LOGIN_CREDENTIALS, |r| {
-                        r.method(http::Method::POST).f(login_credentials)
-                    })
-                    .resource(API_URL_LOGIN_SESSION, |r| {
-                        r.method(http::Method::POST).f(login_session)
-                    })
-                    .resource(API_URL_LOGOUT, |r| r.method(http::Method::POST).f(logout))
-                    .register()
-            })
-            .default_resource(|r| r.h(NormalizePath::default()))
-            .handler(
-                "/",
-                StaticFiles::new("static").unwrap().index_file("index.html"),
-            )
+        let server = HttpServer::new(move || {
+            App::new()
+                .data(db_addr.clone())
+                .wrap(
+                    Cors::new()
+                        .allowed_methods(vec!["GET", "POST"])
+                        .allowed_header(CONTENT_TYPE)
+                        .max_age(3600),
+                )
+                .wrap(middleware::Logger::default())
+                .service(
+                    resource(API_URL_LOGIN_CREDENTIALS).route(post().to_async(login_credentials)),
+                )
+                .service(resource(API_URL_LOGIN_SESSION).route(post().to_async(login_session)))
+                .service(resource(API_URL_LOGOUT).route(post().to_async(logout)))
+                .service(Files::new("/", "./static/").index_file("index.html"))
         });
 
         // Create the server url from the given configuration
@@ -106,12 +87,14 @@ impl Server {
     }
 
     /// Start the server
-    pub fn start(self) -> i32 {
+    pub fn start(self) -> Fallible<()> {
         // Start the redirecting server
         self.start_redirects();
 
         // Start the actual main server
-        self.runner.run()
+        self.runner.run()?;
+
+        Ok(())
     }
 
     /// Build an SslAcceptorBuilder from a config
@@ -136,15 +119,13 @@ impl Server {
                 let url = server_url.clone();
 
                 // Create redirecting server
-                let mut server = server::new(move || {
+                let mut server = HttpServer::new(move || {
                     let location = url.clone();
-                    App::new().default_resource(|r| {
-                        r.f(move |_| {
-                            HttpResponse::PermanentRedirect()
-                                .header(LOCATION, location.as_str())
-                                .finish()
-                        })
-                    })
+                    App::new().service(resource("/").route(get().to(move || {
+                        HttpResponse::PermanentRedirect()
+                            .header(LOCATION, location.as_str())
+                            .finish()
+                    })))
                 });
 
                 // Bind the URLs if possible
@@ -170,7 +151,7 @@ impl Server {
 
                 // Start the server and the system
                 server.start();
-                system.run();
+                system.run().unwrap();
             });
         }
     }

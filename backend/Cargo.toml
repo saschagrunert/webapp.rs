@@ -22,26 +22,30 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
+actix-http-test = "0.2.2"
+actix-http = "0.2.5"
 lazy_static = "1.3.0"
 reqwest = "0.9.18"
 
 [dependencies]
-actix = "0.7.9"
-actix-web = { version = "0.7.19", features = ["alpn"] }
+actix = "0.8.3"
+actix-cors = "0.1.0"
+actix-files = "0.1.3"
+actix-web = { version = "1.0.3", features = ["ssl"] }
 bytes = "0.4.12"
 clap = { version = "2.33.0", features = ["yaml"] }
 diesel = { version = "1.4.2", features = ["r2d2", "postgres"] }
 env_logger = "0.6.2"
 failure = "0.1.5"
 futures = "0.1.28"
-jsonwebtoken = "5.0.1"
+jsonwebtoken = "6.0.1"
 log = "0.4.6"
 num_cpus = "1.10.1"
 openssl = "0.10.23"
 r2d2 = "0.8.5"
 serde = "1.0.94"
 serde_cbor = "0.10.0"
-serde_derive = "1.0.93"
+serde_derive = "1.0.94"
 time = "0.1.42"
 url = "1.7.2"
 uuid = { version = "0.7.4", features = ["v4"] }

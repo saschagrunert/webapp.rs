@@ -1,7 +1,7 @@
 use clap::{crate_version, load_yaml, App};
 use failure::{format_err, Fallible};
 use log::info;
-use std::{env::set_var, process::exit};
+use std::env::set_var;
 use webapp::config::Config;
 use webapp_backend::Server;
 
@@ -38,5 +38,7 @@ fn main() -> Fallible<()> {
     let server = Server::from_config(&config)?;
 
     // Start the server
-    exit(server.start());
+    server.start()?;
+
+    Ok(())
 }
