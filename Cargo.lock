@@ -656,7 +656,7 @@ dependencies = [
  "indexmap 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "slab 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "string 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-io 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1684,7 +1684,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "string"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2610,7 +2610,7 @@ dependencies = [
 "checksum stdweb-derive 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0e21ebd9179de08f2300a65454268a17ea3de204627458588c84319c4def3930"
 "checksum stdweb-internal-macros 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)" = "e68f7d08b76979a43e93fe043b66d2626e35d41d68b0b85519202c6dd8ac59fa"
 "checksum stdweb-internal-runtime 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "d52317523542cc0af5b7e31017ad0f7d1e78da50455e38d5657cd17754f617da"
-"checksum string 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d0bbfb8937e38e34c3444ff00afb28b0811d9554f15c5ad64d12b0308d1d1995"
+"checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 "checksum syn 0.15.39 (registry+https://github.com/rust-lang/crates.io-index)" = "b4d960b829a55e56db167e861ddb43602c003c7be0bee1d345021703fac2fb7c"
 "checksum synstructure 0.10.2 (registry+https://github.com/rust-lang/crates.io-index)" = "02353edf96d6e4dc81aea2d8490a7e9db177bf8acb0e951c24940bf866cb313f"
