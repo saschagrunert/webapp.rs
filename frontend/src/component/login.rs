@@ -153,7 +153,7 @@ impl Renderable<LoginComponent> for LoginComponent {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <h1 class="uk-card-title",>{TEXT_LOGIN}</h1>
-                <form onsubmit="return false",>
+                <form>
                     <fieldset class="uk-fieldset",>
                         <input class="uk-input uk-margin",
                             placeholder=INPUT_USERNAME,
