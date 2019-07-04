@@ -2,16 +2,17 @@
 version: 2.1
 
 executors:
-  docker:
+  container:
     docker:
       - image: &image saschagrunert/build-rust
-  docker-with-postgres:
+  container-with-postgres:
     docker:
       - image: *image
       - image: &postgresimage circleci/postgres:10.4-alpine
         environment: &defaultEnv
           POSTGRES_USER: username
           POSTGRES_DB: database
+          CONTAINER_RUNTIME: docker
   machine:
     machine:
       docker_layer_caching: true
@@ -44,20 +45,20 @@ workflows:
       - clippy
       - test
       - bench
-      - docker
-      - docker-test:
+      - container
+      - container-test:
           requires:
-            - docker
+            - container
       - deploy:
           requires:
-            - docker-test
+            - container-test
           filters:
             branches:
               only:
                 - master
 jobs:
   build:
-    executor: docker
+    executor: container
     steps:
       - checkout
       - run:
@@ -78,7 +79,7 @@ jobs:
             - /root/.cargo/registry
             - target
   doc:
-    executor: docker
+    executor: container
     steps:
       - checkout
       - restore_cache:
@@ -97,7 +98,7 @@ jobs:
           paths:
             - target/doc
   doc-publish:
-    executor: docker
+    executor: container
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -121,14 +122,14 @@ jobs:
             git diff-index --quiet HEAD || git commit -m 'Update documentation'
             git push -f origin gh-pages
   rustfmt:
-    executor: docker
+    executor: container
     steps:
       - checkout
       - run:
           name: Rust-Format
           command: make lint-rustfmt
   clippy:
-    executor: docker
+    executor: container
     steps:
       - checkout
       - restore_cache:
@@ -170,7 +171,7 @@ jobs:
                 make coverage && \
                 bash <(curl -s https://codecov.io/bash)"
   bench:
-    executor: docker-with-postgres
+    executor: container-with-postgres
     steps:
       - checkout
       - <<: *prepare-postgres
@@ -187,20 +188,20 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
-  docker:
+  container:
     executor: machine
     steps:
       - checkout
       - restore_cache:
           keys:
-            - docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - container-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
-          name: Build docker image
+          name: Build container image
           command: |
             make deploy
             docker save webapp -o webapp.tar
       - save_cache:
-          key: docker-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: container-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - /root/.cargo/registry
             - target
@@ -210,7 +211,7 @@ jobs:
           root: .
           paths:
             - webapp.tar
-  docker-test:
+  container-test:
     executor: machine
     steps:
       - checkout
@@ -218,7 +219,7 @@ jobs:
           at: .
       - restore_cache:
           keys:
-            - docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - container-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Install dependencies
           command: |
@@ -239,7 +240,7 @@ jobs:
             sleep 3
             make test-deploy
       - save_cache:
-          key: docker-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: container-test-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
             - ~/.cargo
             - target

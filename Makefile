@@ -2,6 +2,7 @@
 GENERAL_ARGS = --release
 FRONTEND_ARGS = $(GENERAL_ARGS) -p webapp-frontend --target wasm32-unknown-unknown
 BACKEND_ARGS = $(GENERAL_ARGS) -p webapp-backend
+CONTAINER_RUNTIME ?= podman
 
 # Application configuration
 define get_config_value
@@ -56,20 +57,18 @@ coverage:
 
 deploy:
 	# Deploy the frontend
-	docker run --rm -it -w /deploy -v $(PWD):/deploy \
+	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(PWD):/deploy \
 		saschagrunert/build-rust:latest \
 		cargo web deploy $(FRONTEND_ARGS)
 	# Fix applications path to JavaScript file
 	sudo chown -R $(USER) target
-	mkdir target/deploy/js
-	mv target/deploy/app.js ./target/deploy/js
 	# Build the backend
 	sudo chown -R 1000:1000 target
-	docker run --rm -it -v $(PWD):/home/rust/src \
+	$(CONTAINER_RUNTIME) run --rm -it -v $(PWD):/home/rust/src \
 		ekidd/rust-musl-builder:experimental \
 		cargo build $(BACKEND_ARGS)
-	# Create the docker image from the executable
-	docker build --no-cache -t webapp .
+	# Create the container image from the executable
+	$(CONTAINER_RUNTIME) build --no-cache -t webapp .
 
 lint-clippy:
 	cargo clippy --all -- -D warnings
@@ -79,8 +78,8 @@ lint-rustfmt:
 	git diff --exit-code
 
 run-app: run-postgres
-	if [ ! "$(shell docker ps -q -f name=webapp)" ]; then \
-		docker run --rm \
+	if [ ! "$(shell $(CONTAINER_RUNTIME) ps -q -f name=webapp)" ]; then \
+		$(CONTAINER_RUNTIME) run --rm \
 			--name webapp \
 			--network="host" \
 			-v $(PWD)/backend/tls:/tls \
@@ -97,8 +96,8 @@ run-frontend:
 	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
 
 run-postgres:
-	if [ ! "$(shell docker ps -q -f name=postgres)" ]; then \
-		docker run --rm --name postgres \
+	if [ ! "$(shell $(CONTAINER_RUNTIME) ps -q -f name=postgres)" ]; then \
+		$(CONTAINER_RUNTIME) run --rm --name postgres \
 			-e POSTGRES_USER=$(PG_USERNAME) \
 			-e POSTGRES_PASSWORD=$(PG_PASSWORD) \
 			-e POSTGRES_DB=$(PG_DATABASE) \
@@ -115,10 +114,10 @@ run-postgres:
 	fi
 
 stop-app: stop-postgres
-	docker stop webapp
+	$(CONTAINER_RUNTIME) stop webapp
 
 stop-postgres:
-	docker stop postgres
+	$(CONTAINER_RUNTIME) stop postgres
 
 test-deploy: run-app
 	echo "Testing $(API_URL)"
