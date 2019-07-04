@@ -15,7 +15,7 @@ use url::Url;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit";
-const TAG: &str = "v3.0.0-rc.17";
+const TAG: &str = "v3.1.6";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 
