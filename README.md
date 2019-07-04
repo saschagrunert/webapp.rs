@@ -25,8 +25,7 @@ feature set of this application:
 - [cargo-web](https://github.com/koute/cargo-web)
 - [diesel_cli](https://github.com/diesel-rs/diesel)
 - [postgresql (libpg)](https://www.postgresql.org/)
-- A container runtime, like [podman](https://podman.io) or
-  [docker](https://github.com/docker/docker-ce)
+- A container runtime, like [podman](https://podman.io)
 
 The app consist of a frontend and a backend. For getting started with hacking,
 the backend can tested via `make run-backend`, whereas the frontend can be
