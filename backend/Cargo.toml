@@ -4,12 +4,11 @@ categories = ["web-programming"]
 description = "A web application completely written in Rust"
 documentation = "https://docs.rs/webapp"
 homepage = "https://github.com/saschagrunert/webapp.rs"
-keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
+keywords = ["web", "app", "webapp", "wasm", "webassembly"]
 license = "MIT"
 name = "webapp-backend"
-readme = "README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2018"
 
 [badges]
@@ -43,9 +42,9 @@ log = "0.4.6"
 num_cpus = "1.10.1"
 openssl = "0.10.23"
 r2d2 = "0.8.5"
-serde = { version = "1.0.94", features = [ "derive" ]}
+serde = { version = "1.0.94", features = ["derive"]}
 serde_cbor = "0.10.0"
 time = "0.1.42"
 url = "1.7.2"
 uuid = { version = "0.7.4", features = ["v4"] }
-webapp = { path = "..", features = ["backend"] }
+webapp = { version = "1.0.0", path = "..", features = ["backend"] }

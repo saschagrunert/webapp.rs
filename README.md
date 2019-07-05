@@ -2,10 +2,15 @@
 
 [![CircleCI](https://circleci.com/gh/saschagrunert/webapp.rs.svg?style=shield)](https://circleci.com/gh/saschagrunert/webapp.rs)
 [![Coverage](https://codecov.io/gh/saschagrunert/webapp.rs/branch/master/graph/badge.svg)](https://codecov.io/gh/saschagrunert/webapp.rs)
-[![dependency status](https://deps.rs/repo/github/saschagrunert/webapp.rs/status.svg)](https://deps.rs/repo/github/saschagrunert/webapp.rs)
-[![Doc](https://img.shields.io/badge/doc-webapp-orange.svg)](https://saschagrunert.github.io/webapp.rs/doc/webapp/index.html)
+[![Deps](https://deps.rs/repo/github/saschagrunert/webapp.rs/status.svg)](https://deps.rs/repo/github/saschagrunert/webapp.rs)
+[![Docs master](https://img.shields.io/badge/doc-master-orange.svg)](https://saschagrunert.github.io/webapp.rs/doc/webapp/index.html)
+[![Docs release](https://docs.rs/webapp/badge.svg)](https://docs.rs/webapp)
+[![Docs release backend](https://docs.rs/webapp-backend/badge.svg)](https://docs.rs/webapp-backend)
+[![Docs release frontend](https://docs.rs/webapp-frontend/badge.svg)](https://docs.rs/webapp-frontend)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/webapp.rs/blob/master/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/webapp.svg)](https://crates.io/crates/webapp)
+[![Crates.io](https://img.shields.io/crates/v/webapp-backend.svg)](https://crates.io/crates/webapp-backend)
+[![Crates.io](https://img.shields.io/crates/v/webapp-frontend.svg)](https://crates.io/crates/webapp-frontend)
 
 ## A web application completely written in Rust
 

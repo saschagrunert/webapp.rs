@@ -4,12 +4,12 @@ categories = ["web-programming"]
 description = "A web application completely written in Rust"
 documentation = "https://docs.rs/webapp"
 homepage = "https://github.com/saschagrunert/webapp.rs"
-keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
+keywords = ["web", "app", "webapp", "wasm", "webassembly"]
 license = "MIT"
 name = "webapp"
 readme = "README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
-version = "0.3.0"
+version = "1.0.0"
 edition = "2018"
 
 [badges]
@@ -20,7 +20,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 diesel = { version = "1.4.2", optional = true }
 failure = "0.1.5"
-serde = { version = "1.0.94", features = [ "derive" ]}
+serde = { version = "1.0.94", features = ["derive"]}
 toml = "0.5.1"
 
 [features]
