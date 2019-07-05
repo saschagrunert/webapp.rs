@@ -33,5 +33,5 @@ log = "0.4.6"
 serde = { version = "1.0.94", features = [ "derive" ]}
 stdweb = "0.4.17"
 webapp = { path = ".." }
-yew = { git = "https://github.com/DenisKolodin/yew", features = ["cbor"] }
-yew-router = { git = "https://github.com/saschagrunert/yew-router" }
+yew = { version = "0.6.0", features = ["cbor"] }
+yew-router = "0.2.0"
