@@ -156,25 +156,6 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to the actual server implementation</span>
 
@@ -183,15 +164,13 @@
     <span class="ident">http</span>::{<span class="ident">login_credentials</span>, <span class="ident">login_session</span>, <span class="ident">logout</span>},
 };
 <span class="kw">use</span> <span class="ident">actix</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">SystemRunner</span>};
+<span class="kw">use</span> <span class="ident">actix_cors</span>::<span class="ident">Cors</span>;
+<span class="kw">use</span> <span class="ident">actix_files</span>::<span class="ident">Files</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">fs</span>::<span class="ident">StaticFiles</span>,
-    <span class="ident">http</span>::{
-        <span class="self">self</span>,
-        <span class="ident">header</span>::{<span class="ident">CONTENT_TYPE</span>, <span class="ident">LOCATION</span>},
-        <span class="ident">NormalizePath</span>,
-    },
-    <span class="ident">middleware</span>::{<span class="self">self</span>, <span class="ident">cors</span>::<span class="ident">Cors</span>},
-    <span class="ident">server</span>, <span class="ident">App</span>, <span class="ident">HttpResponse</span>,
+    <span class="ident">http</span>::<span class="ident">header</span>::{<span class="ident">CONTENT_TYPE</span>, <span class="ident">LOCATION</span>},
+    <span class="ident">middleware</span>,
+    <span class="ident">web</span>::{<span class="ident">get</span>, <span class="ident">post</span>, <span class="ident">resource</span>},
+    <span class="ident">App</span>, <span class="ident">HttpResponse</span>, <span class="ident">HttpServer</span>,
 };
 <span class="kw">use</span> <span class="ident">diesel</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">r2d2</span>::<span class="ident">ConnectionManager</span>};
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
@@ -210,15 +189,6 @@
     <span class="ident">config</span>: <span class="ident">Config</span>,
     <span class="ident">runner</span>: <span class="ident">SystemRunner</span>,
     <span class="ident">url</span>: <span class="ident">Url</span>,
-}
-
-<span class="doccomment">/// Shared mutable application state</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Actor</span>,
-{
-    <span class="doccomment">/// The database connection</span>
-    <span class="kw">pub</span> <span class="ident">database</span>: <span class="ident">Addr</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Server</span> {
@@ -240,30 +210,22 @@
         <span class="kw">let</span> <span class="ident">db_addr</span> <span class="op">=</span> <span class="ident">SyncArbiter</span>::<span class="ident">start</span>(<span class="ident">num_cpus</span>::<span class="ident">get</span>(), <span class="kw">move</span> <span class="op">||</span> <span class="ident">DatabaseExecutor</span>(<span class="ident">pool</span>.<span class="ident">clone</span>()));
 
         <span class="comment">// Create the server</span>
-        <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">server</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">||</span> {
-            <span class="ident">App</span>::<span class="ident">with_state</span>(<span class="ident">State</span> {
-                <span class="ident">database</span>: <span class="ident">db_addr</span>.<span class="ident">clone</span>(),
-            })
-            .<span class="ident">middleware</span>(<span class="ident">middleware</span>::<span class="ident">Logger</span>::<span class="ident">default</span>())
-            .<span class="ident">configure</span>(<span class="op">|</span><span class="ident">app</span><span class="op">|</span> {
-                <span class="ident">Cors</span>::<span class="ident">for_app</span>(<span class="ident">app</span>)
-                    .<span class="ident">allowed_methods</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>])
-                    .<span class="ident">allowed_header</span>(<span class="ident">CONTENT_TYPE</span>)
-                    .<span class="ident">max_age</span>(<span class="number">3600</span>)
-                    .<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="ident">r</span>.<span class="ident">method</span>(<span class="ident">http</span>::<span class="ident">Method</span>::<span class="ident">POST</span>).<span class="ident">f</span>(<span class="ident">login_credentials</span>)
-                    })
-                    .<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_SESSION</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="ident">r</span>.<span class="ident">method</span>(<span class="ident">http</span>::<span class="ident">Method</span>::<span class="ident">POST</span>).<span class="ident">f</span>(<span class="ident">login_session</span>)
-                    })
-                    .<span class="ident">resource</span>(<span class="ident">API_URL_LOGOUT</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">method</span>(<span class="ident">http</span>::<span class="ident">Method</span>::<span class="ident">POST</span>).<span class="ident">f</span>(<span class="ident">logout</span>))
-                    .<span class="ident">register</span>()
-            })
-            .<span class="ident">default_resource</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">h</span>(<span class="ident">NormalizePath</span>::<span class="ident">default</span>()))
-            .<span class="ident">handler</span>(
-                <span class="string">&quot;/&quot;</span>,
-                <span class="ident">StaticFiles</span>::<span class="ident">new</span>(<span class="string">&quot;static&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">index_file</span>(<span class="string">&quot;index.html&quot;</span>),
-            )
+        <span class="kw">let</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">HttpServer</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">||</span> {
+            <span class="ident">App</span>::<span class="ident">new</span>()
+                .<span class="ident">data</span>(<span class="ident">db_addr</span>.<span class="ident">clone</span>())
+                .<span class="ident">wrap</span>(
+                    <span class="ident">Cors</span>::<span class="ident">new</span>()
+                        .<span class="ident">allowed_methods</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>])
+                        .<span class="ident">allowed_header</span>(<span class="ident">CONTENT_TYPE</span>)
+                        .<span class="ident">max_age</span>(<span class="number">3600</span>),
+                )
+                .<span class="ident">wrap</span>(<span class="ident">middleware</span>::<span class="ident">Logger</span>::<span class="ident">default</span>())
+                .<span class="ident">service</span>(
+                    <span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">login_credentials</span>)),
+                )
+                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_SESSION</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">login_session</span>)))
+                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">logout</span>)))
+                .<span class="ident">service</span>(<span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;./static/&quot;</span>).<span class="ident">index_file</span>(<span class="string">&quot;index.html&quot;</span>))
         });
 
         <span class="comment">// Create the server url from the given configuration</span>
@@ -284,12 +246,14 @@
     }
 
     <span class="doccomment">/// Start the server</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Fallible</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Start the redirecting server</span>
         <span class="self">self</span>.<span class="ident">start_redirects</span>();
 
         <span class="comment">// Start the actual main server</span>
-        <span class="self">self</span>.<span class="ident">runner</span>.<span class="ident">run</span>()
+        <span class="self">self</span>.<span class="ident">runner</span>.<span class="ident">run</span>()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Build an SslAcceptorBuilder from a config</span>
@@ -314,15 +278,13 @@
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">server_url</span>.<span class="ident">clone</span>();
 
                 <span class="comment">// Create redirecting server</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">server</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">||</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">server</span> <span class="op">=</span> <span class="ident">HttpServer</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">||</span> {
                     <span class="kw">let</span> <span class="ident">location</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">clone</span>();
-                    <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">default_resource</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="ident">r</span>.<span class="ident">f</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                            <span class="ident">HttpResponse</span>::<span class="ident">PermanentRedirect</span>()
-                                .<span class="ident">header</span>(<span class="ident">LOCATION</span>, <span class="ident">location</span>.<span class="ident">as_str</span>())
-                                .<span class="ident">finish</span>()
-                        })
-                    })
+                    <span class="ident">App</span>::<span class="ident">new</span>().<span class="ident">service</span>(<span class="ident">resource</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">route</span>(<span class="ident">get</span>().<span class="ident">to</span>(<span class="kw">move</span> <span class="op">||</span> {
+                        <span class="ident">HttpResponse</span>::<span class="ident">PermanentRedirect</span>()
+                            .<span class="ident">header</span>(<span class="ident">LOCATION</span>, <span class="ident">location</span>.<span class="ident">as_str</span>())
+                            .<span class="ident">finish</span>()
+                    })))
                 });
 
                 <span class="comment">// Bind the URLs if possible</span>
@@ -348,7 +310,7 @@
 
                 <span class="comment">// Start the server and the system</span>
                 <span class="ident">server</span>.<span class="ident">start</span>();
-                <span class="ident">system</span>.<span class="ident">run</span>();
+                <span class="ident">system</span>.<span class="ident">run</span>().<span class="ident">unwrap</span>();
             });
         }
     }
