@@ -3,7 +3,7 @@
 use actix_web::{HttpResponse, ResponseError};
 use failure::Fail;
 use jsonwebtoken::{decode, encode, Header, Validation};
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use time::get_time;
 use uuid::Uuid;
 

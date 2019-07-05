@@ -43,9 +43,8 @@ log = "0.4.6"
 num_cpus = "1.10.1"
 openssl = "0.10.23"
 r2d2 = "0.8.5"
-serde = "1.0.94"
+serde = { version = "1.0.94", features = [ "derive" ]}
 serde_cbor = "0.10.0"
-serde_derive = "1.0.94"
 time = "0.1.42"
 url = "1.7.2"
 uuid = { version = "0.7.4", features = ["v4"] }

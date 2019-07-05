@@ -1,6 +1,6 @@
 //! Request messages
 use crate::protocol::model::Session;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// The credentials based login request
