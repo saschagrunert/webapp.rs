@@ -4,12 +4,11 @@ categories = ["web-programming"]
 description = "A web application completely written in Rust"
 documentation = "https://docs.rs/webapp"
 homepage = "https://github.com/saschagrunert/webapp.rs"
-keywords = ["web", "app", "website", "webapp", "wasm", "webassembly"]
+keywords = ["web", "app", "webapp", "wasm", "webassembly"]
 license = "MIT"
 name = "webapp-frontend"
-readme = "README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2018"
 
 [badges]
@@ -25,13 +24,13 @@ path = "src/main.rs"
 failure = "0.1.5"
 sass-rs = "0.2.2"
 url = "1.7.2"
-webapp = { path = ".." }
+webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
 failure = "0.1.5"
 log = "0.4.6"
-serde = { version = "1.0.94", features = [ "derive" ]}
+serde = { version = "1.0.94", features = ["derive"]}
 stdweb = "0.4.17"
-webapp = { path = ".." }
+webapp = { version = "1.0.0", path = ".." }
 yew = { version = "0.6.0", features = ["cbor"] }
 yew-router = "0.2.0"
