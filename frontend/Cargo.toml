@@ -7,6 +7,7 @@ homepage = "https://github.com/saschagrunert/webapp.rs"
 keywords = ["web", "app", "webapp", "wasm", "webassembly"]
 license = "MIT"
 name = "webapp-frontend"
+readme = "../README.md"
 repository = "https://github.com/saschagrunert/webapp.rs"
 version = "1.0.0"
 edition = "2018"
