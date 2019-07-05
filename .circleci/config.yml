@@ -5,19 +5,14 @@ executors:
   container:
     docker:
       - image: &image saschagrunert/build-rust
-  container-with-postgres:
-    docker:
-      - image: *image
-      - image: &postgresimage circleci/postgres:10.4-alpine
-        environment: &defaultEnv
-          POSTGRES_USER: username
-          POSTGRES_DB: database
-          CONTAINER_RUNTIME: docker
   machine:
     machine:
       docker_layer_caching: true
       image: ubuntu-1604:201903-01
-    environment: *defaultEnv
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_DB: database
+      CONTAINER_RUNTIME: docker
 
 prepare-postgres: &prepare-postgres
   run:
@@ -44,7 +39,6 @@ workflows:
       - rustfmt
       - clippy
       - test
-      - bench
       - container
       - container-test:
           requires:
@@ -56,30 +50,30 @@ workflows:
             branches:
               only:
                 - master
+
 jobs:
   build:
-    executor: container
+    executor: machine
     steps:
       - checkout
-      - run:
-          name: Version information
-          command: |
-            rustc --version
-            rustup --version
-            cargo --version
       - restore_cache:
           keys:
             - build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
-          command: make
+          command: |
+            docker pull $IMAGE
+            docker run -v $(pwd):/build -w /build $IMAGE make
+            sudo chown -R $(id -u):$(id -g) target
+          environment:
+            IMAGE: *image
       - save_cache:
           key: build-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
-            - /root/.cargo/registry
             - target
+
   doc:
-    executor: container
+    executor: machine
     steps:
       - checkout
       - restore_cache:
@@ -87,16 +81,21 @@ jobs:
             - doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build documentation
-          command: make build-doc
+          command: |
+            docker pull $IMAGE
+            docker run -v $(pwd):/build -w /build $IMAGE make build-doc
+            sudo chown -R $(id -u):$(id -g) target
+          environment:
+            IMAGE: *image
       - save_cache:
           key: doc-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
-            - /root/.cargo/registry
             - target
       - persist_to_workspace:
           root: .
           paths:
             - target/doc
+
   doc-publish:
     executor: container
     steps:
@@ -121,6 +120,7 @@ jobs:
             git add .
             git diff-index --quiet HEAD || git commit -m 'Update documentation'
             git push -f origin gh-pages
+
   rustfmt:
     executor: container
     steps:
@@ -128,6 +128,7 @@ jobs:
       - run:
           name: Rust-Format
           command: make lint-rustfmt
+
   clippy:
     executor: container
     steps:
@@ -143,6 +144,7 @@ jobs:
           paths:
             - /root/.cargo/registry
             - target
+
   test:
     executor: machine
     steps:
@@ -150,7 +152,7 @@ jobs:
       - run:
           name: Start postgres
           environment:
-            IMAGE: *postgresimage
+            IMAGE: circleci/postgres:10.4-alpine
           command: |
             docker pull $IMAGE
             docker run -d --network=host -e POSTGRES_USER -e POSTGRES_DB $IMAGE
@@ -160,7 +162,7 @@ jobs:
             IMAGE: *image
           command: |
             docker pull $IMAGE
-            docker run -t --security-opt seccomp=unconfined -v $(pwd):/build \
+            docker run --security-opt seccomp=unconfined -v $(pwd):/build \
               -w /build --network=host -e CODECOV_TOKEN $IMAGE \
               bash -c "\
                 while true; do \
@@ -170,24 +172,7 @@ jobs:
                   --database-url postgres://username:@localhost/database && \
                 make coverage && \
                 bash <(curl -s https://codecov.io/bash)"
-  bench:
-    executor: container-with-postgres
-    steps:
-      - checkout
-      - <<: *prepare-postgres
-      - restore_cache:
-          keys:
-            - bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-      - run:
-          name: Run benchmarks
-          command: |
-            rustup default nightly
-            make bench
-      - save_cache:
-          key: bench-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
-          paths:
-            - /root/.cargo/registry
-            - target
+
   container:
     executor: machine
     steps:
@@ -211,6 +196,7 @@ jobs:
           root: .
           paths:
             - webapp.tar
+
   container-test:
     executor: machine
     steps:
@@ -244,6 +230,7 @@ jobs:
           paths:
             - ~/.cargo
             - target
+
   deploy:
     executor: machine
     steps:

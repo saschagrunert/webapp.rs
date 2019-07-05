@@ -1,15 +1,11 @@
 //! Cbor abstraction for HTTP message handling
 
-mod test;
-use failure::Fail;
-
 use actix_web::{
-    dev::HttpResponseBuilder,
-    error::{Error as HttpError, PayloadError},
-    http::header::CONTENT_TYPE,
-    HttpMessage, HttpRequest, HttpResponse, ResponseError,
+    dev::HttpResponseBuilder, error::Error as HttpError, http::header::CONTENT_TYPE, web::Payload,
+    HttpResponse, ResponseError,
 };
 use bytes::BytesMut;
+use failure::{format_err, Error, Fail};
 use futures::{Future, Poll, Stream};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_cbor::{error::Error as SerdeError, from_slice, to_vec};
@@ -18,7 +14,7 @@ use serde_cbor::{error::Error as SerdeError, from_slice, to_vec};
 pub enum CborError {
     #[fail(display = "Payload read error: {}", _0)]
     /// Payload error
-    Payload(#[cause] PayloadError),
+    Payload(#[cause] Error),
 
     #[fail(display = "Serialization error: {}", _0)]
     /// Serialize error
@@ -48,10 +44,9 @@ impl<T> CborRequest<T>
 where
     T: DeserializeOwned + 'static,
 {
-    pub fn new<S>(req: &HttpRequest<S>) -> Self {
+    pub fn new(body: Payload) -> Self {
         CborRequest(Box::new(
-            req.payload()
-                .map_err(CborError::Payload)
+            body.map_err(|e| CborError::Payload(format_err!("{}", e)))
                 .fold(BytesMut::new(), move |mut body, chunk| {
                     body.extend_from_slice(&chunk);
                     Ok::<_, CborError>(body)
