@@ -130,7 +130,7 @@ jobs:
           command: make lint-rustfmt
 
   clippy:
-    executor: container
+    executor: machine
     steps:
       - checkout
       - restore_cache:
@@ -138,11 +138,15 @@ jobs:
             - clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Clippy
-          command: make lint-clippy
+          command: |
+            docker pull $IMAGE
+            docker run -v $(pwd):/build -w /build $IMAGE make lint-clippy
+            sudo chown -R $(id -u):$(id -g) target
+          environment:
+            IMAGE: *image
       - save_cache:
           key: clippy-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
           paths:
-            - /root/.cargo/registry
             - target
 
   test:

@@ -1,7 +1,7 @@
 //! Basic models
 #[cfg(feature = "backend")]
 use crate::schema::sessions;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::convert::From;
 
 #[cfg_attr(feature = "backend", derive(Insertable, Queryable))]

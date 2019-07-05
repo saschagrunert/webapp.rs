@@ -16,7 +16,7 @@ use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
     API_URL_LOGIN_SESSION,
 };
-use yew::{format::Cbor, html, prelude::*, services::fetch::FetchTask};
+use yew::{agent::Bridged, format::Cbor, html, prelude::*, services::fetch::FetchTask};
 use yew_router::{self, Route, RouterAgent};
 
 /// Data Model for the Root Component
