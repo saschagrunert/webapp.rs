@@ -29,7 +29,7 @@ webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
 failure = "0.1.5"
-log = "0.4.6"
+log = "0.4.7"
 serde = { version = "1.0.94", features = ["derive"]}
 stdweb = "0.4.17"
 webapp = { version = "1.0.0", path = ".." }
