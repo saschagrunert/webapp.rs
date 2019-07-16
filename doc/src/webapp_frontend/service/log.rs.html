@@ -66,7 +66,7 @@
 
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">format_err</span>, <span class="ident">Fallible</span>};
 <span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">set_logger</span>, <span class="ident">set_max_level</span>, <span class="ident">Level</span>, <span class="ident">LevelFilter</span>, <span class="ident">Log</span>, <span class="ident">Metadata</span>, <span class="ident">Record</span>};
-<span class="kw">use</span> <span class="ident">stdweb</span>::{<span class="ident">_js_impl</span>, <span class="ident">js</span>};
+<span class="kw">use</span> <span class="ident">stdweb</span>::<span class="ident">js</span>;
 
 <span class="doccomment">/// The public static logger instance</span>
 <span class="kw">static</span> <span class="ident">LOGGER</span>: <span class="ident">LogService</span> <span class="op">=</span> <span class="ident">LogService</span>;
