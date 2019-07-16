@@ -22,7 +22,7 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
-actix-http-test = "0.2.2"
+actix-http-test = "0.2.3"
 actix-http = "0.2.5"
 lazy_static = "1.3.0"
 reqwest = "0.9.18"
