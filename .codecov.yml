@@ -11,7 +11,7 @@ coverage:
 
   status:
     project: true
-    patch: true
+    patch: false
     changes: false
 
 comment:
