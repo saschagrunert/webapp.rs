@@ -42,7 +42,7 @@ pub fn create_testserver() -> Fallible<Url> {
 
     // Wait until the server is up
     loop {
-        if let Ok(res) = Client::new().get(url.clone()).send() {
+        if let Ok(res) = Client::new().get(url.as_str()).send() {
             if res.status().is_success() {
                 break;
             }
@@ -73,7 +73,7 @@ fn succeed_to_create_server_with_common_redirects() -> Fallible<()> {
     let config_clone = config.clone();
     thread::spawn(move || Server::from_config(&config_clone).unwrap().start());
     loop {
-        if let Ok(res) = Client::new().get(url.clone()).send() {
+        if let Ok(res) = Client::new().get(url.as_str()).send() {
             if res.status().is_success() {
                 break;
             }
@@ -97,7 +97,7 @@ fn succeed_to_login_with_credentials() -> Fallible<()> {
         username: "username".to_owned(),
         password: "username".to_owned(),
     })?;
-    let mut res = Client::new().post(url).body(request).send()?;
+    let mut res = Client::new().post(url.as_str()).body(request).send()?;
     let mut body = vec![];
     res.copy_to(&mut body)?;
     let response::Login(session) = from_slice(&body)?;
@@ -119,7 +119,7 @@ fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
         username: "username".to_owned(),
         password: "password".to_owned(),
     })?;
-    let res = Client::new().post(url).body(request).send()?;
+    let res = Client::new().post(url.as_str()).body(request).send()?;
 
     // Then
     assert_eq!(res.status().as_u16(), 401);
@@ -137,14 +137,14 @@ fn succeed_to_login_with_session() -> Fallible<()> {
         username: "username".to_owned(),
         password: "username".to_owned(),
     })?;
-    let mut res = Client::new().post(url.clone()).body(request).send()?;
+    let mut res = Client::new().post(url.as_str()).body(request).send()?;
     let mut body = vec![];
     res.copy_to(&mut body)?;
     let response::Login(session) = from_slice(&body)?;
 
     request = to_vec(&request::LoginSession(session))?;
     url.set_path(API_URL_LOGIN_SESSION);
-    res = Client::new().post(url).body(request).send()?;
+    res = Client::new().post(url.as_str()).body(request).send()?;
     body.clear();
     res.copy_to(&mut body)?;
     let response::Login(new_session) = from_slice(&body)?;
@@ -163,7 +163,7 @@ fn fail_to_login_with_wrong_session() -> Fallible<()> {
 
     // When
     let request = to_vec(&request::LoginSession(Session::new("wrong")))?;
-    let res = Client::new().post(url).body(request).send()?;
+    let res = Client::new().post(url.as_str()).body(request).send()?;
 
     // Then
     assert_eq!(res.status().as_u16(), 401);
@@ -178,7 +178,7 @@ fn succeed_to_logout() -> Fallible<()> {
 
     // When
     let request = to_vec(&request::Logout(Session::new("wrong")))?;
-    let res = Client::new().post(url).body(request).send()?;
+    let res = Client::new().post(url.as_str()).body(request).send()?;
 
     // Then
     assert!(res.status().is_success());
