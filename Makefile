@@ -65,7 +65,7 @@ deploy:
 	# Build the backend
 	sudo chown -R 1000:1000 target
 	$(CONTAINER_RUNTIME) run --rm -it -v $(PWD):/home/rust/src \
-		ekidd/rust-musl-builder:experimental \
+		ekidd/rust-musl-builder:stable \
 		cargo build $(BACKEND_ARGS)
 	# Create the container image from the executable
 	$(CONTAINER_RUNTIME) build --no-cache -t webapp .
