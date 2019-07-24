@@ -1,3 +1,5 @@
+extern crate openssl;
+
 use clap::{crate_version, load_yaml, App};
 use failure::{format_err, Fallible};
 use log::info;
