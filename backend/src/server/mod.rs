@@ -14,12 +14,16 @@ use actix_web::{
     App, HttpResponse, HttpServer,
 };
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use failure::Fallible;
+use failure::{format_err, Fallible};
 use log::{info, warn};
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
 use r2d2::Pool;
-use std::thread;
+use std::{
+    net::{SocketAddr, ToSocketAddrs},
+    slice::from_ref,
+    thread,
+};
 use url::Url;
 use webapp::{config::Config, API_URL_LOGIN_CREDENTIALS, API_URL_LOGIN_SESSION, API_URL_LOGOUT};
 
@@ -73,10 +77,13 @@ impl Server {
         let url = Url::parse(&config.server.url)?;
 
         // Bind the address
+        let addrs = Self::url_to_socket_addrs(&url)?;
         if url.scheme() == "https" {
-            server.bind_ssl(&url, Self::build_tls(&config)?)?.start();
+            server
+                .bind_ssl(addrs.as_slice(), Self::build_tls(&config)?)?
+                .start();
         } else {
-            server.bind(&url)?.start();
+            server.bind(addrs.as_slice())?.start();
         }
 
         Ok(Server {
@@ -135,14 +142,15 @@ impl Server {
                             "Starting server to redirect from {} to {}",
                             valid_url, server_url
                         );
+                        let addrs = Self::url_to_socket_addrs(&valid_url).unwrap();
                         if valid_url.scheme() == "https" {
                             if let Ok(tls) = Self::build_tls(&config_clone) {
-                                server = server.bind_ssl(&valid_url, tls).unwrap();
+                                server = server.bind_ssl(addrs.as_slice(), tls).unwrap();
                             } else {
                                 warn!("Unable to build TLS acceptor for server: {}", valid_url);
                             }
                         } else {
-                            server = server.bind(&valid_url).unwrap();
+                            server = server.bind(addrs.as_slice()).unwrap();
                         }
                     } else {
                         warn!("Skipping invalid url: {}", url);
@@ -154,5 +162,31 @@ impl Server {
                 system.run().unwrap();
             });
         }
+    }
+
+    /// Convert an `Url` to a vector of `SocketAddr`
+    pub fn url_to_socket_addrs(url: &Url) -> Fallible<Vec<SocketAddr>> {
+        let host = url
+            .host()
+            .ok_or_else(|| format_err!("No host name in the URL"))?;
+        let port = url
+            .port_or_known_default()
+            .ok_or_else(|| format_err!("No port number in the URL"))?;
+        let addrs;
+        let addr;
+        Ok(match host {
+            url::Host::Domain(domain) => {
+                addrs = (domain, port).to_socket_addrs()?;
+                addrs.as_slice().to_owned()
+            }
+            url::Host::Ipv4(ip) => {
+                addr = (ip, port).into();
+                from_ref(&addr).to_owned()
+            }
+            url::Host::Ipv6(ip) => {
+                addr = (ip, port).into();
+                from_ref(&addr).to_owned()
+            }
+        })
     }
 }

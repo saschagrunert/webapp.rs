@@ -46,6 +46,6 @@ r2d2 = "0.8.5"
 serde = { version = "1.0.97", features = ["derive"]}
 serde_cbor = "0.10.1"
 time = "0.1.42"
-url = "1.7.2"
+url = "2.0.0"
 uuid = { version = "0.7.4", features = ["v4"] }
 webapp = { version = "1.0.0", path = "..", features = ["backend"] }
