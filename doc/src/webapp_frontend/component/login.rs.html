@@ -208,7 +208,7 @@
     <span class="ident">inputs_disabled</span>: <span class="ident">bool</span>,
     <span class="ident">login_button_disabled</span>: <span class="ident">bool</span>,
     <span class="ident">password</span>: <span class="ident">String</span>,
-    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouterAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouterAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="ident">uikit_service</span>: <span class="ident">UIkitService</span>,
     <span class="ident">username</span>: <span class="ident">String</span>,
 }

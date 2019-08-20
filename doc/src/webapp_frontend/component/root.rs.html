@@ -184,7 +184,7 @@
     <span class="ident">child_component</span>: <span class="ident">RouterTarget</span>,
     <span class="ident">cookie_service</span>: <span class="ident">CookieService</span>,
     <span class="ident">fetch_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FetchTask</span><span class="op">&gt;</span>,
-    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouterAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouterAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="ident">uikit_service</span>: <span class="ident">UIkitService</span>,
 }
 

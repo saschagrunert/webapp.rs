@@ -162,7 +162,7 @@
     <span class="ident">callback</span>: <span class="ident">Callback</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
     <span class="ident">cookie_service</span>: <span class="ident">CookieService</span>,
     <span class="ident">fetch_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FetchTask</span><span class="op">&gt;</span>,
-    <span class="ident">timer_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Task</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">timer_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Task</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Agent</span> <span class="kw">for</span> <span class="ident">SessionTimerAgent</span> {
