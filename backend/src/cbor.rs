@@ -38,7 +38,7 @@ impl From<SerdeError> for CborError {
 }
 
 /// A wrapped request based on a future
-pub struct CborRequest<T>(Box<Future<Item = T, Error = CborError>>);
+pub struct CborRequest<T>(Box<dyn Future<Item = T, Error = CborError>>);
 
 impl<T> CborRequest<T>
 where

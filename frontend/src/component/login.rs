@@ -29,7 +29,7 @@ pub struct LoginComponent {
     inputs_disabled: bool,
     login_button_disabled: bool,
     password: String,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
+    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
     uikit_service: UIkitService,
     username: String,
 }

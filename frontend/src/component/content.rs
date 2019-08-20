@@ -25,8 +25,8 @@ pub struct ContentComponent {
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
     logout_button_disabled: bool,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
-    session_timer_agent: Box<Bridge<SessionTimerAgent>>,
+    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
+    session_timer_agent: Box<dyn Bridge<SessionTimerAgent>>,
     uikit_service: UIkitService,
 }
 
