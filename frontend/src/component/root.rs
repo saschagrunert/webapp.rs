@@ -24,7 +24,7 @@ pub struct RootComponent {
     child_component: RouterTarget,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
-    router_agent: Box<Bridge<RouterAgent<()>>>,
+    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
     uikit_service: UIkitService,
 }
 

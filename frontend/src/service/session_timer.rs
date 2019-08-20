@@ -39,7 +39,7 @@ pub struct SessionTimerAgent {
     callback: Callback<()>,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
-    timer_task: Option<Box<Task>>,
+    timer_task: Option<Box<dyn Task>>,
 }
 
 impl Agent for SessionTimerAgent {
