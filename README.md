@@ -17,6 +17,12 @@
 Target of this project is to write a complete web application including backend
 and frontend within Rust.
 
+``` console
+Rust wasm                    Rust app
+in browser <- Cap'n Proto -> HTTP Server -- actix-web
+ |                               |
+Yew                          Diesel (ORM) -> PostgreSQL
+```
 ### Blog Posts
 
 1. [A Web Application completely in Rust](https://medium.com/@saschagrunert/a-web-application-completely-in-rust-6f6bdb6c4471).
@@ -37,16 +43,52 @@ the backend can tested via `make run-backend`, whereas the frontend can be
 tested with `make run-frontend`. You can adapt the application configuration
 within `Config.toml` if needed.
 
+This installs build requirements, rust and cargo-web, on Ubuntu or Debian.
+``` console
+wget https://sh.rustup.rs -O rustup-init
+sudo sh rustup-init -y
+sudo apt-get install -y pkg-config libssl-dev
+sudo cargo install cargo-web
+```
+This builds the project.
+``` console
+git clone https://github.com/saschagrunert/webapp.rs.git
+cd webapp.rs
+make all
+```
 ## Run
 
-If both, the backend and frontend are running, you can visit the web application
-at [`http://127.0.0.1:8000`](http://127.0.0.1:8000). After the successful
+`make deploy` uses podman to start a PostgreSQL container and the Rust backend container.
+If you wish to use docker instead of podman, set `CONTAINER_RUNTIME=podman` in the top of `Makefile`.
+Edit `Config.toml` if needed to set the backend url and PostgreSQL credentials:
+``` console
+[server]
+url = "http://127.0.0.1:30080"
+...
+[postgres]
+host = "127.0.0.1"
+username = "username"
+password = ""
+database = "database"
+```
+Ensure the runtime dependencies are installed, and the start the two containers.
+``` console
+sudo apt install -y postgresql-client
+cargo install diesel_cli --no-default-features --features "postgres"
+sudo make deploy
+```
+The application should now be accessible at
+[`http://127.0.0.1:30080`](http://127.0.0.1:30080).
+During development, you can start the containers separately, using 
+`make run-app` to start only the rust backend container, and `run-postgres` to start only the PostgreSQL container.
+
+If both the backend and frontend are running, you can visit the web application
+at [`http://127.0.0.1:30080`](http://127.0.0.1:30080). After the successful
 loading of the application you should see an authentication screen like this:
 
 ![authentication screen](.github/authentication_screen.png "Authentication Screen")
 
-Now you are able to login with a matching username and password combination like
-`me` (username) and `me` (password). There is currently no further user
+The login screen will accept any username and password that are equal, such as `me` (username) and `me` (password). There is currently no further user
 authentication yet, but non matching combination will result in an
 authentication failure. After the successfully login you should be able to see
 the content of the application:
@@ -61,24 +103,6 @@ of the application via the logout button should also work as intended.
 The complete control flow of the application looks like this:
 
 ![control screen](.github/flow_chart.png "Control Flow")
-
-## Deploy
-
-To deploy the application as a docker image, simply run:
-
-```console
-make deploy
-```
-
-After that you can run the application side by side with a PostgreSQL container
-via:
-
-```console
-make run-app
-```
-
-The application should now be accessible at
-[`http://127.0.0.1:30080`](http://127.0.0.1:30080).
 
 ## Contributing
 
