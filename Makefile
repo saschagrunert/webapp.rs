@@ -57,14 +57,14 @@ coverage:
 
 deploy:
 	# Deploy the frontend
-	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(PWD):/deploy \
+	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(shell pwd):/deploy \
 		saschagrunert/build-rust:latest \
 		cargo web deploy $(FRONTEND_ARGS)
 	# Fix applications path to JavaScript file
 	sudo chown -R $(USER) target
 	# Build the backend
 	sudo chown -R 1000:1000 target
-	$(CONTAINER_RUNTIME) run --rm -it -v $(PWD):/home/rust/src \
+	$(CONTAINER_RUNTIME) run --rm -it -v $(shell pwd):/home/rust/src \
 		ekidd/rust-musl-builder:stable \
 		cargo build $(BACKEND_ARGS)
 	# Create the container image from the executable
@@ -82,8 +82,8 @@ run-app: run-postgres
 		$(CONTAINER_RUNTIME) run --rm \
 			--name webapp \
 			--network="host" \
-			-v $(PWD)/backend/tls:/tls \
-			-v $(PWD)/Config.toml:/Config.toml \
+			-v $(shell pwd)/backend/tls:/tls \
+			-v $(shell pwd)/Config.toml:/Config.toml \
 			-d webapp ;\
 	else \
 		echo "App already running" ;\
