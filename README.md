@@ -18,10 +18,10 @@ Target of this project is to write a complete web application including backend
 and frontend within Rust.
 
 ``` console
-Rust wasm                    Rust app
-in browser <- Cap'n Proto -> HTTP Server -- actix-web
- |                               |
-Yew                          Diesel (ORM) -> PostgreSQL
+Rust wasm             Rust app
+in browser <- REST -> HTTP Server -- actix-web
+ |                         |
+Yew                   Diesel (ORM) -> PostgreSQL
 ```
 ### Blog Posts
 
