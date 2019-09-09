@@ -43,7 +43,7 @@ log = "0.4.8"
 num_cpus = "1.10.1"
 openssl = "0.10.24"
 r2d2 = "0.8.5"
-serde = { version = "1.0.99", features = ["derive"]}
+serde = { version = "1.0.100", features = ["derive"]}
 serde_cbor = "0.10.1"
 time = "0.1.42"
 url = "2.1.0"
