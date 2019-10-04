@@ -44,7 +44,7 @@ num_cpus = "1.10.1"
 openssl = "0.10.25"
 r2d2 = "0.8.5"
 serde = { version = "1.0.101", features = ["derive"] }
-serde_cbor = "0.10.1"
+serde_cbor = "0.10.2"
 time = "0.1.42"
 url = "2.1.0"
 uuid = { version = "0.7.4", features = ["v4"] }
