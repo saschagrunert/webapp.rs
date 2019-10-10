@@ -25,7 +25,7 @@ path = "src/main.rs"
 actix-http-test = "0.2.5"
 actix-http = "0.2.10"
 lazy_static = "1.4.0"
-reqwest = "0.9.21"
+reqwest = "0.9.22"
 
 [dependencies]
 actix = "0.8.3"
