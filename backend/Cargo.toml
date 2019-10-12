@@ -34,7 +34,7 @@ actix-files = "0.1.5"
 actix-web = { version = "1.0.8", features = ["ssl"] }
 bytes = "0.4.12"
 clap = { version = "2.33.0", features = ["yaml"] }
-diesel = { version = "1.4.2", features = ["r2d2", "postgres"] }
+diesel = { version = "1.4.3", features = ["r2d2", "postgres"] }
 env_logger = "0.7.0"
 failure = "0.1.5"
 futures = "0.1.29"
