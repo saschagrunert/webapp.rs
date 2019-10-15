@@ -22,13 +22,13 @@ name = "app"
 path = "src/main.rs"
 
 [build-dependencies]
-failure = "0.1.5"
+failure = "0.1.6"
 sass-rs = "0.2.2"
 url = "2.1.0"
 webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
-failure = "0.1.5"
+failure = "0.1.6"
 log = "0.4.8"
 serde = { version = "1.0.101", features = ["derive"] }
 stdweb = "0.4.20"
