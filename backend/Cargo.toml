@@ -35,7 +35,7 @@ actix-web = { version = "1.0.8", features = ["ssl"] }
 bytes = "0.4.12"
 clap = { version = "2.33.0", features = ["yaml"] }
 diesel = { version = "1.4.3", features = ["r2d2", "postgres"] }
-env_logger = "0.7.0"
+env_logger = "0.7.1"
 failure = "0.1.6"
 futures = "0.1.29"
 jsonwebtoken = "6.0.1"
