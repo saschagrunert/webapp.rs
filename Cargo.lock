@@ -1684,12 +1684,12 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
- "sass-sys 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sass-sys 0.4.14 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "sass-sys"
-version = "0.4.13"
+version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cc 1.0.46 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2797,7 +2797,7 @@ dependencies = [
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum ryu 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c92464b447c0ee8c4fb3824ecc8383b81717b9f1e74ba2e72540aef7b9f82997"
 "checksum sass-rs 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cabcf7c6e55053f359911187ac401409aad2dc14338cae972dec266fee486abd"
-"checksum sass-sys 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)" = "6e16ac97c2335bc367e2d675f54c1823558f1b19a6c67671d48b70e30ae22972"
+"checksum sass-sys 0.4.14 (registry+https://github.com/rust-lang/crates.io-index)" = "7257a3d5867b042ae88a9cd6369263742c2b9924eefd0d9c0e5892421cea0346"
 "checksum schannel 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "87f550b06b6cba9c8b8be3ee73f391990116bf527450d2556e9b9ce263b9a021"
 "checksum scheduled-thread-pool 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "bd07742e081ff6c077f5f6b283f12f32b9e7cc765b316160d66289b74546fbb3"
 "checksum scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b42e15e59b18a828bbf5c58ea01debb36b9b096346de35d941dcb89009f24a0d"
