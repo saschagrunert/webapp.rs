@@ -1060,6 +1060,18 @@ version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "lexical-core"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "arrayvec 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ryu 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "static_assertions 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1225,6 +1237,16 @@ name = "nom"
 version = "4.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
+ "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "version_check 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "nom"
+version = "5.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "lexical-core 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "version_check 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1872,6 +1894,11 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "static_assertions"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "stdweb"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2493,7 +2520,7 @@ dependencies = [
  "url 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "webapp 1.0.0",
  "yew 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "yew-router 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yew-router 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2616,13 +2643,39 @@ dependencies = [
 
 [[package]]
 name = "yew-router"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nom 5.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "proc-macro-hack 0.5.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
+ "uuid 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yew-router-macro 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yew-router-route-parser 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "yew-router-macro"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "proc-macro2 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "syn 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yew-router-route-parser 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "yew-router-route-parser"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nom 5.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [metadata]
@@ -2727,6 +2780,7 @@ dependencies = [
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a91d884b6667cd606bb5a69aa0c99ba811a115fc68915e7056ec08a46e93199a"
 "checksum lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+"checksum lexical-core 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "2304bccb228c4b020f3a4835d247df0a02a7c4686098d4167762cfbbe4c5cb14"
 "checksum libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)" = "1a31a0627fdf1f6a39ec0dd577e101440b7db22672c0901fe00a9a6fbb5c24e8"
 "checksum linked-hash-map 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "ae91b68aebc4ddb91978b11a1b02ddd8602a05ec19002801c5666000e05e0f83"
 "checksum lock_api 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ed946d4529956a20f2d63ebe1b69996d5a2137c91913fe3ebbeff957f5bca7ff"
@@ -2747,6 +2801,7 @@ dependencies = [
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
 "checksum nodrop 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)" = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 "checksum nom 4.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2ad2a91a8e869eeb30b9cb3119ae87773a8f4ae617f41b1eb9c154b2905f7bd6"
+"checksum nom 5.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c618b63422da4401283884e6668d39f819a106ef51f5f59b81add00075da35ca"
 "checksum num-integer 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)" = "b85e541ef8255f6cf42bbfe4ef361305c6c135d10919ecc26126c4e5ae94bc09"
 "checksum num-traits 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "6ba9a427cfca2be13aa6f6403b0b7e7368fe982bfa16fccc450ce74c46cd9b32"
 "checksum num_cpus 1.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "bcef43580c035376c0705c42792c294b66974abbfd2789b511784023f71f3273"
@@ -2819,6 +2874,7 @@ dependencies = [
 "checksum smallvec 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)" = "ab606a9c5e214920bb66c458cd7be8ef094f813f20fe77a54cc7dbfff220d4b7"
 "checksum socket2 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)" = "e8b74de517221a2cb01a53349cf54182acdc31a074727d3079068448c0676d85"
 "checksum spin 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
+"checksum static_assertions 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "7f3eb36b47e512f8f1c9e3d10c2c1965bc992bd9cdb024fa581e2194501c83d3"
 "checksum stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)" = "d022496b16281348b52d0e30ae99e01a73d737b2f45d38fed4edf79f9325a1d5"
 "checksum stdweb-derive 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c87a60a40fccc84bef0652345bbbbbe20a605bf5d0ce81719fc476f5c03b50ef"
 "checksum stdweb-internal-macros 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)" = "58fa5ff6ad0d98d1ffa8cb115892b6e69d67799f6763e162a1c9db421dc22e11"
@@ -2891,4 +2947,6 @@ dependencies = [
 "checksum yaml-rust 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "e66366e18dc58b46801afbf2ca7661a9f59cc8c5962c29892b6039b4f86fa992"
 "checksum yew 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7498309d091bb01b9c1135dc189d6058ad61e78891646b1ef247179c5b8886ee"
 "checksum yew-macro 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)" = "a2e4a08414588076e8a786850b0725b4b4e26eae9d99c5ddb528216ae1cb8a16"
-"checksum yew-router 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7fe91b887f19c66d71acdd446c193353302e98c90ca24a56eb444873c047c1d4"
+"checksum yew-router 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3674b72c15c2de080a608913bc0899d584663671e3753eb22e54fe9b57b2734c"
+"checksum yew-router-macro 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "990f0f57e6c9fef2cfe021759113f0a794c89bccbb3c955e0eadf241501be4a4"
+"checksum yew-router-route-parser 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "504d9db0b0ea8087f9e9731dc47d8c36bfd063144d9986dedbb736532cbc9f71"
