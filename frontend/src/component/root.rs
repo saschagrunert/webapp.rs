@@ -17,14 +17,18 @@ use webapp::{
     API_URL_LOGIN_SESSION,
 };
 use yew::{agent::Bridged, format::Cbor, html, prelude::*, services::fetch::FetchTask};
-use yew_router::{self, Route, RouterAgent};
+use yew_router::{
+    agent::{RouteAgent, RouteRequest::ChangeRoute},
+    route::Route,
+    switch::Switch,
+};
 
 /// Data Model for the Root Component
 pub struct RootComponent {
-    child_component: RouterTarget,
+    child_component: Option<RouterTarget>,
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
-    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
+    router_agent: Box<dyn Bridge<RouteAgent<()>>>,
     uikit_service: UIkitService,
 }
 
@@ -42,7 +46,7 @@ impl Component for RootComponent {
         // Create needed services
         let cookie_service = CookieService::new();
         let mut fetch_task = None;
-        let mut router_agent = RouterAgent::bridge(link.send_back(Message::Route));
+        let mut router_agent = RouteAgent::bridge(link.send_back(Message::Route));
         let uikit_service = UIkitService::new();
 
         // Verify if a session cookie already exist and try to authenticate if so
@@ -55,17 +59,17 @@ impl Component for RootComponent {
                     error!("Unable to create session login request");
                     uikit_service.notify(REQUEST_ERROR, &NotificationStatus::Danger);
                     cookie_service.remove(SESSION_COOKIE);
-                    router_agent.send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+                    router_agent.send(ChangeRoute(RouterTarget::Login.into()));
                 }
             };
         } else {
             info!("No token found, routing to login");
-            router_agent.send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+            router_agent.send(ChangeRoute(RouterTarget::Login.into()));
         }
 
         // Return the component
         Self {
-            child_component: RouterTarget::Loading,
+            child_component: Some(RouterTarget::Loading),
             cookie_service,
             fetch_task,
             router_agent,
@@ -80,7 +84,7 @@ impl Component for RootComponent {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             // Route to the appropriate child component
-            Message::Route(route) => self.child_component = route.into(),
+            Message::Route(route) => self.child_component = RouterTarget::switch(route),
 
             // The message for all fetch responses
             Message::Fetch(response) => {
@@ -96,9 +100,8 @@ impl Component for RootComponent {
                             self.cookie_service.set(SESSION_COOKIE, &token);
 
                             // Route to the content component
-                            self.router_agent.send(yew_router::Request::ChangeRoute(
-                                RouterTarget::Content.into(),
-                            ));
+                            self.router_agent
+                                .send(ChangeRoute(RouterTarget::Content.into()));
                         }
                         _ => {
                             // Send an error notification to the user on any failure
@@ -106,7 +109,7 @@ impl Component for RootComponent {
                             self.uikit_service
                                 .notify(RESPONSE_ERROR, &NotificationStatus::Danger);
                             self.router_agent
-                                .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+                                .send(ChangeRoute(RouterTarget::Login.into()));
                         }
                     }
                 } else {
@@ -114,7 +117,7 @@ impl Component for RootComponent {
                     warn!("Session login failed with status: {}", meta.status);
                     self.cookie_service.remove(SESSION_COOKIE);
                     self.router_agent
-                        .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+                        .send(ChangeRoute(RouterTarget::Login.into()));
                 }
 
                 // Remove the ongoing task
@@ -127,7 +130,11 @@ impl Component for RootComponent {
 
 impl Renderable<RootComponent> for RootComponent {
     fn view(&self) -> Html<Self> {
-        self.child_component.view()
+        if let Some(cc) = &self.child_component {
+            cc.view()
+        } else {
+            html! { "No child component available" }
+        }
     }
 }
 
