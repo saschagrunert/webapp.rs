@@ -17,7 +17,7 @@ use webapp::{
     API_URL_LOGOUT,
 };
 use yew::{agent::Bridged, format::Cbor, html, prelude::*, services::fetch::FetchTask};
-use yew_router::{self, RouterAgent};
+use yew_router::agent::{RouteAgent, RouteRequest::ChangeRoute};
 
 /// Data Model for the Content component
 pub struct ContentComponent {
@@ -25,7 +25,7 @@ pub struct ContentComponent {
     cookie_service: CookieService,
     fetch_task: Option<FetchTask>,
     logout_button_disabled: bool,
-    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
+    router_agent: Box<dyn Bridge<RouteAgent<()>>>,
     session_timer_agent: Box<dyn Bridge<SessionTimerAgent>>,
     uikit_service: UIkitService,
 }
@@ -44,13 +44,13 @@ impl Component for ContentComponent {
     /// Initialization routine
     fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         // Guard the authentication
-        let mut router_agent = RouterAgent::bridge(link.send_back(|_| Message::Ignore));
+        let mut router_agent = RouteAgent::bridge(link.send_back(|_| Message::Ignore));
         let cookie_service = CookieService::new();
         let mut session_timer_agent =
             SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
             info!("No session token found, routing back to login");
-            router_agent.send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+            router_agent.send(ChangeRoute(RouterTarget::Login.into()));
         } else {
             // Start the timer to keep the session active
             session_timer_agent.send(session_timer::Request::Start);
@@ -95,7 +95,7 @@ impl Component for ContentComponent {
                     // back to login
                     error!("No session cookie found");
                     self.router_agent
-                        .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+                        .send(ChangeRoute(RouterTarget::Login.into()));
                 }
             }
 
@@ -121,7 +121,7 @@ impl Component for ContentComponent {
                 self.cookie_service.remove(SESSION_COOKIE);
                 self.session_timer_agent.send(session_timer::Request::Stop);
                 self.router_agent
-                    .send(yew_router::Request::ChangeRoute(RouterTarget::Login.into()));
+                    .send(ChangeRoute(RouterTarget::Login.into()));
                 self.logout_button_disabled = true;
 
                 // Remove the ongoing task

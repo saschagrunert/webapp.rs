@@ -19,7 +19,7 @@ use webapp::{
     API_URL_LOGIN_CREDENTIALS,
 };
 use yew::{format::Cbor, html, prelude::*, services::fetch::FetchTask};
-use yew_router::{self, RouterAgent};
+use yew_router::agent::{RouteAgent, RouteRequest::ChangeRoute};
 
 /// Data Model for the Login component
 pub struct LoginComponent {
@@ -29,7 +29,7 @@ pub struct LoginComponent {
     inputs_disabled: bool,
     login_button_disabled: bool,
     password: String,
-    router_agent: Box<dyn Bridge<RouterAgent<()>>>,
+    router_agent: Box<dyn Bridge<RouteAgent<()>>>,
     uikit_service: UIkitService,
     username: String,
 }
@@ -56,7 +56,7 @@ impl Component for LoginComponent {
             inputs_disabled: false,
             login_button_disabled: true,
             password: String::new(),
-            router_agent: RouterAgent::bridge(link.send_back(|_| Message::Ignore)),
+            router_agent: RouteAgent::bridge(link.send_back(|_| Message::Ignore)),
             component_link: link,
             uikit_service: UIkitService::new(),
             username: String::new(),
@@ -114,9 +114,8 @@ impl Component for LoginComponent {
                             self.cookie_service.set(SESSION_COOKIE, &token);
 
                             // Route to the content component
-                            self.router_agent.send(yew_router::Request::ChangeRoute(
-                                RouterTarget::Content.into(),
-                            ));
+                            self.router_agent
+                                .send(ChangeRoute(RouterTarget::Content.into()));
                         }
                         _ => {
                             warn!("Got wrong credentials login response");

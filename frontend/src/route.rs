@@ -1,10 +1,18 @@
 //! All available routes within this application for fragment based routing
 
-use yew_router::routes;
+use yew_router::prelude::*;
 
-routes! {
-    Error => "/error",
-    Loading => "/loading",
-    Login =>  "/login",
-    Content => "/content",
+#[derive(Switch)]
+pub enum RouterTarget {
+    #[to = "/error"]
+    Error,
+
+    #[to = "/loading"]
+    Loading,
+
+    #[to = "/login"]
+    Login,
+
+    #[to = "/content"]
+    Content,
 }
