@@ -165,7 +165,7 @@
     <span class="ident">API_URL_LOGOUT</span>,
 };
 <span class="kw">use</span> <span class="ident">yew</span>::{<span class="ident">agent</span>::<span class="ident">Bridged</span>, <span class="ident">format</span>::<span class="ident">Cbor</span>, <span class="ident">html</span>, <span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">FetchTask</span>};
-<span class="kw">use</span> <span class="ident">yew_router</span>::{<span class="self">self</span>, <span class="ident">RouterAgent</span>};
+<span class="kw">use</span> <span class="ident">yew_router</span>::<span class="ident">agent</span>::{<span class="ident">RouteAgent</span>, <span class="ident">RouteRequest</span>::<span class="ident">ChangeRoute</span>};
 
 <span class="doccomment">/// Data Model for the Content component</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ContentComponent</span> {
@@ -173,7 +173,7 @@
     <span class="ident">cookie_service</span>: <span class="ident">CookieService</span>,
     <span class="ident">fetch_task</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">FetchTask</span><span class="op">&gt;</span>,
     <span class="ident">logout_button_disabled</span>: <span class="ident">bool</span>,
-    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouterAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">router_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">RouteAgent</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="ident">session_timer_agent</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Bridge</span><span class="op">&lt;</span><span class="ident">SessionTimerAgent</span><span class="op">&gt;&gt;</span>,
     <span class="ident">uikit_service</span>: <span class="ident">UIkitService</span>,
 }
@@ -192,13 +192,13 @@
     <span class="doccomment">/// Initialization routine</span>
     <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw">_</span>: <span class="self">Self</span>::<span class="ident">Properties</span>, <span class="kw-2">mut</span> <span class="ident">link</span>: <span class="ident">ComponentLink</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Guard the authentication</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">router_agent</span> <span class="op">=</span> <span class="ident">RouterAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">router_agent</span> <span class="op">=</span> <span class="ident">RouteAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">let</span> <span class="ident">cookie_service</span> <span class="op">=</span> <span class="ident">CookieService</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session_timer_agent</span> <span class="op">=</span>
             <span class="ident">SessionTimerAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">if</span> <span class="ident">cookie_service</span>.<span class="ident">get</span>(<span class="ident">SESSION_COOKIE</span>).<span class="ident">is_err</span>() {
             <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;No session token found, routing back to login&quot;</span>);
-            <span class="ident">router_agent</span>.<span class="ident">send</span>(<span class="ident">yew_router</span>::<span class="ident">Request</span>::<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
+            <span class="ident">router_agent</span>.<span class="ident">send</span>(<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
         } <span class="kw">else</span> {
             <span class="comment">// Start the timer to keep the session active</span>
             <span class="ident">session_timer_agent</span>.<span class="ident">send</span>(<span class="ident">session_timer</span>::<span class="ident">Request</span>::<span class="ident">Start</span>);
@@ -243,7 +243,7 @@
                     <span class="comment">// back to login</span>
                     <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;No session cookie found&quot;</span>);
                     <span class="self">self</span>.<span class="ident">router_agent</span>
-                        .<span class="ident">send</span>(<span class="ident">yew_router</span>::<span class="ident">Request</span>::<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
+                        .<span class="ident">send</span>(<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
                 }
             }
 
@@ -269,7 +269,7 @@
                 <span class="self">self</span>.<span class="ident">cookie_service</span>.<span class="ident">remove</span>(<span class="ident">SESSION_COOKIE</span>);
                 <span class="self">self</span>.<span class="ident">session_timer_agent</span>.<span class="ident">send</span>(<span class="ident">session_timer</span>::<span class="ident">Request</span>::<span class="ident">Stop</span>);
                 <span class="self">self</span>.<span class="ident">router_agent</span>
-                    .<span class="ident">send</span>(<span class="ident">yew_router</span>::<span class="ident">Request</span>::<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
+                    .<span class="ident">send</span>(<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
                 <span class="self">self</span>.<span class="ident">logout_button_disabled</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
                 <span class="comment">// Remove the ongoing task</span>
