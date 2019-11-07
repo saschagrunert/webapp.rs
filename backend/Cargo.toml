@@ -30,7 +30,7 @@ reqwest = "0.9.22"
 [dependencies]
 actix = "0.8.3"
 actix-cors = "0.1.0"
-actix-files = "0.1.6"
+actix-files = "0.1.7"
 actix-web = { version = "1.0.8", features = ["ssl"] }
 bytes = "0.4.12"
 clap = { version = "2.33.0", features = ["yaml"] }
