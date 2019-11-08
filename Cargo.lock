@@ -148,7 +148,7 @@ dependencies = [
  "actix-server 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-service 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-utils 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "awc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "awc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "base64 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -296,7 +296,7 @@ dependencies = [
  "actix-threadpool 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-utils 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "actix-web-codegen 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "awc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "awc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "derive_more 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "encoding_rs 0.8.20 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -398,7 +398,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "awc"
-version = "0.2.7"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "actix-codec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2768,7 +2768,7 @@ dependencies = [
 "checksum arrayvec 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)" = "cd9fd44efafa8690358b7408d253adf110036b88f55672a933f01d616ad9b1b9"
 "checksum atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)" = "1803c647a3ec87095e7ae7acfca019e98de5ec9a7d01343f611cf3152ed71a90"
 "checksum autocfg 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "1d49d90015b3c36167a20fe2810c5cd875ad504b39cff3d4eae7977e6b7c1cb2"
-"checksum awc 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)" = "364537de6ac9f996780f9dd097d6c4ca7c91dd5735153e9fb545037479becd10"
+"checksum awc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "5e995283278dd3bf0449e7534e77184adb1570c0de8b6a50bf7c9d01ad8db8c4"
 "checksum backtrace 0.3.40 (registry+https://github.com/rust-lang/crates.io-index)" = "924c76597f0d9ca25d762c25a4d369d51267536465dc5064bdf0eb073ed477ea"
 "checksum backtrace-sys 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)" = "5d6575f128516de27e3ce99689419835fce9643a9b215a14d2b5b685be018491"
 "checksum base-x 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "1b20b618342cf9891c292c4f5ac2cde7287cc5c87e87e9c769d617793607dec1"
