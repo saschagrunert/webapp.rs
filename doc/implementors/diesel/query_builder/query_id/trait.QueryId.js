@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl QueryId for <a class=\"struct\" href=\"web
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

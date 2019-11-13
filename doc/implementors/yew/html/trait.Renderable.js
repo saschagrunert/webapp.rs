@@ -6,5 +6,4 @@ implementors["webapp_frontend"] = [{text:"impl Renderable&lt;<a class=\"struct\"
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

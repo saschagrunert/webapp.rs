@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl&lt;'insert&gt; UndecoratedInsertRecord&lt;
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

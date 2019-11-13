@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl&lt;Left, Right, Kind&gt; JoinTo&lt;Join&lt
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl&lt;DB:&nbsp;Backend&gt; QueryFragment&lt;D
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

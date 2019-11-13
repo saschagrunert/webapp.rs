@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl SelectableExpression&lt;<a class=\"struct\
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

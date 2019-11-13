@@ -42,7 +42,7 @@
 
 <span class="kw">impl</span> <span class="ident">Session</span> {
     <span class="doccomment">/// Create a new session from a given token</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">token</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">token</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">String</span>: <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
     {

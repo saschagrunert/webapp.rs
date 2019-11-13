@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl&lt;'insert&gt; Insertable&lt;<a class=\"st
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

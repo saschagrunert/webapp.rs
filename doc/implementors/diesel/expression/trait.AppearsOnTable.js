@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl AppearsOnTable&lt;<a class=\"struct\" href
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

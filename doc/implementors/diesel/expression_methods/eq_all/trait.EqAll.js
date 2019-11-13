@@ -6,5 +6,4 @@ implementors["webapp"] = [{text:"impl&lt;T&gt; EqAll&lt;T&gt; for <a class=\"str
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()
