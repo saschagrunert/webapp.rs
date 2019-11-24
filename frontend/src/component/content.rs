@@ -131,9 +131,7 @@ impl Component for ContentComponent {
         }
         true
     }
-}
 
-impl Renderable<ContentComponent> for ContentComponent {
     fn view(&self) -> Html<Self> {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>

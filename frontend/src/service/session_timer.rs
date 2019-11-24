@@ -27,12 +27,8 @@ pub enum Request {
     Stop,
 }
 
-impl Transferable for Request {}
-
 #[derive(Deserialize, Serialize)]
 pub struct TimerResponse;
-
-impl Transferable for TimerResponse {}
 
 pub struct SessionTimerAgent {
     agent_link: AgentLink<SessionTimerAgent>,

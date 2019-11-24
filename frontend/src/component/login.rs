@@ -139,15 +139,7 @@ impl Component for LoginComponent {
         }
         true
     }
-}
 
-impl LoginComponent {
-    fn update_button_state(&mut self) {
-        self.login_button_disabled = self.username.is_empty() || self.password.is_empty();
-    }
-}
-
-impl Renderable<LoginComponent> for LoginComponent {
     fn view(&self) -> Html<Self> {
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
@@ -173,5 +165,11 @@ impl Renderable<LoginComponent> for LoginComponent {
                 </form>
             </div>
         }
+    }
+}
+
+impl LoginComponent {
+    fn update_button_state(&mut self) {
+        self.login_button_disabled = self.username.is_empty() || self.password.is_empty();
     }
 }
