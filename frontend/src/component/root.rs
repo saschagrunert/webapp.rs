@@ -126,41 +126,33 @@ impl Component for RootComponent {
         }
         true
     }
-}
 
-impl Renderable<RootComponent> for RootComponent {
     fn view(&self) -> Html<Self> {
         if let Some(cc) = &self.child_component {
-            cc.view()
+            match cc {
+                RouterTarget::Loading => {
+                    html! {
+                        <div class="uk-position-center", uk-icon="icon: cloud-download; ratio: 3",></div>
+                    }
+                }
+                RouterTarget::Login => {
+                    html! {
+                        <LoginComponent:/>
+                    }
+                }
+                RouterTarget::Content => {
+                    html! {
+                        <ContentComponent:/>
+                    }
+                }
+                RouterTarget::Error => {
+                    html! {
+                        <div class="uk-position-center", uk-icon="icon: ban; ratio: 3",></div>
+                    }
+                }
+            }
         } else {
             html! { "No child component available" }
-        }
-    }
-}
-
-impl Renderable<RootComponent> for RouterTarget {
-    fn view(&self) -> Html<RootComponent> {
-        match *self {
-            RouterTarget::Loading => {
-                html! {
-                    <div class="uk-position-center", uk-icon="icon: cloud-download; ratio: 3",></div>
-                }
-            }
-            RouterTarget::Login => {
-                html! {
-                    <LoginComponent:/>
-                }
-            }
-            RouterTarget::Content => {
-                html! {
-                    <ContentComponent:/>
-                }
-            }
-            RouterTarget::Error => {
-                html! {
-                    <div class="uk-position-center", uk-icon="icon: ban; ratio: 3",></div>
-                }
-            }
         }
     }
 }

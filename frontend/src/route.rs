@@ -2,7 +2,7 @@
 
 use yew_router::prelude::*;
 
-#[derive(Switch)]
+#[derive(Clone, Switch)]
 pub enum RouterTarget {
     #[to = "/error"]
     Error,
