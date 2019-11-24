@@ -116,10 +116,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The SessionTimer agent</span>
 
@@ -150,12 +146,8 @@
     <span class="ident">Stop</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Transferable</span> <span class="kw">for</span> <span class="ident">Request</span> {}
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimerResponse</span>;
-
-<span class="kw">impl</span> <span class="ident">Transferable</span> <span class="kw">for</span> <span class="ident">TimerResponse</span> {}
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SessionTimerAgent</span> {
     <span class="ident">agent_link</span>: <span class="ident">AgentLink</span><span class="op">&lt;</span><span class="ident">SessionTimerAgent</span><span class="op">&gt;</span>,

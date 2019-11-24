@@ -156,14 +156,6 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The Root component as main entry point of the frontend application</span>
 
@@ -293,41 +285,33 @@
         }
         <span class="bool-val">true</span>
     }
-}
 
-<span class="kw">impl</span> <span class="ident">Renderable</span><span class="op">&lt;</span><span class="ident">RootComponent</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RootComponent</span> {
     <span class="kw">fn</span> <span class="ident">view</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Html</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cc</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">child_component</span> {
-            <span class="ident">cc</span>.<span class="ident">view</span>()
+            <span class="kw">match</span> <span class="ident">cc</span> {
+                <span class="ident">RouterTarget</span>::<span class="ident">Loading</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">html</span><span class="macro">!</span> {
+                        <span class="op">&lt;</span><span class="ident">div</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-position-center&quot;</span>, <span class="ident">uk</span><span class="op">-</span><span class="ident">icon</span><span class="op">=</span><span class="string">&quot;icon: cloud-download; ratio: 3&quot;</span>,<span class="op">&gt;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">div</span><span class="op">&gt;</span>
+                    }
+                }
+                <span class="ident">RouterTarget</span>::<span class="ident">Login</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">html</span><span class="macro">!</span> {
+                        <span class="op">&lt;</span><span class="ident">LoginComponent</span>:<span class="op">/</span><span class="op">&gt;</span>
+                    }
+                }
+                <span class="ident">RouterTarget</span>::<span class="ident">Content</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">html</span><span class="macro">!</span> {
+                        <span class="op">&lt;</span><span class="ident">ContentComponent</span>:<span class="op">/</span><span class="op">&gt;</span>
+                    }
+                }
+                <span class="ident">RouterTarget</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">html</span><span class="macro">!</span> {
+                        <span class="op">&lt;</span><span class="ident">div</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-position-center&quot;</span>, <span class="ident">uk</span><span class="op">-</span><span class="ident">icon</span><span class="op">=</span><span class="string">&quot;icon: ban; ratio: 3&quot;</span>,<span class="op">&gt;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">div</span><span class="op">&gt;</span>
+                    }
+                }
+            }
         } <span class="kw">else</span> {
             <span class="macro">html</span><span class="macro">!</span> { <span class="string">&quot;No child component available&quot;</span> }
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Renderable</span><span class="op">&lt;</span><span class="ident">RootComponent</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RouterTarget</span> {
-    <span class="kw">fn</span> <span class="ident">view</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Html</span><span class="op">&lt;</span><span class="ident">RootComponent</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
-            <span class="ident">RouterTarget</span>::<span class="ident">Loading</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">html</span><span class="macro">!</span> {
-                    <span class="op">&lt;</span><span class="ident">div</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-position-center&quot;</span>, <span class="ident">uk</span><span class="op">-</span><span class="ident">icon</span><span class="op">=</span><span class="string">&quot;icon: cloud-download; ratio: 3&quot;</span>,<span class="op">&gt;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">div</span><span class="op">&gt;</span>
-                }
-            }
-            <span class="ident">RouterTarget</span>::<span class="ident">Login</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">html</span><span class="macro">!</span> {
-                    <span class="op">&lt;</span><span class="ident">LoginComponent</span>:<span class="op">/</span><span class="op">&gt;</span>
-                }
-            }
-            <span class="ident">RouterTarget</span>::<span class="ident">Content</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">html</span><span class="macro">!</span> {
-                    <span class="op">&lt;</span><span class="ident">ContentComponent</span>:<span class="op">/</span><span class="op">&gt;</span>
-                }
-            }
-            <span class="ident">RouterTarget</span>::<span class="ident">Error</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">html</span><span class="macro">!</span> {
-                    <span class="op">&lt;</span><span class="ident">div</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-position-center&quot;</span>, <span class="ident">uk</span><span class="op">-</span><span class="ident">icon</span><span class="op">=</span><span class="string">&quot;icon: ban; ratio: 3&quot;</span>,<span class="op">&gt;</span><span class="op">&lt;</span><span class="op">/</span><span class="ident">div</span><span class="op">&gt;</span>
-                }
-            }
         }
     }
 }
