@@ -1401,6 +1401,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "parking_lot"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "lock_api 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parking_lot_core 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "parking_lot_core"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1426,6 +1435,19 @@ dependencies = [
  "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "cfg-if 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cloudabi 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
+ "redox_syscall 0.1.56 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smallvec 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1528,7 +1550,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "scheduled-thread-pool 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "scheduled-thread-pool 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1805,10 +1827,10 @@ dependencies = [
 
 [[package]]
 name = "scheduled-thread-pool"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "parking_lot 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2960,10 +2982,12 @@ dependencies = [
 "checksum openssl 0.10.26 (registry+https://github.com/rust-lang/crates.io-index)" = "3a3cc5799d98e1088141b8e01ff760112bbd9f19d850c124500566ca6901a585"
 "checksum openssl-probe 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "77af24da69f9d9341038eba93a073b1fdaaa1b788221b00a69bce9e762cb32de"
 "checksum openssl-sys 0.9.53 (registry+https://github.com/rust-lang/crates.io-index)" = "465d16ae7fc0e313318f7de5cecf57b2fbe7511fd213978b457e1c96ff46736f"
+"checksum parking_lot 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "92e98c49ab0b7ce5b222f2cc9193fc4efe11c6d0bd4f648e374684a6857b1cfc"
 "checksum parking_lot 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "fa7767817701cce701d5585b9c4db3cdd02086398322c1d7e8bf5094a96a2ce7"
 "checksum parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f842b1982eb6c2fe34036a4fbfb06dd185a3f5c8edfaacdf7d1ea10b07de6252"
 "checksum parking_lot_core 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cb88cb1cb3790baa6776844f968fea3be44956cf184fa1be5a03341f5491278c"
 "checksum parking_lot_core 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b876b1b9e7ac6e1a74a6da34d25c42e17e8862aa409cbbbdcfc8d86c6f3bc62b"
+"checksum parking_lot_core 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7582838484df45743c8434fbff785e8edf260c28748353d44bc0da32e0ceabf1"
 "checksum percent-encoding 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
 "checksum percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d4fd5641d01c8f18a23da7b6fe29298ff4b55afcccdf78973b24cf3175fee32e"
 "checksum pkg-config 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)" = "05da548ad6865900e60eaba7f589cc0783590a92e940c26953ff81ddbab2d677"
@@ -3006,7 +3030,7 @@ dependencies = [
 "checksum sass-rs 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "cabcf7c6e55053f359911187ac401409aad2dc14338cae972dec266fee486abd"
 "checksum sass-sys 0.4.15 (registry+https://github.com/rust-lang/crates.io-index)" = "304b6f9501d1da13f17404aeee85486d7383d06074906669b3ea032f81e83d22"
 "checksum schannel 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "87f550b06b6cba9c8b8be3ee73f391990116bf527450d2556e9b9ce263b9a021"
-"checksum scheduled-thread-pool 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "bd07742e081ff6c077f5f6b283f12f32b9e7cc765b316160d66289b74546fbb3"
+"checksum scheduled-thread-pool 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "f5de7bc31f28f8e6c28df5e1bf3d10610f5fdc14cc95f272853512c70a2bd779"
 "checksum scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b42e15e59b18a828bbf5c58ea01debb36b9b096346de35d941dcb89009f24a0d"
 "checksum security-framework 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "8ef2429d7cefe5fd28bd1d2ed41c944547d4ff84776f5935b456da44593a16df"
 "checksum security-framework-sys 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "e31493fc37615debb8c5090a7aeb4a9730bc61e77ab10b9af59f1a202284f895"
