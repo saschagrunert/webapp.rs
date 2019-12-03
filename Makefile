@@ -57,6 +57,7 @@ coverage:
 
 deploy:
 	# Deploy the frontend
+	$(CONTAINER_RUNTIME) pull saschagrunert/build-rust:latest
 	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(shell pwd):/deploy \
 		saschagrunert/build-rust:latest \
 		cargo web deploy $(FRONTEND_ARGS)
@@ -64,8 +65,9 @@ deploy:
 	sudo chown -R $(USER) target
 	# Build the backend
 	sudo chown -R 1000:1000 target
+	$(CONTAINER_RUNTIME) pull ekidd/rust-musl-builder:1.39.0
 	$(CONTAINER_RUNTIME) run --rm -it -v $(shell pwd):/home/rust/src \
-		ekidd/rust-musl-builder:stable \
+		ekidd/rust-musl-builder:1.39.0 \
 		cargo build $(BACKEND_ARGS)
 	# Create the container image from the executable
 	$(CONTAINER_RUNTIME) build --no-cache -t webapp .
