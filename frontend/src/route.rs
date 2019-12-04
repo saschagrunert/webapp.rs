@@ -4,15 +4,15 @@ use yew_router::prelude::*;
 
 #[derive(Clone, Switch)]
 pub enum RouterTarget {
-    #[to = "/error"]
+    #[to = "/#error"]
     Error,
 
-    #[to = "/loading"]
+    #[to = "/#loading"]
     Loading,
 
-    #[to = "/login"]
+    #[to = "/#login"]
     Login,
 
-    #[to = "/content"]
+    #[to = "/#content"]
     Content,
 }
