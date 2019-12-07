@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 /// The credentials based login request
 pub struct LoginCredentials {
-    /// The username
+    /// The username to login
     pub username: String,
 
-    /// The password
+    /// The password to login
     pub password: String,
 }
 
