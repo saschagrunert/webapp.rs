@@ -45,7 +45,7 @@ openssl = "0.10.25"
 r2d2 = "0.8.7"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_cbor = "0.10.2"
-time = "0.1.42"
+time = "0.2.0"
 url = "2.1.0"
 uuid = { version = "0.8.1", features = ["v4"] }
 webapp = { version = "1.0.0", path = "..", features = ["backend"] }
