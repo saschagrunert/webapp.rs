@@ -4,7 +4,7 @@ use actix_web::{HttpResponse, ResponseError};
 use failure::Fail;
 use jsonwebtoken::{decode, encode, Header, Validation};
 use serde::{Deserialize, Serialize};
-use time::get_time;
+use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 
 mod test;
@@ -52,10 +52,13 @@ impl Token {
     /// Create a new default token for a given username
     pub fn create(username: &str) -> Result<String, TokenError> {
         const DEFAULT_TOKEN_VALIDITY: i64 = 3600;
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_err(|_| TokenError::Create)?;
         let claim = Token {
             sub: username.to_owned(),
-            exp: get_time().sec + DEFAULT_TOKEN_VALIDITY,
-            iat: get_time().sec,
+            exp: now.as_secs() as i64 + DEFAULT_TOKEN_VALIDITY,
+            iat: now.as_secs() as i64,
             jti: Uuid::new_v4().to_string(),
         };
         encode(&Header::default(), &claim, SECRET).map_err(|_| TokenError::Create)

@@ -23,7 +23,7 @@ path = "src/main.rs"
 
 [dev-dependencies]
 actix-http-test = "1.0.0"
-actix-http = "1.0.0"
+actix-http = "1.0.1"
 lazy_static = "1.4.0"
 reqwest = "0.9.24"
 
@@ -39,13 +39,12 @@ env_logger = "0.7.1"
 failure = "0.1.6"
 futures = "0.1.29"
 jsonwebtoken = "6.0.1"
-log = "0.4.10"
+log = "0.4.8"
 num_cpus = "1.11.1"
-openssl = "0.10.25"
+openssl = "0.10.26"
 r2d2 = "0.8.7"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_cbor = "0.10.2"
-time = "0.1.42"
 url = "2.1.0"
 uuid = { version = "0.8.1", features = ["v4"] }
 webapp = { version = "1.0.0", path = "..", features = ["backend"] }
