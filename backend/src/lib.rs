@@ -3,7 +3,7 @@
 
 mod cbor;
 mod database;
-mod http;
+// mod http;
 mod server;
 mod token;
 

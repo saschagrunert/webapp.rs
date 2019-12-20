@@ -1,9 +1,7 @@
 //! Everything related to the actual server implementation
 
-use crate::{
-    database::DatabaseExecutor,
-    http::{login_credentials, login_session, logout},
-};
+use crate::database::DatabaseExecutor;
+// http::{login_credentials, login_session, logout},
 use actix::{prelude::*, SystemRunner};
 use actix_cors::Cors;
 use actix_files::Files;
@@ -65,11 +63,11 @@ impl Server {
                         .max_age(3600),
                 )
                 .wrap(middleware::Logger::default())
-                .service(
+                /* .service(
                     resource(API_URL_LOGIN_CREDENTIALS).route(post().to_async(login_credentials)),
                 )
                 .service(resource(API_URL_LOGIN_SESSION).route(post().to_async(login_session)))
-                .service(resource(API_URL_LOGOUT).route(post().to_async(logout)))
+                .service(resource(API_URL_LOGOUT).route(post().to_async(logout))) */
                 .service(Files::new("/", "./static/").index_file("index.html"))
         });
 
