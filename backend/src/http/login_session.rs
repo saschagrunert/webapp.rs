@@ -1,35 +1,33 @@
 //! The session based login request
 
 use crate::{
-    cbor::{CborRequest, CborResponseBuilder},
     database::{DatabaseExecutor, UpdateSession},
     token::Token,
 };
 use actix::prelude::*;
 use actix_web::{
-    web::{Data, Payload},
+    web::{Data, Json},
     Error, HttpResponse,
 };
-use futures::Future;
 use log::debug;
-use webapp::protocol::{model::Session, request::LoginSession, response::Login};
+use webapp::protocol::{request::LoginSession, response::Login};
 
-pub fn login_session(
-    payload: Payload,
+pub async fn login_session(
+    payload: Json<LoginSession>,
     database: Data<Addr<DatabaseExecutor>>,
-) -> impl Future<Item = HttpResponse, Error = Error> {
-    let cbor = CborRequest::new(payload);
+) -> Result<HttpResponse, Error> {
+    let old_token = payload.into_inner().0.token;
 
     // Create a new token for the already given one
-    cbor.from_err().and_then(|LoginSession(Session {token})| {
-            debug!("Session token {} wants to be renewed", token);
-            Ok((Token::verify(&token)?, token))
+    debug!("Session token {} wants to be renewed", old_token);
+    let new_token = Token::verify(&old_token)?;
+
+    // Update the session in the database
+    let result = database
+        .send(UpdateSession {
+            old_token,
+            new_token,
         })
-        // Update the session in the database
-        .and_then(move |(new_token, old_token)| {
-                database
-                .send(UpdateSession { old_token, new_token })
-                .from_err()
-                .and_then(|result| Ok(HttpResponse::Ok().cbor(Login(result?))?))
-        })
+        .await?;
+    Ok(HttpResponse::Ok().json(Login(result?)))
 }

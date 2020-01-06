@@ -18,7 +18,7 @@ use webapp::{
     protocol::{model::Session, request::LoginCredentials, response::Login},
     API_URL_LOGIN_CREDENTIALS,
 };
-use yew::{format::Cbor, html, prelude::*, services::fetch::FetchTask};
+use yew::{format::Json, html, prelude::*, services::fetch::FetchTask};
 use yew_router::agent::{RouteAgent, RouteRequest::ChangeRoute};
 
 /// Data Model for the Login component
@@ -102,7 +102,7 @@ impl Component for LoginComponent {
 
             // The message for all fetch responses
             Message::Fetch(response) => {
-                let (meta, Cbor(body)) = response.into_parts();
+                let (meta, Json(body)) = response.into_parts();
 
                 // Check the response type
                 if meta.status.is_success() {

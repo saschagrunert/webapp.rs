@@ -1,7 +1,6 @@
 //! The backend library
 #![deny(missing_docs)]
 
-mod cbor;
 mod database;
 mod http;
 mod server;

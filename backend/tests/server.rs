@@ -1,7 +1,7 @@
 use failure::{format_err, Fallible};
 use lazy_static::lazy_static;
 use reqwest::Client;
-use serde_cbor::{from_slice, to_vec};
+use serde_json::from_slice;
 use std::{sync::Mutex, thread};
 use url::Url;
 use webapp::{
@@ -93,11 +93,11 @@ fn succeed_to_login_with_credentials() -> Fallible<()> {
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
-    let request = to_vec(&request::LoginCredentials {
+    let request = request::LoginCredentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
-    })?;
-    let mut res = Client::new().post(url.as_str()).body(request).send()?;
+    };
+    let mut res = Client::new().post(url.as_str()).json(&request).send()?;
     let mut body = vec![];
     res.copy_to(&mut body)?;
     let response::Login(session) = from_slice(&body)?;
@@ -115,11 +115,11 @@ fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
-    let request = to_vec(&request::LoginCredentials {
+    let request = request::LoginCredentials {
         username: "username".to_owned(),
         password: "password".to_owned(),
-    })?;
-    let res = Client::new().post(url.as_str()).body(request).send()?;
+    };
+    let res = Client::new().post(url.as_str()).json(&request).send()?;
 
     // Then
     assert_eq!(res.status().as_u16(), 401);
@@ -133,18 +133,20 @@ fn succeed_to_login_with_session() -> Fallible<()> {
     url.set_path(API_URL_LOGIN_CREDENTIALS);
 
     // When
-    let mut request = to_vec(&request::LoginCredentials {
+    let request = &request::LoginCredentials {
         username: "username".to_owned(),
         password: "username".to_owned(),
-    })?;
-    let mut res = Client::new().post(url.as_str()).body(request).send()?;
+    };
+    let mut res = Client::new().post(url.as_str()).json(&request).send()?;
     let mut body = vec![];
     res.copy_to(&mut body)?;
     let response::Login(session) = from_slice(&body)?;
 
-    request = to_vec(&request::LoginSession(session))?;
     url.set_path(API_URL_LOGIN_SESSION);
-    res = Client::new().post(url.as_str()).body(request).send()?;
+    res = Client::new()
+        .post(url.as_str())
+        .json(&request::LoginSession(session))
+        .send()?;
     body.clear();
     res.copy_to(&mut body)?;
     let response::Login(new_session) = from_slice(&body)?;
@@ -162,8 +164,10 @@ fn fail_to_login_with_wrong_session() -> Fallible<()> {
     url.set_path(API_URL_LOGIN_SESSION);
 
     // When
-    let request = to_vec(&request::LoginSession(Session::new("wrong")))?;
-    let res = Client::new().post(url.as_str()).body(request).send()?;
+    let res = Client::new()
+        .post(url.as_str())
+        .json(&request::LoginSession(Session::new("wrong")))
+        .send()?;
 
     // Then
     assert_eq!(res.status().as_u16(), 401);
@@ -177,8 +181,10 @@ fn succeed_to_logout() -> Fallible<()> {
     url.set_path(API_URL_LOGOUT);
 
     // When
-    let request = to_vec(&request::Logout(Session::new("wrong")))?;
-    let res = Client::new().post(url.as_str()).body(request).send()?;
+    let res = Client::new()
+        .post(url.as_str())
+        .json(&request::Logout(Session::new("wrong")))
+        .send()?;
 
     // Then
     assert!(res.status().is_success());

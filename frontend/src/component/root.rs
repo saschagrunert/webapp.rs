@@ -16,7 +16,7 @@ use webapp::{
     protocol::{model::Session, request::LoginSession, response::Login},
     API_URL_LOGIN_SESSION,
 };
-use yew::{agent::Bridged, format::Cbor, html, prelude::*, services::fetch::FetchTask};
+use yew::{agent::Bridged, format::Json, html, prelude::*, services::fetch::FetchTask};
 use yew_router::{
     agent::{RouteAgent, RouteRequest::ChangeRoute},
     route::Route,
@@ -88,7 +88,7 @@ impl Component for RootComponent {
 
             // The message for all fetch responses
             Message::Fetch(response) => {
-                let (meta, Cbor(body)) = response.into_parts();
+                let (meta, Json(body)) = response.into_parts();
 
                 // Check the response type
                 if meta.status.is_success() {
