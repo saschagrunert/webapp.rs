@@ -1,34 +1,22 @@
 //! The logout request
 
-use crate::{
-    cbor::{CborRequest, CborResponseBuilder},
-    database::{DatabaseExecutor, DeleteSession},
-};
+use crate::database::{DatabaseExecutor, DeleteSession};
 use actix::prelude::*;
 use actix_web::{
-    web::{Data, Payload},
+    web::{Data, Json},
     Error, HttpResponse,
 };
-use futures::Future;
 use log::debug;
-use webapp::protocol::{model::Session, request, response};
+use webapp::protocol::{request, response};
 
-pub fn logout(
-    payload: Payload,
+pub async fn logout(
+    payload: Json<request::Logout>,
     database: Data<Addr<DatabaseExecutor>>,
-) -> impl Future<Item = HttpResponse, Error = Error> {
-    let cbor = CborRequest::new(payload);
+) -> Result<HttpResponse, Error> {
+    let token = payload.into_inner().0.token;
 
     // Remove the session from the database
-    cbor.from_err()
-        .and_then(move |request::Logout(Session { token })| {
-            debug!("Session token {} wants to be logged out", token);
-            database
-                .send(DeleteSession(token))
-                .from_err()
-                .and_then(|result| {
-                    result?;
-                    Ok(HttpResponse::Ok().cbor(response::Logout)?)
-                })
-        })
+    debug!("Session token {} wants to be logged out", token);
+    let _ = database.send(DeleteSession(token)).await?;
+    Ok(HttpResponse::Ok().json(response::Logout))
 }

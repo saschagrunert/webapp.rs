@@ -9,7 +9,7 @@ use webapp::{
     API_URL_LOGIN_SESSION,
 };
 use yew::{
-    format::Cbor,
+    format::Json,
     prelude::{worker::*, *},
     services::{fetch::FetchTask, IntervalService, Task},
 };
@@ -72,7 +72,7 @@ impl Agent for SessionTimerAgent {
                 }
             }
             Message::Fetch(response) => {
-                let (meta, Cbor(body)) = response.into_parts();
+                let (meta, Json(body)) = response.into_parts();
 
                 // Check the response type
                 if meta.status.is_success() {

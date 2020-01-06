@@ -62,14 +62,13 @@ impl Server {
                     Cors::new()
                         .allowed_methods(vec!["GET", "POST"])
                         .allowed_header(CONTENT_TYPE)
-                        .max_age(3600),
+                        .max_age(3600)
+                        .finish(),
                 )
                 .wrap(middleware::Logger::default())
-                .service(
-                    resource(API_URL_LOGIN_CREDENTIALS).route(post().to_async(login_credentials)),
-                )
-                .service(resource(API_URL_LOGIN_SESSION).route(post().to_async(login_session)))
-                .service(resource(API_URL_LOGOUT).route(post().to_async(logout)))
+                .service(resource(API_URL_LOGIN_CREDENTIALS).route(post().to(login_credentials)))
+                .service(resource(API_URL_LOGIN_SESSION).route(post().to(login_session)))
+                .service(resource(API_URL_LOGOUT).route(post().to(logout)))
                 .service(Files::new("/", "./static/").index_file("index.html"))
         });
 
@@ -80,10 +79,10 @@ impl Server {
         let addrs = Self::url_to_socket_addrs(&url)?;
         if url.scheme() == "https" {
             server
-                .bind_ssl(addrs.as_slice(), Self::build_tls(&config)?)?
-                .start();
+                .bind_openssl(addrs.as_slice(), Self::build_tls(&config)?)?
+                .run();
         } else {
-            server.bind(addrs.as_slice())?.start();
+            server.bind(addrs.as_slice())?.run();
         }
 
         Ok(Server {
@@ -145,7 +144,7 @@ impl Server {
                         let addrs = Self::url_to_socket_addrs(&valid_url).unwrap();
                         if valid_url.scheme() == "https" {
                             if let Ok(tls) = Self::build_tls(&config_clone) {
-                                server = server.bind_ssl(addrs.as_slice(), tls).unwrap();
+                                server = server.bind_openssl(addrs.as_slice(), tls).unwrap();
                             } else {
                                 warn!("Unable to build TLS acceptor for server: {}", valid_url);
                             }
@@ -158,7 +157,7 @@ impl Server {
                 }
 
                 // Start the server and the system
-                server.start();
+                server.run();
                 system.run().unwrap();
             });
         }

@@ -33,5 +33,5 @@ log = "0.4.8"
 serde = { version = "1.0.104", features = ["derive"] }
 stdweb = "0.4.20"
 webapp = { version = "1.0.0", path = ".." }
-yew = { version = "0.10.0", features = ["cbor"] }
+yew = "0.10.0"
 yew-router = "0.7.0"
