@@ -20,52 +20,28 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
-<span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The logout request</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">cbor</span>::{<span class="ident">CborRequest</span>, <span class="ident">CborResponseBuilder</span>},
-    <span class="ident">database</span>::{<span class="ident">DatabaseExecutor</span>, <span class="ident">DeleteSession</span>},
-};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">database</span>::{<span class="ident">DatabaseExecutor</span>, <span class="ident">DeleteSession</span>};
 <span class="kw">use</span> <span class="ident">actix</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
-    <span class="ident">web</span>::{<span class="ident">Data</span>, <span class="ident">Payload</span>},
+    <span class="ident">web</span>::{<span class="ident">Data</span>, <span class="ident">Json</span>},
     <span class="ident">Error</span>, <span class="ident">HttpResponse</span>,
 };
-<span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">Future</span>;
 <span class="kw">use</span> <span class="ident">log</span>::<span class="ident">debug</span>;
-<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">model</span>::<span class="ident">Session</span>, <span class="ident">request</span>, <span class="ident">response</span>};
+<span class="kw">use</span> <span class="ident">webapp</span>::<span class="ident">protocol</span>::{<span class="ident">request</span>, <span class="ident">response</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">logout</span>(
-    <span class="ident">payload</span>: <span class="ident">Payload</span>,
+<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">logout</span>(
+    <span class="ident">payload</span>: <span class="ident">Json</span><span class="op">&lt;</span><span class="ident">request</span>::<span class="ident">Logout</span><span class="op">&gt;</span>,
     <span class="ident">database</span>: <span class="ident">Data</span><span class="op">&lt;</span><span class="ident">Addr</span><span class="op">&lt;</span><span class="ident">DatabaseExecutor</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">HttpResponse</span>, <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">cbor</span> <span class="op">=</span> <span class="ident">CborRequest</span>::<span class="ident">new</span>(<span class="ident">payload</span>);
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HttpResponse</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">payload</span>.<span class="ident">into_inner</span>().<span class="number">0</span>.<span class="ident">token</span>;
 
     <span class="comment">// Remove the session from the database</span>
-    <span class="ident">cbor</span>.<span class="ident">from_err</span>()
-        .<span class="ident">and_then</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">request</span>::<span class="ident">Logout</span>(<span class="ident">Session</span> { <span class="ident">token</span> })<span class="op">|</span> {
-            <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Session token {} wants to be logged out&quot;</span>, <span class="ident">token</span>);
-            <span class="ident">database</span>
-                .<span class="ident">send</span>(<span class="ident">DeleteSession</span>(<span class="ident">token</span>))
-                .<span class="ident">from_err</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">result</span><span class="op">|</span> {
-                    <span class="ident">result</span><span class="question-mark">?</span>;
-                    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">cbor</span>(<span class="ident">response</span>::<span class="ident">Logout</span>)<span class="question-mark">?</span>)
-                })
-        })
+    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Session token {} wants to be logged out&quot;</span>, <span class="ident">token</span>);
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">database</span>.<span class="ident">send</span>(<span class="ident">DeleteSession</span>(<span class="ident">token</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="ident">response</span>::<span class="ident">Logout</span>))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "webapp_backend";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

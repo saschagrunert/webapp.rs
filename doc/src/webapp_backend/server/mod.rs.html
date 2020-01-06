@@ -189,7 +189,6 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-<span id="192">192</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to the actual server implementation</span>
 
@@ -255,14 +254,13 @@
                     <span class="ident">Cors</span>::<span class="ident">new</span>()
                         .<span class="ident">allowed_methods</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>])
                         .<span class="ident">allowed_header</span>(<span class="ident">CONTENT_TYPE</span>)
-                        .<span class="ident">max_age</span>(<span class="number">3600</span>),
+                        .<span class="ident">max_age</span>(<span class="number">3600</span>)
+                        .<span class="ident">finish</span>(),
                 )
                 .<span class="ident">wrap</span>(<span class="ident">middleware</span>::<span class="ident">Logger</span>::<span class="ident">default</span>())
-                .<span class="ident">service</span>(
-                    <span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">login_credentials</span>)),
-                )
-                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_SESSION</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">login_session</span>)))
-                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to_async</span>(<span class="ident">logout</span>)))
+                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to</span>(<span class="ident">login_credentials</span>)))
+                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_SESSION</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to</span>(<span class="ident">login_session</span>)))
+                .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGOUT</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to</span>(<span class="ident">logout</span>)))
                 .<span class="ident">service</span>(<span class="ident">Files</span>::<span class="ident">new</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;./static/&quot;</span>).<span class="ident">index_file</span>(<span class="string">&quot;index.html&quot;</span>))
         });
 
@@ -273,10 +271,10 @@
         <span class="kw">let</span> <span class="ident">addrs</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">url_to_socket_addrs</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> {
             <span class="ident">server</span>
-                .<span class="ident">bind_ssl</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>(), <span class="self">Self</span>::<span class="ident">build_tls</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>
-                .<span class="ident">start</span>();
+                .<span class="ident">bind_openssl</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>(), <span class="self">Self</span>::<span class="ident">build_tls</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>
+                .<span class="ident">run</span>();
         } <span class="kw">else</span> {
-            <span class="ident">server</span>.<span class="ident">bind</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>())<span class="question-mark">?</span>.<span class="ident">start</span>();
+            <span class="ident">server</span>.<span class="ident">bind</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>())<span class="question-mark">?</span>.<span class="ident">run</span>();
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">Server</span> {
@@ -338,7 +336,7 @@
                         <span class="kw">let</span> <span class="ident">addrs</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">url_to_socket_addrs</span>(<span class="kw-2">&amp;</span><span class="ident">valid_url</span>).<span class="ident">unwrap</span>();
                         <span class="kw">if</span> <span class="ident">valid_url</span>.<span class="ident">scheme</span>() <span class="op">=</span><span class="op">=</span> <span class="string">&quot;https&quot;</span> {
                             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">tls</span>) <span class="op">=</span> <span class="self">Self</span>::<span class="ident">build_tls</span>(<span class="kw-2">&amp;</span><span class="ident">config_clone</span>) {
-                                <span class="ident">server</span> <span class="op">=</span> <span class="ident">server</span>.<span class="ident">bind_ssl</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>(), <span class="ident">tls</span>).<span class="ident">unwrap</span>();
+                                <span class="ident">server</span> <span class="op">=</span> <span class="ident">server</span>.<span class="ident">bind_openssl</span>(<span class="ident">addrs</span>.<span class="ident">as_slice</span>(), <span class="ident">tls</span>).<span class="ident">unwrap</span>();
                             } <span class="kw">else</span> {
                                 <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Unable to build TLS acceptor for server: {}&quot;</span>, <span class="ident">valid_url</span>);
                             }
@@ -351,7 +349,7 @@
                 }
 
                 <span class="comment">// Start the server and the system</span>
-                <span class="ident">server</span>.<span class="ident">start</span>();
+                <span class="ident">server</span>.<span class="ident">run</span>();
                 <span class="ident">system</span>.<span class="ident">run</span>().<span class="ident">unwrap</span>();
             });
         }

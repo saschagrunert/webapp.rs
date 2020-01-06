@@ -27,21 +27,23 @@
 <span id="27">27</span>
 <span id="28">28</span>
 <span id="29">29</span>
+<span id="30">30</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Api related helpers and utilities</span>
 
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fallible</span>;
-<span class="kw">use</span> <span class="ident">yew</span>::{<span class="ident">format</span>::<span class="ident">Cbor</span>, <span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">Response</span> <span class="kw">as</span> <span class="ident">FetchResponse</span>};
+<span class="kw">use</span> <span class="ident">yew</span>::{<span class="ident">format</span>::<span class="ident">Json</span>, <span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">Response</span> <span class="kw">as</span> <span class="ident">FetchResponse</span>};
 
 <span class="doccomment">/// A generic response type of the API</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FetchResponse</span><span class="op">&lt;</span><span class="ident">Cbor</span><span class="op">&lt;</span><span class="ident">Fallible</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Response</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FetchResponse</span><span class="op">&lt;</span><span class="ident">Json</span><span class="op">&lt;</span><span class="ident">Fallible</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="doccomment">/// Generic API fetch macro</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">fetch</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>:<span class="ident">expr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">api</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">link</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">succ</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">match</span> ::<span class="ident">yew</span>::<span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">Request</span>::<span class="ident">post</span>(<span class="macro">env</span><span class="macro">!</span>(<span class="string">&quot;API_URL&quot;</span>).<span class="ident">to_owned</span>() <span class="op">+</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">api</span>)
-            .<span class="ident">body</span>(<span class="ident">Cbor</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>))
+            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
+            .<span class="ident">body</span>(<span class="ident">Json</span>(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">request</span>))
         {
             <span class="prelude-val">Ok</span>(<span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">succ</span>();
