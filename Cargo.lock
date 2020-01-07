@@ -82,7 +82,7 @@ dependencies = [
  "derive_more 0.99.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "mime_guess 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "v_htmlescape 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -122,7 +122,7 @@ dependencies = [
  "language-tags 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pin-project 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -307,7 +307,7 @@ dependencies = [
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.10.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "pin-project 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -422,7 +422,7 @@ dependencies = [
  "derive_more 0.99.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-core 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.10.26 (registry+https://github.com/rust-lang/crates.io-index)",
  "percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1289,7 +1289,7 @@ dependencies = [
 
 [[package]]
 name = "mime"
-version = "0.3.14"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -1297,7 +1297,7 @@ name = "mime_guess"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicase 2.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1801,7 +1801,7 @@ dependencies = [
  "hyper 0.12.35 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper-tls 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "mime_guess 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "native-tls 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2976,7 +2976,7 @@ dependencies = [
 "checksum maybe-uninit 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 "checksum memchr 2.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "88579771288728879b57485cc7d6b07d648c9f0141eb955f8ab7f9d45394468e"
 "checksum memoffset 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "75189eb85871ea5c2e2c15abbdd541185f63b408415e5051f5cac122d8c774b9"
-"checksum mime 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)" = "dd1d63acd1b78403cc0c325605908475dd9b9a3acbf65ed8bcab97e27014afcf"
+"checksum mime 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "61ab7b690f26f7b22cc1e6a5306da408904b75a0c833b9b0f7b3dfab3c8405d1"
 "checksum mime_guess 2.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1a0ed03949aef72dbdf3116a383d7b38b4768e6f960528cd6a6044aa9ed68599"
 "checksum miniz_oxide 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "6f3f74f726ae935c3f514300cc6773a0c9492abc5e972d42ba0c0ebb88757625"
 "checksum mio 0.6.21 (registry+https://github.com/rust-lang/crates.io-index)" = "302dec22bcf6bae6dfb69c647187f4b4d0fb6f535521f7bc022430ce8e12008f"
