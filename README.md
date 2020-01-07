@@ -39,7 +39,7 @@ feature set of this application:
 - A container runtime, like [podman](https://podman.io)
 
 The app consist of a frontend and a backend. For getting started with hacking,
-the backend can tested via `make run-backend`, whereas the frontend can be
+the backend can be tested via `make run-backend`, whereas the frontend can be
 tested with `make run-frontend`. You can adapt the application configuration
 within `Config.toml` if needed.
 
