@@ -1,6 +1,6 @@
 use failure::{format_err, Fallible};
 use lazy_static::lazy_static;
-use reqwest::Client;
+use reqwest::blocking::Client;
 use serde_json::from_slice;
 use std::{sync::Mutex, thread};
 use url::Url;
