@@ -188,12 +188,11 @@
     <span class="kw">type</span> <span class="ident">Properties</span> <span class="op">=</span> ();
 
     <span class="doccomment">/// Initialization routine</span>
-    <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw">_</span>: <span class="self">Self</span>::<span class="ident">Properties</span>, <span class="kw-2">mut</span> <span class="ident">link</span>: <span class="ident">ComponentLink</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw">_</span>: <span class="self">Self</span>::<span class="ident">Properties</span>, <span class="ident">link</span>: <span class="ident">ComponentLink</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Guard the authentication</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">router_agent</span> <span class="op">=</span> <span class="ident">RouteAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">router_agent</span> <span class="op">=</span> <span class="ident">RouteAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">callback</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">let</span> <span class="ident">cookie_service</span> <span class="op">=</span> <span class="ident">CookieService</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session_timer_agent</span> <span class="op">=</span>
-            <span class="ident">SessionTimerAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">session_timer_agent</span> <span class="op">=</span> <span class="ident">SessionTimerAgent</span>::<span class="ident">bridge</span>(<span class="ident">link</span>.<span class="ident">callback</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Ignore</span>));
         <span class="kw">if</span> <span class="ident">cookie_service</span>.<span class="ident">get</span>(<span class="ident">SESSION_COOKIE</span>).<span class="ident">is_err</span>() {
             <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;No session token found, routing back to login&quot;</span>);
             <span class="ident">router_agent</span>.<span class="ident">send</span>(<span class="ident">ChangeRoute</span>(<span class="ident">RouterTarget</span>::<span class="ident">Login</span>.<span class="ident">into</span>()));
@@ -278,13 +277,14 @@
         <span class="bool-val">true</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">view</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Html</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">view</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Html</span> {
+        <span class="kw">let</span> <span class="ident">onclick</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">component_link</span>.<span class="ident">callback</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">LogoutRequest</span>);
         <span class="macro">html</span><span class="macro">!</span> {
             <span class="op">&lt;</span><span class="ident">div</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center&quot;</span>,<span class="op">&gt;</span>
                 <span class="op">&lt;</span><span class="ident">h1</span> <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-card-title&quot;</span>,<span class="op">&gt;</span>{<span class="ident">TEXT_CONTENT</span>}<span class="op">&lt;</span><span class="op">/</span><span class="ident">h1</span><span class="op">&gt;</span>
                 <span class="op">&lt;</span><span class="ident">button</span> <span class="ident">disabled</span><span class="op">=</span><span class="self">self</span>.<span class="ident">logout_button_disabled</span>,
                     <span class="ident">class</span><span class="op">=</span><span class="string">&quot;uk-button uk-button-default&quot;</span>,
-                    <span class="ident">onclick</span><span class="op">=</span><span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">LogoutRequest</span>,<span class="op">&gt;</span>{<span class="ident">TEXT_LOGOUT</span>}<span class="op">&lt;</span><span class="op">/</span><span class="ident">button</span><span class="op">&gt;</span>
+                    <span class="ident">onclick</span><span class="op">=</span><span class="ident">onclick</span><span class="op">&gt;</span>{<span class="ident">TEXT_LOGOUT</span>}<span class="op">&lt;</span><span class="op">/</span><span class="ident">button</span><span class="op">&gt;</span>
             <span class="op">&lt;</span><span class="op">/</span><span class="ident">div</span><span class="op">&gt;</span>
         }
     }

@@ -166,7 +166,7 @@
     <span class="doccomment">/// Creates a new SessionTimerAgent</span>
     <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">link</span>: <span class="ident">AgentLink</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">callback</span>: <span class="ident">link</span>.<span class="ident">send_back</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Update</span>),
+            <span class="ident">callback</span>: <span class="ident">link</span>.<span class="ident">callback</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Message</span>::<span class="ident">Update</span>),
             <span class="ident">agent_link</span>: <span class="ident">link</span>,
             <span class="ident">cookie_service</span>: <span class="ident">CookieService</span>::<span class="ident">new</span>(),
             <span class="ident">fetch_task</span>: <span class="prelude-val">None</span>,
@@ -219,7 +219,7 @@
     }
 
     <span class="doccomment">/// Handle incoming data requests</span>
-    <span class="kw">fn</span> <span class="ident">handle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="self">Self</span>::<span class="ident">Input</span>, <span class="kw">_</span>: <span class="ident">HandlerId</span>) {
+    <span class="kw">fn</span> <span class="ident">handle_input</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="self">Self</span>::<span class="ident">Input</span>, <span class="kw">_</span>: <span class="ident">HandlerId</span>) {
         <span class="kw">match</span> <span class="ident">msg</span> {
             <span class="ident">Request</span>::<span class="ident">Start</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span>
