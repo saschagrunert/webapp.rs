@@ -42,12 +42,11 @@ impl Component for ContentComponent {
     type Properties = ();
 
     /// Initialization routine
-    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Guard the authentication
-        let mut router_agent = RouteAgent::bridge(link.send_back(|_| Message::Ignore));
+        let mut router_agent = RouteAgent::bridge(link.callback(|_| Message::Ignore));
         let cookie_service = CookieService::new();
-        let mut session_timer_agent =
-            SessionTimerAgent::bridge(link.send_back(|_| Message::Ignore));
+        let mut session_timer_agent = SessionTimerAgent::bridge(link.callback(|_| Message::Ignore));
         if cookie_service.get(SESSION_COOKIE).is_err() {
             info!("No session token found, routing back to login");
             router_agent.send(ChangeRoute(RouterTarget::Login.into()));
@@ -132,13 +131,14 @@ impl Component for ContentComponent {
         true
     }
 
-    fn view(&self) -> Html<Self> {
+    fn view(&self) -> Html {
+        let onclick = self.component_link.callback(|_| Message::LogoutRequest);
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <h1 class="uk-card-title",>{TEXT_CONTENT}</h1>
                 <button disabled=self.logout_button_disabled,
                     class="uk-button uk-button-default",
-                    onclick=|_| Message::LogoutRequest,>{TEXT_LOGOUT}</button>
+                    onclick=onclick>{TEXT_LOGOUT}</button>
             </div>
         }
     }

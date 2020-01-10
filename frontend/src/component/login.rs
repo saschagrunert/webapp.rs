@@ -48,7 +48,7 @@ impl Component for LoginComponent {
     type Properties = ();
 
     /// Initialization routine
-    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Return the component
         Self {
             cookie_service: CookieService::new(),
@@ -56,7 +56,7 @@ impl Component for LoginComponent {
             inputs_disabled: false,
             login_button_disabled: true,
             password: String::new(),
-            router_agent: RouteAgent::bridge(link.send_back(|_| Message::Ignore)),
+            router_agent: RouteAgent::bridge(link.callback(|_| Message::Ignore)),
             component_link: link,
             uikit_service: UIkitService::new(),
             username: String::new(),
@@ -95,6 +95,7 @@ impl Component for LoginComponent {
                 self.username = new_username;
                 self.update_button_state();
             }
+
             Message::UpdatePassword(new_password) => {
                 self.password = new_password;
                 self.update_button_state();
@@ -140,7 +141,14 @@ impl Component for LoginComponent {
         true
     }
 
-    fn view(&self) -> Html<Self> {
+    fn view(&self) -> Html {
+        let onclick = self.component_link.callback(|_| Message::LoginRequest);
+        let oninput_username = self
+            .component_link
+            .callback(|e: InputData| Message::UpdateUsername(e.value));
+        let oninput_password = self
+            .component_link
+            .callback(|e: InputData| Message::UpdatePassword(e.value));
         html! {
             <div class="uk-card uk-card-default uk-card-body uk-width-1-3@s uk-position-center",>
                 <h1 class="uk-card-title",>{TEXT_LOGIN}</h1>
@@ -150,17 +158,17 @@ impl Component for LoginComponent {
                             placeholder=INPUT_USERNAME,
                             disabled=self.inputs_disabled,
                             value=&self.username,
-                            oninput=|e| Message::UpdateUsername(e.value), />
+                            oninput=oninput_username />
                         <input class="uk-input uk-margin-bottom",
                             type="password",
                             placeholder=INPUT_PASSWORD,
                             disabled=self.inputs_disabled,
                             value=&self.password,
-                            oninput=|e| Message::UpdatePassword(e.value), />
+                            oninput=oninput_password />
                         <button class="uk-button uk-button-primary",
                             type="submit",
                             disabled=self.login_button_disabled,
-                            onclick=|_| Message::LoginRequest,>{TEXT_LOGIN}</button>
+                            onclick=onclick>{TEXT_LOGIN}</button>
                     </fieldset>
                 </form>
             </div>

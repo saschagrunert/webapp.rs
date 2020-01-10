@@ -42,11 +42,11 @@ impl Component for RootComponent {
     type Message = Message;
     type Properties = ();
 
-    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         // Create needed services
         let cookie_service = CookieService::new();
         let mut fetch_task = None;
-        let mut router_agent = RouteAgent::bridge(link.send_back(Message::Route));
+        let mut router_agent = RouteAgent::bridge(link.callback(Message::Route));
         let uikit_service = UIkitService::new();
 
         // Verify if a session cookie already exist and try to authenticate if so
@@ -127,7 +127,7 @@ impl Component for RootComponent {
         true
     }
 
-    fn view(&self) -> Html<Self> {
+    fn view(&self) -> Html {
         if let Some(cc) = &self.child_component {
             match cc {
                 RouterTarget::Loading => {
