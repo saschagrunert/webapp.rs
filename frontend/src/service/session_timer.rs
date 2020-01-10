@@ -47,7 +47,7 @@ impl Agent for SessionTimerAgent {
     /// Creates a new SessionTimerAgent
     fn create(link: AgentLink<Self>) -> Self {
         Self {
-            callback: link.send_back(|_| Message::Update),
+            callback: link.callback(|_| Message::Update),
             agent_link: link,
             cookie_service: CookieService::new(),
             fetch_task: None,
@@ -100,7 +100,7 @@ impl Agent for SessionTimerAgent {
     }
 
     /// Handle incoming data requests
-    fn handle(&mut self, msg: Self::Input, _: HandlerId) {
+    fn handle_input(&mut self, msg: Self::Input, _: HandlerId) {
         match msg {
             Request::Start => {
                 let handle =
