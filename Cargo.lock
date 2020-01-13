@@ -2225,7 +2225,7 @@ dependencies = [
  "url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "webapp 1.0.0",
  "yew 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "yew-router 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yew-router 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2356,7 +2356,7 @@ dependencies = [
 
 [[package]]
 name = "yew-router"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2365,6 +2365,7 @@ dependencies = [
  "serde_json 1.0.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "stdweb 0.4.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen 0.2.58 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew-router-macro 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "yew-router-route-parser 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2636,6 +2637,6 @@ dependencies = [
 "checksum yaml-rust 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "e66366e18dc58b46801afbf2ca7661a9f59cc8c5962c29892b6039b4f86fa992"
 "checksum yew 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c7be13e45f2c715025241566971a78396d95a9bc5e63effcc783bfb1f01a7f70"
 "checksum yew-macro 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "256b26a7903094991dd8341675bfe98f9ddbb703b98e28659c62a99df1c8f1a5"
-"checksum yew-router 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f2e29d3bd439e9d2c949b652d53005ee4668aa03604d55938e0a500591a2f4f3"
+"checksum yew-router 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "03e6da4d4a7287fda80a792621e5310d9cf58a2102680d74acade418e0650bc8"
 "checksum yew-router-macro 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "06d8e2a74e1cb53c5218fd042301ab5de911c98fa366a41653ee753cc9e86fc0"
 "checksum yew-router-route-parser 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "12d970e1f94a9c96f1f146cd267efd2c1775a5d044c32a7005d07e48400d34ba"
