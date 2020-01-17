@@ -40,7 +40,7 @@ failure = "0.1.6"
 futures = "0.3.1"
 jsonwebtoken = "6.0.1"
 log = "0.4.8"
-num_cpus = "1.11.1"
+num_cpus = "1.12.0"
 openssl = "0.10.26"
 r2d2 = "0.8.8"
 serde = { version = "1.0.104", features = ["derive"] }
