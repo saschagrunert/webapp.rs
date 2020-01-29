@@ -2,7 +2,7 @@
 
 use actix_web::{HttpResponse, ResponseError};
 use failure::Fail;
-use jsonwebtoken::{decode, encode, Header, Validation};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
@@ -61,13 +61,22 @@ impl Token {
             iat: now.as_secs() as i64,
             jti: Uuid::new_v4().to_string(),
         };
-        encode(&Header::default(), &claim, SECRET).map_err(|_| TokenError::Create)
+        encode(
+            &Header::default(),
+            &claim,
+            &EncodingKey::from_secret(SECRET),
+        )
+        .map_err(|_| TokenError::Create)
     }
 
     /// Verify the validity of a token and get a new one
     pub fn verify(token: &str) -> Result<String, TokenError> {
-        let data = decode::<Token>(token, SECRET, &Validation::default())
-            .map_err(|_| TokenError::Verify)?;
+        let data = decode::<Token>(
+            token,
+            &DecodingKey::from_secret(SECRET),
+            &Validation::default(),
+        )
+        .map_err(|_| TokenError::Verify)?;
         Self::create(&data.claims.sub)
     }
 }
