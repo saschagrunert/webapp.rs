@@ -71,12 +71,21 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to web token handling</span>
 
 <span class="kw">use</span> <span class="ident">actix_web</span>::{<span class="ident">HttpResponse</span>, <span class="ident">ResponseError</span>};
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">Fail</span>;
-<span class="kw">use</span> <span class="ident">jsonwebtoken</span>::{<span class="ident">decode</span>, <span class="ident">encode</span>, <span class="ident">Header</span>, <span class="ident">Validation</span>};
+<span class="kw">use</span> <span class="ident">jsonwebtoken</span>::{<span class="ident">decode</span>, <span class="ident">encode</span>, <span class="ident">DecodingKey</span>, <span class="ident">EncodingKey</span>, <span class="ident">Header</span>, <span class="ident">Validation</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::{<span class="ident">SystemTime</span>, <span class="ident">UNIX_EPOCH</span>};
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
@@ -135,13 +144,22 @@
             <span class="ident">iat</span>: <span class="ident">now</span>.<span class="ident">as_secs</span>() <span class="kw">as</span> <span class="ident">i64</span>,
             <span class="ident">jti</span>: <span class="ident">Uuid</span>::<span class="ident">new_v4</span>().<span class="ident">to_string</span>(),
         };
-        <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">Header</span>::<span class="ident">default</span>(), <span class="kw-2">&amp;</span><span class="ident">claim</span>, <span class="ident">SECRET</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TokenError</span>::<span class="ident">Create</span>)
+        <span class="ident">encode</span>(
+            <span class="kw-2">&amp;</span><span class="ident">Header</span>::<span class="ident">default</span>(),
+            <span class="kw-2">&amp;</span><span class="ident">claim</span>,
+            <span class="kw-2">&amp;</span><span class="ident">EncodingKey</span>::<span class="ident">from_secret</span>(<span class="ident">SECRET</span>),
+        )
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TokenError</span>::<span class="ident">Create</span>)
     }
 
     <span class="doccomment">/// Verify the validity of a token and get a new one</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify</span>(<span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TokenError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>(<span class="ident">token</span>, <span class="ident">SECRET</span>, <span class="kw-2">&amp;</span><span class="ident">Validation</span>::<span class="ident">default</span>())
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TokenError</span>::<span class="ident">Verify</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">decode</span>::<span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>(
+            <span class="ident">token</span>,
+            <span class="kw-2">&amp;</span><span class="ident">DecodingKey</span>::<span class="ident">from_secret</span>(<span class="ident">SECRET</span>),
+            <span class="kw-2">&amp;</span><span class="ident">Validation</span>::<span class="ident">default</span>(),
+        )
+        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">TokenError</span>::<span class="ident">Verify</span>)<span class="question-mark">?</span>;
         <span class="self">Self</span>::<span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">claims</span>.<span class="ident">sub</span>)
     }
 }
