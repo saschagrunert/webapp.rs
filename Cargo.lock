@@ -111,7 +111,7 @@ dependencies = [
  "encoding_rs 0.8.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 1.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-util 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "fxhash 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -243,7 +243,7 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "derive_more 0.99.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "num_cpus 1.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -782,7 +782,7 @@ name = "futures"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-executor 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-io 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -793,7 +793,7 @@ dependencies = [
 
 [[package]]
 name = "futures-channel"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -846,7 +846,7 @@ name = "futures-util"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-io 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-macro 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -958,7 +958,7 @@ version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bytes 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-util 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "h2 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2480,7 +2480,7 @@ dependencies = [
 "checksum fuchsia-zircon 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2e9763c69ebaae630ba35f74888db465e49e259ba1bc0eda7d06f4a067615d82"
 "checksum fuchsia-zircon-sys 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3dcaa9ae7725d12cdb85b3ad99a434db70b468c09ded17e012d86b5c1010f7a7"
 "checksum futures 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dda826c2f9351e68bc87b9037d91d818f24384993ecbb37f711e1f71a83182b5"
-"checksum futures-channel 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c92c2137e8e1ebf1ac99453550ab46eb4f35c5c53476d57d75eb782fb4d71e84"
+"checksum futures-channel 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "7264eb65b194d2fa6ec31b898ead7c332854bfa42521659226e72a585fca5b85"
 "checksum futures-core 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "b597b16aa1a19ce2dfde5128a7c656d75346b35601a640be2d9efd4e9c83609d"
 "checksum futures-executor 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f085a4c6508baef1f70ec2e0232a09edc649a3b86551fe92555e3a9e43939e4c"
 "checksum futures-io 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c0ff098c09c30cc42b88a67d9fb27435e8456fb8b2483c904340ed499736931c"
