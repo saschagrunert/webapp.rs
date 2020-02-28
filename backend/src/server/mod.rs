@@ -13,8 +13,8 @@ use actix_web::{
     web::{get, post, resource},
     App, HttpResponse, HttpServer,
 };
+use anyhow::{format_err, Result};
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use failure::{format_err, Fallible};
 use log::{info, warn};
 use num_cpus;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslFiletype, SslMethod};
@@ -38,7 +38,7 @@ pub struct Server {
 
 impl Server {
     /// Create a new server instance
-    pub fn from_config(config: &Config) -> Fallible<Self> {
+    pub fn from_config(config: &Config) -> Result<Self> {
         // Build a new actor system
         let runner = actix::System::new("backend");
 
@@ -93,7 +93,7 @@ impl Server {
     }
 
     /// Start the server
-    pub fn start(self) -> Fallible<()> {
+    pub fn start(self) -> Result<()> {
         // Start the redirecting server
         self.start_redirects();
 
@@ -104,7 +104,7 @@ impl Server {
     }
 
     /// Build an SslAcceptorBuilder from a config
-    fn build_tls(config: &Config) -> Fallible<SslAcceptorBuilder> {
+    fn build_tls(config: &Config) -> Result<SslAcceptorBuilder> {
         let mut tls_builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
         tls_builder.set_private_key_file(&config.server.key, SslFiletype::PEM)?;
         tls_builder.set_certificate_chain_file(&config.server.cert)?;
@@ -164,7 +164,7 @@ impl Server {
     }
 
     /// Convert an `Url` to a vector of `SocketAddr`
-    pub fn url_to_socket_addrs(url: &Url) -> Fallible<Vec<SocketAddr>> {
+    pub fn url_to_socket_addrs(url: &Url) -> Result<Vec<SocketAddr>> {
         let host = url
             .host()
             .ok_or_else(|| format_err!("No host name in the URL"))?;

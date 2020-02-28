@@ -1,5 +1,5 @@
 //! Configuration related structures
-use failure::Fallible;
+use anyhow::Result;
 use serde::Deserialize;
 use std::{fs::read_to_string, path::PathBuf};
 use toml;
@@ -21,7 +21,7 @@ impl Config {
     /// Creates a new `Config` instance using the parameters found in the given
     /// TOML configuration file. If the file could not be found or the file is
     /// invalid, an `Error` will be returned.
-    pub fn from_file(filename: &str) -> Fallible<Self> {
+    pub fn from_file(filename: &str) -> Result<Self> {
         Ok(toml::from_str(&read_to_string(filename)?)?)
     }
 }

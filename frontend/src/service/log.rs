@@ -1,6 +1,6 @@
 //! The log service
 
-use failure::{format_err, Fallible};
+use anyhow::{format_err, Result};
 use log::{set_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record};
 use stdweb::js;
 
@@ -8,7 +8,7 @@ use stdweb::js;
 static LOGGER: LogService = LogService;
 
 /// Initialize the static logger
-pub fn init_logger() -> Fallible<()> {
+pub fn init_logger() -> Result<()> {
     set_logger(&LOGGER)
         .map(|()| set_max_level(LevelFilter::Trace))
         .map_err(|_| format_err!("Logger init failed"))

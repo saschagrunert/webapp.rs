@@ -1,10 +1,10 @@
 //! Api related helpers and utilities
 
-use failure::Fallible;
+use anyhow::Result;
 use yew::{format::Json, services::fetch::Response as FetchResponse};
 
 /// A generic response type of the API
-pub type Response<T> = FetchResponse<Json<Fallible<T>>>;
+pub type Response<T> = FetchResponse<Json<Result<T>>>;
 
 #[macro_export]
 /// Generic API fetch macro

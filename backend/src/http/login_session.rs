@@ -6,6 +6,7 @@ use crate::{
 };
 use actix::prelude::*;
 use actix_web::{
+    error::ErrorInternalServerError,
     web::{Data, Json},
     Error, HttpResponse,
 };
@@ -29,5 +30,5 @@ pub async fn login_session(
             new_token,
         })
         .await?;
-    Ok(HttpResponse::Ok().json(Login(result?)))
+    Ok(HttpResponse::Ok().json(Login(result.map_err(ErrorInternalServerError)?)))
 }

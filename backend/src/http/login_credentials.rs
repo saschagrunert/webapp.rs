@@ -6,9 +6,9 @@ use crate::{
 };
 use actix::prelude::*;
 use actix_web::{
-    error::{Error, ErrorUnauthorized},
+    error::{ErrorInternalServerError, ErrorUnauthorized},
     web::{Data, Json},
-    HttpResponse,
+    Error, HttpResponse,
 };
 use log::debug;
 use webapp::protocol::{request::LoginCredentials, response::Login};
@@ -30,7 +30,7 @@ pub async fn login_credentials(
         Ok(token) => {
             // Update the session in the database
             let result = database.send(CreateSession(token)).await?;
-            Ok(HttpResponse::Ok().json(Login(result?)))
+            Ok(HttpResponse::Ok().json(Login(result.map_err(ErrorInternalServerError)?)))
         }
         Err(e) => Err(e.into()),
     }

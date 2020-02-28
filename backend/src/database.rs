@@ -1,13 +1,13 @@
 //! Everything related to database handling
 
 use actix::prelude::*;
+use anyhow::Result;
 use diesel::{
     delete, insert_into,
     prelude::*,
     r2d2::{ConnectionManager, Pool},
     update,
 };
-use failure::Fallible;
 use log::debug;
 use webapp::{protocol::model::Session, schema::sessions::dsl::*};
 
@@ -22,11 +22,11 @@ impl Actor for DatabaseExecutor {
 pub struct CreateSession(pub String);
 
 impl Message for CreateSession {
-    type Result = Fallible<Session>;
+    type Result = Result<Session>;
 }
 
 impl Handler<CreateSession> for DatabaseExecutor {
-    type Result = Fallible<Session>;
+    type Result = Result<Session>;
 
     fn handle(&mut self, msg: CreateSession, _: &mut Self::Context) -> Self::Result {
         // Insert the session into the database
@@ -47,11 +47,11 @@ pub struct UpdateSession {
 }
 
 impl Message for UpdateSession {
-    type Result = Fallible<Session>;
+    type Result = Result<Session>;
 }
 
 impl Handler<UpdateSession> for DatabaseExecutor {
-    type Result = Fallible<Session>;
+    type Result = Result<Session>;
 
     fn handle(&mut self, msg: UpdateSession, _: &mut Self::Context) -> Self::Result {
         // Update the session
@@ -66,11 +66,11 @@ impl Handler<UpdateSession> for DatabaseExecutor {
 pub struct DeleteSession(pub String);
 
 impl Message for DeleteSession {
-    type Result = Fallible<()>;
+    type Result = Result<()>;
 }
 
 impl Handler<DeleteSession> for DatabaseExecutor {
-    type Result = Fallible<()>;
+    type Result = Result<()>;
 
     fn handle(&mut self, msg: DeleteSession, _: &mut Self::Context) -> Self::Result {
         // Delete the session
