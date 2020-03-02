@@ -31,6 +31,7 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The session based login request</span>
 
@@ -40,6 +41,7 @@
 };
 <span class="kw">use</span> <span class="ident">actix</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">actix_web</span>::{
+    <span class="ident">error</span>::<span class="ident">ErrorInternalServerError</span>,
     <span class="ident">web</span>::{<span class="ident">Data</span>, <span class="ident">Json</span>},
     <span class="ident">Error</span>, <span class="ident">HttpResponse</span>,
 };
@@ -63,7 +65,7 @@
             <span class="ident">new_token</span>,
         })
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="ident">Login</span>(<span class="ident">result</span><span class="question-mark">?</span>)))
+    <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="ident">Login</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">ErrorInternalServerError</span>)<span class="question-mark">?</span>)))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "webapp_backend";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
