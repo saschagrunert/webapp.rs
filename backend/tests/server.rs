@@ -1,4 +1,4 @@
-use failure::{format_err, Fallible};
+use anyhow::{format_err, Result};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde_json::from_slice;
@@ -15,7 +15,7 @@ lazy_static! {
     static ref PORT: Mutex<u16> = Mutex::new(30000);
 }
 
-fn get_config() -> Fallible<Config> {
+fn get_config() -> Result<Config> {
     Ok(Config::from_file(&format!("../{}", CONFIG_FILENAME))?)
 }
 
@@ -25,7 +25,7 @@ fn get_next_port() -> u16 {
     *port
 }
 
-pub fn create_testserver() -> Fallible<Url> {
+pub fn create_testserver() -> Result<Url> {
     // Prepare the configuration
     let mut config = get_config()?;
 
@@ -54,7 +54,7 @@ pub fn create_testserver() -> Fallible<Url> {
 }
 
 #[test]
-fn succeed_to_create_server_with_common_redirects() -> Fallible<()> {
+fn succeed_to_create_server_with_common_redirects() -> Result<()> {
     // Given
     let mut config = get_config()?;
     let mut url = Url::parse(&config.server.url)?;
@@ -87,7 +87,7 @@ fn succeed_to_create_server_with_common_redirects() -> Fallible<()> {
 }
 
 #[test]
-fn succeed_to_login_with_credentials() -> Fallible<()> {
+fn succeed_to_login_with_credentials() -> Result<()> {
     // Given
     let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
@@ -109,7 +109,7 @@ fn succeed_to_login_with_credentials() -> Fallible<()> {
 }
 
 #[test]
-fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
+fn fail_to_login_with_wrong_credentials() -> Result<()> {
     // Given
     let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
@@ -127,7 +127,7 @@ fn fail_to_login_with_wrong_credentials() -> Fallible<()> {
 }
 
 #[test]
-fn succeed_to_login_with_session() -> Fallible<()> {
+fn succeed_to_login_with_session() -> Result<()> {
     // Given
     let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_CREDENTIALS);
@@ -158,7 +158,7 @@ fn succeed_to_login_with_session() -> Fallible<()> {
 }
 
 #[test]
-fn fail_to_login_with_wrong_session() -> Fallible<()> {
+fn fail_to_login_with_wrong_session() -> Result<()> {
     // Given
     let mut url = create_testserver()?;
     url.set_path(API_URL_LOGIN_SESSION);
@@ -175,7 +175,7 @@ fn fail_to_login_with_wrong_session() -> Fallible<()> {
 }
 
 #[test]
-fn succeed_to_logout() -> Fallible<()> {
+fn succeed_to_logout() -> Result<()> {
     // Given
     let mut url = create_testserver()?;
     url.set_path(API_URL_LOGOUT);

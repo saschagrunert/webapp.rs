@@ -108,8 +108,7 @@ impl Agent for SessionTimerAgent {
                 self.timer_task = Some(Box::new(handle));
             }
             Request::Stop => {
-                if let Some(mut task) = self.timer_task.take() {
-                    task.cancel();
+                if self.timer_task.take().is_some() {
                     self.timer_task = None;
                 }
             }

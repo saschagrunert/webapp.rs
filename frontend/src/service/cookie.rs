@@ -1,11 +1,12 @@
 //! A cookie handling service to read and write cookies
 
-use failure::{Fail, Fallible};
+use anyhow::Result;
 use stdweb::{js, unstable::TryInto};
+use thiserror::Error;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 pub enum CookieError {
-    #[fail(display = "no cookie found for the given name")]
+    #[error("no cookie found for the given name")]
     NotFound,
 }
 
@@ -24,7 +25,7 @@ impl CookieService {
     }
 
     /// Retrieve a cookie for a given name
-    pub fn get(&self, name: &str) -> Fallible<String> {
+    pub fn get(&self, name: &str) -> Result<String> {
         let cookie_strings = js! { return document.cookie.split(';') };
         let cookies: Vec<String> = cookie_strings.try_into()?;
         cookies

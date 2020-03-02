@@ -1,12 +1,8 @@
-extern crate failure;
-extern crate webapp_frontend;
-extern crate yew;
-
-use failure::Fallible;
+use anyhow::Result;
 use webapp_frontend::{init_logger, RootComponent};
 use yew::prelude::*;
 
-fn main() -> Fallible<()> {
+fn main() -> Result<()> {
     // Initialize the application
     yew::initialize();
 

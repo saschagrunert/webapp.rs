@@ -1,24 +1,24 @@
 //! Everything related to web token handling
 
 use actix_web::{HttpResponse, ResponseError};
-use failure::Fail;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
+use thiserror::Error;
 use uuid::Uuid;
 
 mod test;
 
 const SECRET: &[u8] = b"my_secret";
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Error)]
 /// Token handling related errors
 pub enum TokenError {
-    #[fail(display = "unable to create session token")]
+    #[error("unable to create session token")]
     /// Session token creation failed
     Create,
 
-    #[fail(display = "unable to verify session token")]
+    #[error("unable to verify session token")]
     /// Session token verification failed
     Verify,
 }

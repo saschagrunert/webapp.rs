@@ -3,7 +3,7 @@
 #![cfg(test)]
 
 use crate::token::Token;
-use failure::Fallible;
+use anyhow::Result;
 
 #[test]
 fn succeed_to_create_a_token() {
@@ -14,7 +14,7 @@ fn succeed_to_create_a_token() {
 }
 
 #[test]
-fn succeed_to_verify_a_token() -> Fallible<()> {
+fn succeed_to_verify_a_token() -> Result<()> {
     // Given
     let sut = Token::create("")?;
 

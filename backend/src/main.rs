@@ -1,13 +1,13 @@
 extern crate openssl;
 
+use anyhow::{format_err, Result};
 use clap::{crate_version, load_yaml, App};
-use failure::{format_err, Fallible};
 use log::info;
 use std::env::set_var;
 use webapp::config::Config;
 use webapp_backend::Server;
 
-fn main() -> Fallible<()> {
+fn main() -> Result<()> {
     // Load the CLI parameters from the yaml file
     let yaml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yaml).version(crate_version!()).get_matches();
