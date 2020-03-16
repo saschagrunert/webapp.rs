@@ -32,7 +32,7 @@ actix = "0.9.0"
 actix-cors = "0.2.0"
 actix-files = "0.2.1"
 actix-web = { version = "2.0.0", features = ["openssl"] }
-anyhow = "1.0.26"
+anyhow = "1.0.27"
 bytes = "0.5.4"
 clap = { version = "2.33.0", features = ["yaml"] }
 diesel = { version = "1.4.3", features = ["r2d2", "postgres"] }
