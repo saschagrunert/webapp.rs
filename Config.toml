@@ -14,5 +14,5 @@ webapp = "trace"
 [postgres]
 host = "127.0.0.1"
 username = "username"
-password = ""
+password = "password"
 database = "database"
