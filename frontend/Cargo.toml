@@ -22,13 +22,13 @@ name = "app"
 path = "src/main.rs"
 
 [build-dependencies]
-anyhow = "1.0.27"
+anyhow = "1.0.28"
 sass-rs = "0.2.2"
 url = "2.1.1"
 webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
-anyhow = "1.0.27"
+anyhow = "1.0.28"
 log = "0.4.8"
 serde = { version = "1.0.105", features = ["derive"] }
 stdweb = "0.4.20"
