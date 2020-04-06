@@ -34,5 +34,5 @@ serde = { version = "1.0.106", features = ["derive"] }
 stdweb = "0.4.20"
 thiserror = "1.0.14"
 webapp = { version = "1.0.0", path = ".." }
-yew = { version = "0.14.2", features = ["std_web"] }
+yew = { version = "0.14.3", features = ["std_web"] }
 yew-router = { version = "0.11.0", features = ["std_web"] }

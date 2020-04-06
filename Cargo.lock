@@ -2571,9 +2571,9 @@ checksum = "e66366e18dc58b46801afbf2ca7661a9f59cc8c5962c29892b6039b4f86fa992"
 
 [[package]]
 name = "yew"
-version = "0.14.2"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20c1d343cdf3d625752fd4d9fef73e1b6b2b8a08b00c832b0fc4a47f3b10fbef"
+checksum = "2e48bc6b264e30362e5d420cd6aa2cd24dd4c9131284bc24afc0a41c28c125f3"
 dependencies = [
  "anyhow",
  "anymap",
