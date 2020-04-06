@@ -30,7 +30,7 @@ webapp = { version = "1.0.0", path = ".." }
 [dependencies]
 anyhow = "1.0.28"
 log = "0.4.8"
-serde = { version = "1.0.105", features = ["derive"] }
+serde = { version = "1.0.106", features = ["derive"] }
 stdweb = "0.4.20"
 thiserror = "1.0.14"
 webapp = { version = "1.0.0", path = ".." }
