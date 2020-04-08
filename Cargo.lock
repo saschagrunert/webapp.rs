@@ -195,14 +195,15 @@ dependencies = [
 
 [[package]]
 name = "actix-rt"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f6a0a55507046441a496b2f0d26a84a65e67c8cafffe279072412f624b5fb6d"
+checksum = "20066d9200ef8d441ac156c76dd36c3f1e9a15976c34e69ae97f7f570b331882"
 dependencies = [
  "actix-macros",
  "actix-threadpool",
  "copyless",
- "futures",
+ "futures-channel",
+ "futures-util",
  "tokio",
 ]
 
