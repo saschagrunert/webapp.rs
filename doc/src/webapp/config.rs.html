@@ -68,13 +68,11 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Configuration related structures</span>
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fs</span>::<span class="ident">read_to_string</span>, <span class="ident">path</span>::<span class="ident">PathBuf</span>};
-<span class="kw">use</span> <span class="ident">toml</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="doccomment">/// The global configuration</span>
