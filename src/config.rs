@@ -2,7 +2,6 @@
 use anyhow::Result;
 use serde::Deserialize;
 use std::{fs::read_to_string, path::PathBuf};
-use toml;
 
 #[derive(Clone, Deserialize)]
 /// The global configuration
