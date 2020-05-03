@@ -11,6 +11,7 @@ endef
 
 API_URL := $(strip $(call get_config_value,url))
 PG_HOST := $(strip $(call get_config_value,host))
+PG_PORT := $(strip $(call get_config_value,port))
 PG_USERNAME := $(strip $(call get_config_value,username))
 PG_PASSWORD := $(strip $(call get_config_value,password))
 PG_DATABASE := $(strip $(call get_config_value,database))
@@ -99,7 +100,7 @@ run-postgres:
 			-e POSTGRES_USER=$(PG_USERNAME) \
 			-e POSTGRES_PASSWORD=$(PG_PASSWORD) \
 			-e POSTGRES_DB=$(PG_DATABASE) \
-			-p 5432:5432 \
+			-p $(PG_PORT):5432 \
 			-d postgres ;\
 		while true; do \
 			if pg_isready -qh $(PG_HOST); then break; fi \

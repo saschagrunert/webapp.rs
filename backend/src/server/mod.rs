@@ -43,10 +43,11 @@ impl Server {
 
         // Start database executor actors
         let database_url = format!(
-            "postgres://{}:{}@{}/{}",
+            "postgres://{}:{}@{}:{}/{}",
             config.postgres.username,
             config.postgres.password,
             config.postgres.host,
+            config.postgres.port,
             config.postgres.database,
         );
         let manager = ConnectionManager::<PgConnection>::new(database_url);
