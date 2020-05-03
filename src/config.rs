@@ -59,6 +59,9 @@ pub struct PostgresConfig {
     /// The full host to the database
     pub host: String,
 
+    /// The port to the database
+    pub port: u16,
+
     /// The username for the database
     pub username: String,
 
