@@ -32,7 +32,7 @@ anyhow = "1.0.29"
 log = "0.4.8"
 serde = { version = "1.0.110", features = ["derive"] }
 stdweb = "0.4.20"
-thiserror = "1.0.16"
+thiserror = "1.0.17"
 webapp = { version = "1.0.0", path = ".." }
 yew = { version = "0.14.3", features = ["std_web"] }
 yew-router = { version = "0.11.0", features = ["std_web"] }
