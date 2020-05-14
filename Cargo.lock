@@ -676,9 +676,9 @@ dependencies = [
 
 [[package]]
 name = "derive_more"
-version = "0.99.5"
+version = "0.99.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2323f3f47db9a0e77ce7a300605d8d2098597fc451ed1a97bb1f6411bb550a7"
+checksum = "46b046a346c374c6c3c84d2070bfe33904504686bdf949c2d8eb22edad3f270c"
 dependencies = [
  "proc-macro2",
  "quote",
