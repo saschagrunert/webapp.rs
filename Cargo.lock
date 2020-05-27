@@ -75,9 +75,9 @@ dependencies = [
 
 [[package]]
 name = "actix-files"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "301482841d3d74483a446ead63cb7d362e187d2c8b603f13d91995621ea53c46"
+checksum = "193b22cb1f7b4ff12a4eb2415d6d19e47e44ea93e05930b30d05375ea29d3529"
 dependencies = [
  "actix-http",
  "actix-service",
@@ -85,7 +85,8 @@ dependencies = [
  "bitflags",
  "bytes",
  "derive_more",
- "futures",
+ "futures-core",
+ "futures-util",
  "log",
  "mime",
  "mime_guess",
