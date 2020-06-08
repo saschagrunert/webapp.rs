@@ -2526,9 +2526,9 @@ dependencies = [
 
 [[package]]
 name = "widestring"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "effc0e4ff8085673ea7b9b2e3c73f6bd4d118810c9009ed8f1e16bd96c331db6"
+checksum = "89c533c67dfe1f6a8983e8db54c55bfb2b3e494f5dfbbfe13ce09525f622461a"
 
 [[package]]
 name = "winapi"
