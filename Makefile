@@ -59,7 +59,10 @@ deploy:
 	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(shell pwd):/deploy \
 		saschagrunert/build-rust:latest \
 		make build-frontend
+	sudo chown -R $(USER) .
+		make build-frontend
 	# Build the backend
+	sudo chown -R 1000:1000 .
 	$(CONTAINER_RUNTIME) pull ekidd/rust-musl-builder:1.39.0
 	$(CONTAINER_RUNTIME) run --rm -it -v $(shell pwd):/home/rust/src \
 		ekidd/rust-musl-builder:1.39.0 \
