@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["init_logger","Initialize the static logger"]],"macro":[["fetch","Generic API fetch macro"]],"struct":[["RootComponent","Data Model for the Root Component"]]});
+initSidebarItems({"fn":[["__wasm_bindgen_generated_run_app","Start the application"],["run_app","Start the application"]],"macro":[["fetch","Generic API fetch macro"]]});

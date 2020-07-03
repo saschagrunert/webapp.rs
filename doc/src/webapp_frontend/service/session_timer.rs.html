@@ -114,7 +114,6 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-<span id="117">117</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The SessionTimer agent</span>
 
@@ -160,7 +159,7 @@
     <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> <span class="ident">Request</span>;
     <span class="kw">type</span> <span class="ident">Message</span> <span class="op">=</span> <span class="ident">Message</span>;
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">TimerResponse</span>;
-    <span class="kw">type</span> <span class="ident">Reach</span> <span class="op">=</span> <span class="ident">Context</span>;
+    <span class="kw">type</span> <span class="ident">Reach</span> <span class="op">=</span> <span class="ident">Context</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Creates a new SessionTimerAgent</span>
     <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">link</span>: <span class="ident">AgentLink</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -221,8 +220,7 @@
     <span class="kw">fn</span> <span class="ident">handle_input</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="self">Self</span>::<span class="ident">Input</span>, <span class="kw">_</span>: <span class="ident">HandlerId</span>) {
         <span class="kw">match</span> <span class="ident">msg</span> {
             <span class="ident">Request</span>::<span class="ident">Start</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span>
-                    <span class="ident">IntervalService</span>::<span class="ident">new</span>().<span class="ident">spawn</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>), <span class="self">self</span>.<span class="ident">callback</span>.<span class="ident">clone</span>());
+                <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">IntervalService</span>::<span class="ident">spawn</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>), <span class="self">self</span>.<span class="ident">callback</span>.<span class="ident">clone</span>());
                 <span class="self">self</span>.<span class="ident">timer_task</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">handle</span>));
             }
             <span class="ident">Request</span>::<span class="ident">Stop</span> <span class="op">=</span><span class="op">&gt;</span> {

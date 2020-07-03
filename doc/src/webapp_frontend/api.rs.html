@@ -25,8 +25,6 @@
 <span id="25">25</span>
 <span id="26">26</span>
 <span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Api related helpers and utilities</span>
 
@@ -46,9 +44,7 @@
         {
             <span class="prelude-val">Ok</span>(<span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">succ</span>();
-                ::<span class="ident">yew</span>::<span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">FetchService</span>::<span class="ident">new</span>()
-                    .<span class="ident">fetch_binary</span>(<span class="ident">body</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">link</span>.<span class="ident">callback</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>))
-                    .<span class="ident">ok</span>()
+                ::<span class="ident">yew</span>::<span class="ident">services</span>::<span class="ident">fetch</span>::<span class="ident">FetchService</span>::<span class="ident">fetch_binary</span>(<span class="ident">body</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">link</span>.<span class="ident">callback</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">msg</span>)).<span class="ident">ok</span>()
             }
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">err</span>();
