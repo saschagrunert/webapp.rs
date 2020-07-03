@@ -16,9 +16,7 @@ macro_rules! fetch {
         {
             Ok(body) => {
                 $succ();
-                ::yew::services::fetch::FetchService::new()
-                    .fetch_binary(body, $link.callback($msg))
-                    .ok()
+                ::yew::services::fetch::FetchService::fetch_binary(body, $link.callback($msg)).ok()
             }
             Err(_) => {
                 $err();

@@ -2,7 +2,7 @@ use anyhow::{format_err, Result};
 use lazy_static::lazy_static;
 use reqwest::blocking::Client;
 use serde_json::from_slice;
-use std::{sync::Mutex, thread};
+use std::{sync::Mutex, thread, time::Duration};
 use url::Url;
 use webapp::{
     config::Config,
@@ -47,6 +47,7 @@ pub fn create_testserver() -> Result<Url> {
                 break;
             }
         }
+        thread::sleep(Duration::from_secs(1))
     }
 
     // Return the server url

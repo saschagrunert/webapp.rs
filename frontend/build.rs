@@ -10,7 +10,7 @@ use url::Url;
 use webapp::{config::Config, CONFIG_FILENAME};
 
 const REPOSITORY: &str = "https://github.com/uikit/uikit";
-const TAG: &str = "v3.1.6";
+const TAG: &str = "v3.5.4";
 const CSS_FILE: &str = "style.css";
 const SCSS_FILE: &str = "style.scss";
 
@@ -65,11 +65,11 @@ fn prepare_style() -> Result<()> {
     match compile_file(&target, options) {
         Err(error) => panic!(error),
         Ok(content) => {
-            // Copy the file into the static directory
+            // Copy the file into the css directory
             target.pop();
             target.push(CSS_FILE);
             write(&target, content)?;
-            copy(&target, format!("static/css/{}", CSS_FILE))?;
+            copy(&target, format!("css/{}", CSS_FILE))?;
         }
     }
 

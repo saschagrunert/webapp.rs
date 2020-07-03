@@ -1,6 +1,6 @@
 # Compiler configuration
 GENERAL_ARGS = --release
-FRONTEND_ARGS = $(GENERAL_ARGS) -p webapp-frontend --target wasm32-unknown-unknown
+FRONTEND_ARGS = $(GENERAL_ARGS)
 BACKEND_ARGS = $(GENERAL_ARGS) -p webapp-backend
 CONTAINER_RUNTIME ?= podman
 
@@ -46,7 +46,9 @@ build-doc:
 	cargo doc --all --no-deps
 
 build-frontend:
-	cargo web build $(FRONTEND_ARGS)
+	cd frontend && \
+		wasm-pack build --target web $(FRONTEND_ARGS) && \
+		rollup ./main.js --format iife --file ./pkg/webapp_frontend.js
 
 coverage:
 	cd backend && cargo kcov
@@ -56,11 +58,10 @@ deploy:
 	$(CONTAINER_RUNTIME) pull saschagrunert/build-rust:latest
 	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(shell pwd):/deploy \
 		saschagrunert/build-rust:latest \
-		cargo web deploy $(FRONTEND_ARGS)
-	# Fix applications path to JavaScript file
-	sudo chown -R $(USER) target
+		make build-frontend
+	sudo chown -R $(USER) .
 	# Build the backend
-	sudo chown -R 1000:1000 target
+	sudo chown -R 1000:1000 .
 	$(CONTAINER_RUNTIME) pull ekidd/rust-musl-builder:1.39.0
 	$(CONTAINER_RUNTIME) run --rm -it -v $(shell pwd):/home/rust/src \
 		ekidd/rust-musl-builder:1.39.0 \
@@ -90,8 +91,8 @@ run-app: run-postgres
 run-backend: run-postgres
 	cargo run $(BACKEND_ARGS)
 
-run-frontend:
-	cargo web start $(FRONTEND_ARGS) --auto-reload --host 0.0.0.0
+run-frontend: build-frontend
+	cd frontend && python3 -m http.server 8000
 
 run-postgres:
 	if [ ! "$(shell $(CONTAINER_RUNTIME) ps -q -f name=postgres)" ]; then \

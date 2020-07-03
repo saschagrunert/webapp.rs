@@ -17,12 +17,13 @@
 Target of this project is to write a complete web application including backend
 and frontend within Rust.
 
-``` console
+```console
 Rust wasm             Rust app
 in browser <- REST -> HTTP Server -- actix-web
  |                         |
 Yew                   Diesel (ORM) -> PostgreSQL
 ```
+
 ### Blog Posts
 
 1. [A Web Application completely in Rust](https://medium.com/@saschagrunert/a-web-application-completely-in-rust-6f6bdb6c4471).
@@ -33,7 +34,8 @@ Yew                   Diesel (ORM) -> PostgreSQL
 The following build dependencies needs to be fulfilled to support the full
 feature set of this application:
 
-- [cargo-web](https://github.com/koute/cargo-web)
+- [wasm-pack](https://rustwasm.github.io/docs/wasm-pack/introduction.html)
+- [rollup](https://www.npmjs.com/package/rollup)
 - [diesel_cli](https://github.com/diesel-rs/diesel)
 - [postgresql (libpg)](https://www.postgresql.org/)
 - A container runtime, like [podman](https://podman.io)
@@ -43,25 +45,33 @@ the backend can be tested via `make run-backend`, whereas the frontend can be
 tested with `make run-frontend`. You can adapt the application configuration
 within `Config.toml` if needed.
 
-This installs build requirements, rust and cargo-web, on Ubuntu or Debian.
-``` console
-wget https://sh.rustup.rs -O rustup-init
-sudo sh rustup-init -y
-sudo apt-get install -y pkg-config libssl-dev
-sudo cargo install cargo-web
+This installs build requirements, rust and wasm-pack, on Ubuntu or Debian.
+
+```console
+> sudo apt-get update
+> sudo apt-get install -y pkg-config libssl-dev npm sudo wget
+> wget https://sh.rustup.rs -O rustup-init
+> sudo sh rustup-init -y
+> sudo cargo install wasm-pack
+> sudo npm install -g rollup
 ```
+
 This builds the project.
-``` console
-git clone https://github.com/saschagrunert/webapp.rs.git
-cd webapp.rs
-make all
+
+```console
+> git clone https://github.com/saschagrunert/webapp.rs.git
+> cd webapp.rs
+> make all
 ```
+
 ## Run
 
-`make deploy` uses podman to start a PostgreSQL container and the Rust backend container.
-If you wish to use docker instead of podman, set `CONTAINER_RUNTIME=podman` in the top of `Makefile`.
-Edit `Config.toml` if needed to set the backend url and PostgreSQL credentials:
-``` console
+`make deploy` uses podman to start a PostgreSQL container and the Rust backend
+container. If you wish to use docker instead of podman, set
+`CONTAINER_RUNTIME=podman` in the top of `Makefile`. Edit `Config.toml` if
+needed to set the backend url and PostgreSQL credentials:
+
+```toml
 [server]
 url = "http://127.0.0.1:30080"
 ...
@@ -71,16 +81,20 @@ username = "username"
 password = ""
 database = "database"
 ```
+
 Ensure the runtime dependencies are installed, and the start the two containers.
-``` console
-sudo apt install -y postgresql-client
-cargo install diesel_cli --no-default-features --features "postgres"
-sudo make deploy
+
+```console
+> sudo apt install -y postgresql-client
+> cargo install diesel_cli --no-default-features --features "postgres"
+> sudo make deploy
 ```
+
 The application should now be accessible at
 [`http://127.0.0.1:30080`](http://127.0.0.1:30080).
-During development, you can start the containers separately, using 
-`make run-app` to start only the rust backend container, and `run-postgres` to start only the PostgreSQL container.
+During development, you can start the containers separately, using
+`make run-app` to start only the rust backend container, and `run-postgres` to
+start only the PostgreSQL container.
 
 If both the backend and frontend are running, you can visit the web application
 at [`http://127.0.0.1:30080`](http://127.0.0.1:30080). After the successful
@@ -88,7 +102,8 @@ loading of the application you should see an authentication screen like this:
 
 ![authentication screen](.github/authentication_screen.png "Authentication Screen")
 
-The login screen will accept any username and password that are equal, such as `me` (username) and `me` (password). There is currently no further user
+The login screen will accept any username and password that are equal, such as
+`me` (username) and `me` (password). There is currently no further user
 authentication yet, but non matching combination will result in an
 authentication failure. After the successfully login you should be able to see
 the content of the application:

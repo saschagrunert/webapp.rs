@@ -42,7 +42,7 @@ impl Agent for SessionTimerAgent {
     type Input = Request;
     type Message = Message;
     type Output = TimerResponse;
-    type Reach = Context;
+    type Reach = Context<Self>;
 
     /// Creates a new SessionTimerAgent
     fn create(link: AgentLink<Self>) -> Self {
@@ -103,8 +103,7 @@ impl Agent for SessionTimerAgent {
     fn handle_input(&mut self, msg: Self::Input, _: HandlerId) {
         match msg {
             Request::Start => {
-                let handle =
-                    IntervalService::new().spawn(Duration::from_secs(10), self.callback.clone());
+                let handle = IntervalService::spawn(Duration::from_secs(10), self.callback.clone());
                 self.timer_task = Some(Box::new(handle));
             }
             Request::Stop => {
