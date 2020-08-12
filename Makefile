@@ -55,6 +55,7 @@ coverage:
 
 deploy:
 	# Deploy the frontend
+	sudo chown -R $(USER) .
 	$(CONTAINER_RUNTIME) pull saschagrunert/build-rust:latest
 	$(CONTAINER_RUNTIME) run --rm -it -w /deploy -v $(shell pwd):/deploy \
 		saschagrunert/build-rust:latest \
@@ -62,6 +63,7 @@ deploy:
 	sudo chown -R $(USER) .
 	# Build the backend
 	sudo chown -R 1000:1000 .
+	sudo chmod -R 777 .
 	$(CONTAINER_RUNTIME) pull ekidd/rust-musl-builder:1.39.0
 	$(CONTAINER_RUNTIME) run --rm -it -v $(shell pwd):/home/rust/src \
 		ekidd/rust-musl-builder:1.39.0 \
