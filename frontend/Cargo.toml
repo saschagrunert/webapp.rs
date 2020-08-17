@@ -34,5 +34,5 @@ stdweb = "0.4.20"
 thiserror = "1.0.20"
 wasm-bindgen = "0.2.67"
 webapp = { version = "1.0.0", path = ".." }
-yew = "0.17.2"
+yew = "0.17.3"
 yew-router = "0.14.0"
