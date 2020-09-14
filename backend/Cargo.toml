@@ -22,16 +22,16 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
-actix-http-test = "1.0.0"
-actix-http = "1.0.1"
+actix-http-test = "2.0.0"
+actix-http = "2.0.0"
 lazy_static = "1.4.0"
 reqwest = { version = "0.10.8", features = ["blocking", "json"] }
 
 [dependencies]
-actix = "0.9.0"
-actix-cors = "0.2.0"
-actix-files = "0.2.2"
-actix-web = { version = "2.0.0", features = ["openssl"] }
+actix = "0.10.0"
+actix-cors = "0.3.0"
+actix-files = "0.3.0"
+actix-web = { version = "3.0.2", features = ["openssl"] }
 anyhow = "1.0.32"
 bytes = "0.5.6"
 clap = { version = "2.33.3", features = ["yaml"] }
@@ -43,7 +43,7 @@ log = "0.4.11"
 num_cpus = "1.13.0"
 openssl = "0.10.30"
 r2d2 = "0.8.9"
-serde = { version = "1.0.115", features = ["derive"] }
+serde = { version = "1.0.116", features = ["derive"] }
 serde_json = "1.0.57"
 thiserror = "1.0.20"
 url = "2.1.1"

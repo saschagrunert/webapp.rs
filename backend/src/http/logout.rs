@@ -3,6 +3,7 @@
 use crate::database::{DatabaseExecutor, DeleteSession};
 use actix::prelude::*;
 use actix_web::{
+    error::ErrorInternalServerError,
     web::{Data, Json},
     Error, HttpResponse,
 };
@@ -17,6 +18,9 @@ pub async fn logout(
 
     // Remove the session from the database
     debug!("Session token {} wants to be logged out", token);
-    let _ = database.send(DeleteSession(token)).await?;
+    let _ = database
+        .send(DeleteSession(token))
+        .await
+        .map_err(ErrorInternalServerError)?;
     Ok(HttpResponse::Ok().json(response::Logout))
 }

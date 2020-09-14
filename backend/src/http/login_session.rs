@@ -29,6 +29,7 @@ pub async fn login_session(
             old_token,
             new_token,
         })
-        .await?;
+        .await
+        .map_err(ErrorInternalServerError)?;
     Ok(HttpResponse::Ok().json(Login(result.map_err(ErrorInternalServerError)?)))
 }

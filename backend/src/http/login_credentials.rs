@@ -29,7 +29,10 @@ pub async fn login_credentials(
     match Token::create(&r.username) {
         Ok(token) => {
             // Update the session in the database
-            let result = database.send(CreateSession(token)).await?;
+            let result = database
+                .send(CreateSession(token))
+                .await
+                .map_err(ErrorInternalServerError)?;
             Ok(HttpResponse::Ok().json(Login(result.map_err(ErrorInternalServerError)?)))
         }
         Err(e) => Err(e.into()),
