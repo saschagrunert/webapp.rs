@@ -22,7 +22,7 @@ name = "backend"
 path = "src/main.rs"
 
 [dev-dependencies]
-actix-http-test = "1.0.0"
+actix-http-test = "2.0.0"
 actix-http = "1.0.1"
 lazy_static = "1.4.0"
 reqwest = { version = "0.10.8", features = ["blocking", "json"] }
