@@ -2,7 +2,6 @@
 
 [![CircleCI](https://circleci.com/gh/saschagrunert/webapp.rs.svg?style=shield)](https://circleci.com/gh/saschagrunert/webapp.rs)
 [![Coverage](https://codecov.io/gh/saschagrunert/webapp.rs/branch/master/graph/badge.svg)](https://codecov.io/gh/saschagrunert/webapp.rs)
-[![Deps](https://deps.rs/repo/github/saschagrunert/webapp.rs/status.svg)](https://deps.rs/repo/github/saschagrunert/webapp.rs)
 [![Docs master](https://img.shields.io/badge/doc-master-orange.svg)](https://saschagrunert.github.io/webapp.rs/doc/webapp/index.html)
 [![Docs release](https://docs.rs/webapp/badge.svg)](https://docs.rs/webapp)
 [![Docs release backend](https://docs.rs/webapp-backend/badge.svg)](https://docs.rs/webapp-backend)
