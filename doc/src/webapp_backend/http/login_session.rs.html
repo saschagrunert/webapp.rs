@@ -32,6 +32,7 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The session based login request</span>
 
@@ -64,7 +65,8 @@
             <span class="ident">old_token</span>,
             <span class="ident">new_token</span>,
         })
-        .<span class="kw">await</span><span class="question-mark">?</span>;
+        .<span class="kw">await</span>
+        .<span class="ident">map_err</span>(<span class="ident">ErrorInternalServerError</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">HttpResponse</span>::<span class="prelude-val">Ok</span>().<span class="ident">json</span>(<span class="ident">Login</span>(<span class="ident">result</span>.<span class="ident">map_err</span>(<span class="ident">ErrorInternalServerError</span>)<span class="question-mark">?</span>)))
 }
 </pre></div>
