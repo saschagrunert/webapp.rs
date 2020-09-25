@@ -2512,9 +2512,9 @@ dependencies = [
 
 [[package]]
 name = "v_escape_derive"
-version = "0.8.1"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cae7cffca0b1f9af9b20610f6fdeee9ffcce61417b5ad186a5d482dc904e24cd"
+checksum = "23d6063660a51b72d258a710e72cdfa0962eb03061feba019199e547a9f79814"
 dependencies = [
  "nom 4.2.3",
  "proc-macro2",
