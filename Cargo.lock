@@ -2524,9 +2524,9 @@ dependencies = [
 
 [[package]]
 name = "v_htmlescape"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc487b8434a86070f49299ff0be3a5b079c8c4d951ced6e0885ff54228dd5bd7"
+checksum = "42ed178900cccc57f65a0f6515376b8673a2f165ddfa0b509c708c761a372b4b"
 dependencies = [
  "cfg-if",
  "v_escape",
