@@ -109,7 +109,7 @@ the content of the application:
 
 ![content screen](.github/content_screen.png "Content Screen")
 
-The authentication should persist, even after a manual page reload. Logging out
+The authentication should persist, it is even better after a manual page reload. Logging out
 of the application via the logout button should also work as intended.
 
 ### Control Flow
