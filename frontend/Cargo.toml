@@ -21,13 +21,13 @@ maintenance = { status = "actively-developed" }
 crate-type = ["cdylib", "rlib"]
 
 [build-dependencies]
-anyhow = "1.0.32"
+anyhow = "1.0.33"
 sass-rs = "0.2.2"
 url = "2.1.1"
 webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
-anyhow = "1.0.32"
+anyhow = "1.0.33"
 log = "0.4.11"
 serde = { version = "1.0.116", features = ["derive"] }
 stdweb = "0.4.20"
