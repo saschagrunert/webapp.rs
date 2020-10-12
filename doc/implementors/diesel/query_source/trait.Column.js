@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["webapp"] = [{"text":"impl Column for <a class=\"struct\" href=\"webapp/schema/sessions/columns/struct.token.html\" title=\"struct webapp::schema::sessions::columns::token\">token</a>","synthetic":false,"types":["webapp::schema::sessions::columns::token"]}];
+implementors["webapp"] = [{"text":"impl Column for token","synthetic":false,"types":[]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
