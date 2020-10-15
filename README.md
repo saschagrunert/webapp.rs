@@ -81,7 +81,7 @@ password = ""
 database = "database"
 ```
 
-Ensure the runtime dependencies are installed, and the start the two containers.
+Ensure the runtime dependencies are installed, and then start the two containers.
 
 ```console
 > sudo apt install -y postgresql-client
