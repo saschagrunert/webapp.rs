@@ -67,7 +67,7 @@ This builds the project.
 
 `make deploy` uses podman to start a PostgreSQL container and the Rust backend
 container. If you wish to use docker instead of podman, set
-`CONTAINER_RUNTIME=podman` in the top of `Makefile`. Edit `Config.toml` if
+`CONTAINER_RUNTIME=docker` in the top of `Makefile`. Edit `Config.toml` if
 needed to set the backend url and PostgreSQL credentials:
 
 ```toml
