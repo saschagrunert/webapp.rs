@@ -29,7 +29,7 @@ webapp = { version = "1.0.0", path = ".." }
 [dependencies]
 anyhow = "1.0.33"
 log = "0.4.11"
-serde = { version = "1.0.116", features = ["derive"] }
+serde = { version = "1.0.117", features = ["derive"] }
 stdweb = "0.4.20"
 thiserror = "1.0.21"
 wasm-bindgen = "0.2.68"
