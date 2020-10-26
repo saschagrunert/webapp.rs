@@ -37,7 +37,7 @@ bytes = "0.6.0"
 clap = { version = "2.33.3", features = ["yaml"] }
 diesel = { version = "1.4.5", features = ["r2d2", "postgres"] }
 env_logger = "0.8.1"
-futures = "0.3.6"
+futures = "0.3.7"
 jsonwebtoken = "7.2.0"
 log = "0.4.11"
 num_cpus = "1.13.0"
