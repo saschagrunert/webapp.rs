@@ -23,7 +23,7 @@ path = "src/main.rs"
 
 [dev-dependencies]
 actix-http-test = "2.0.0"
-actix-http = "2.0.0"
+actix-http = "2.1.0"
 lazy_static = "1.4.0"
 reqwest = { version = "0.10.8", features = ["blocking", "json"] }
 
