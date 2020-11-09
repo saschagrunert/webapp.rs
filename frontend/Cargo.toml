@@ -23,7 +23,7 @@ crate-type = ["cdylib", "rlib"]
 [build-dependencies]
 anyhow = "1.0.34"
 sass-rs = "0.2.2"
-url = "2.1.1"
+url = "2.2.0"
 webapp = { version = "1.0.0", path = ".." }
 
 [dependencies]
