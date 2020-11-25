@@ -1894,9 +1894,9 @@ dependencies = [
 
 [[package]]
 name = "ring"
-version = "0.16.16"
+version = "0.16.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b72b84d47e8ec5a4f2872e8262b8f8256c5be1c938a7d6d3a867a3ba8f722f74"
+checksum = "c5911690c9b773bab7e657471afc207f3827b249a657241327e3544d79bcabdd"
 dependencies = [
  "cc",
  "libc",
