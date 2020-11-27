@@ -144,9 +144,9 @@ dependencies = [
 
 [[package]]
 name = "actix-http-test"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbc745bba48c795eb4b2adf4906fd92269e758c33fbf1208c22990af253ba3a8"
+checksum = "09b4f1eca51276c220c6e12e97f6914bca49b8d3cd359550d88b5a17a742b45e"
 dependencies = [
  "actix-codec",
  "actix-connect",
@@ -156,14 +156,14 @@ dependencies = [
  "actix-testing",
  "actix-utils",
  "awc",
- "base64 0.12.3",
+ "base64 0.13.0",
  "bytes 0.5.6",
  "futures-core",
  "http",
  "log",
  "serde",
  "serde_json",
- "serde_urlencoded 0.6.1",
+ "serde_urlencoded 0.7.0",
  "slab",
  "socket2",
  "time 0.2.21",
