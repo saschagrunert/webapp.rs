@@ -2589,9 +2589,9 @@ dependencies = [
 
 [[package]]
 name = "v_escape"
-version = "0.14.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1149bf849a1ee988044875b53cd3180541def332fa6f8eb6769135fad2bdb138"
+checksum = "ccca9e73c678b882900cbaec16dae4d3662ace5a17774ac45af04e0f3988fafa"
 dependencies = [
  "buf-min",
  "v_escape_derive",
