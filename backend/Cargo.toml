@@ -41,7 +41,7 @@ futures = "0.3.8"
 jsonwebtoken = "7.2.0"
 log = "0.4.11"
 num_cpus = "1.13.0"
-openssl = "0.10.30"
+openssl = "0.10.31"
 r2d2 = "0.8.9"
 serde = { version = "1.0.118", features = ["derive"] }
 serde_json = "1.0.60"
