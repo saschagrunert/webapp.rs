@@ -31,7 +31,7 @@ anyhow = "1.0.36"
 log = "0.4.11"
 serde = { version = "1.0.118", features = ["derive"] }
 stdweb = "0.4.20"
-thiserror = "1.0.22"
+thiserror = "1.0.23"
 wasm-bindgen = "0.2.69"
 webapp = { version = "1.0.0", path = ".." }
 yew = "0.17.4"
