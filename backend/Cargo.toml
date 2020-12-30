@@ -30,7 +30,7 @@ reqwest = { version = "0.10.10", features = ["blocking", "json"] }
 [dependencies]
 actix = "0.10.0"
 actix-cors = "0.4.1"
-actix-files = "0.4.1"
+actix-files = "0.5.0"
 actix-web = { version = "3.2.0", features = ["openssl"] }
 anyhow = "1.0.37"
 bytes = "1.0.0"
