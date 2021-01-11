@@ -60,8 +60,10 @@ fn prepare_style() -> Result<()> {
     copy(format!("src/{}", SCSS_FILE), &target)?;
 
     // Build the file
-    let mut options = Options::default();
-    options.output_style = OutputStyle::Compressed;
+    let options = Options {
+        output_style: OutputStyle::Compressed,
+        ..Default::default()
+    };
     match compile_file(&target, options) {
         Err(error) => panic!(error),
         Ok(content) => {
