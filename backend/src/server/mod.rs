@@ -58,11 +58,10 @@ impl Server {
             App::new()
                 .data(db_addr.clone())
                 .wrap(
-                    Cors::new()
+                    Cors::default()
                         .allowed_methods(vec!["GET", "POST"])
                         .allowed_header(CONTENT_TYPE)
-                        .max_age(3600)
-                        .finish(),
+                        .max_age(3600),
                 )
                 .wrap(middleware::Logger::default())
                 .service(resource(API_URL_LOGIN_CREDENTIALS).route(post().to(login_credentials)))
