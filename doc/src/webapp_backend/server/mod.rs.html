@@ -190,7 +190,6 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-<span id="190">190</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to the actual server implementation</span>
 
@@ -252,11 +251,10 @@
             <span class="ident">App</span>::<span class="ident">new</span>()
                 .<span class="ident">data</span>(<span class="ident">db_addr</span>.<span class="ident">clone</span>())
                 .<span class="ident">wrap</span>(
-                    <span class="ident">Cors</span>::<span class="ident">new</span>()
+                    <span class="ident">Cors</span>::<span class="ident">default</span>()
                         .<span class="ident">allowed_methods</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>])
                         .<span class="ident">allowed_header</span>(<span class="ident">CONTENT_TYPE</span>)
-                        .<span class="ident">max_age</span>(<span class="number">3600</span>)
-                        .<span class="ident">finish</span>(),
+                        .<span class="ident">max_age</span>(<span class="number">3600</span>),
                 )
                 .<span class="ident">wrap</span>(<span class="ident">middleware</span>::<span class="ident">Logger</span>::<span class="ident">default</span>())
                 .<span class="ident">service</span>(<span class="ident">resource</span>(<span class="ident">API_URL_LOGIN_CREDENTIALS</span>).<span class="ident">route</span>(<span class="ident">post</span>().<span class="ident">to</span>(<span class="ident">login_credentials</span>)))
