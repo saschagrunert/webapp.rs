@@ -2084,9 +2084,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework-sys"
-version = "2.1.1"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dee48cdde5ed250b0d3252818f646e174ab414036edb884dde62d80a3ac6082d"
+checksum = "3676258fd3cfe2c9a0ec99ce3038798d847ce3e4bb17746373eb9f0f1ac16339"
 dependencies = [
  "core-foundation-sys",
  "libc",
