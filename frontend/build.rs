@@ -65,7 +65,7 @@ fn prepare_style() -> Result<()> {
         ..Default::default()
     };
     match compile_file(&target, options) {
-        Err(error) => panic!(error),
+        Err(error) => panic!("{}", error),
         Ok(content) => {
             // Copy the file into the css directory
             target.pop();
