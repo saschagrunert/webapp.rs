@@ -9,15 +9,3 @@ updates:
   allow:
   - dependency-type: direct
   - dependency-type: indirect
-  ignore:
-  - dependency-name: syn
-    versions:
-    - 1.0.67
-    - 1.0.70
-  - dependency-name: openssl-sys
-    versions:
-    - 0.9.61
-    - 0.9.62
-  - dependency-name: actix
-    versions:
-    - 0.11.0
