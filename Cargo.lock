@@ -2038,9 +2038,9 @@ dependencies = [
 
 [[package]]
 name = "sass-sys"
-version = "0.4.21"
+version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0df9ac0fd0b8d62a99b9948094dcd56c441e3e10bf49f9b12da40b2183804908"
+checksum = "933bca23b402377f0ab71e79732a826deffc748013746ac3314f6abc7f9fc51c"
 dependencies = [
  "cc",
  "libc",
