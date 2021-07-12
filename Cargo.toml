@@ -19,7 +19,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 diesel = { version = "1.4.7", optional = true }
-anyhow = "1.0.41"
+anyhow = "1.0.42"
 serde = { version = "1.0.126", features = ["derive"] }
 toml = "0.5.8"
 
