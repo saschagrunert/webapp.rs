@@ -2963,7 +2963,7 @@ dependencies = [
  "url",
  "wasm-bindgen",
  "webapp",
- "yew",
+ "yew 0.17.4",
  "yew-router",
 ]
 
@@ -3078,7 +3078,35 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
- "yew-macro",
+ "yew-macro 0.17.0",
+]
+
+[[package]]
+name = "yew"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4d5154faef86dddd2eb333d4755ea5643787d20aca683e58759b0e53351409f"
+dependencies = [
+ "anyhow",
+ "anymap",
+ "bincode",
+ "cfg-if 1.0.0",
+ "cfg-match",
+ "console_error_panic_hook",
+ "gloo",
+ "http",
+ "indexmap",
+ "js-sys",
+ "log",
+ "ryu",
+ "serde",
+ "serde_json",
+ "slab",
+ "thiserror",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "yew-macro 0.18.0",
 ]
 
 [[package]]
@@ -3096,12 +3124,25 @@ dependencies = [
 ]
 
 [[package]]
-name = "yew-router"
-version = "0.14.0"
+name = "yew-macro"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20f46279cd28a50e0e9271352ce6d7be7f10e6ba449c76544985e64222f5e999"
+checksum = "d6e23bfe3dc3933fbe9592d149c9985f3047d08c637a884b9344c21e56e092ef"
 dependencies = [
- "cfg-if 0.1.10",
+ "boolinator",
+ "lazy_static",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "yew-router"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27666236d9597eac9be560e841e415e20ba67020bc8cd081076be178e159c8bc"
+dependencies = [
+ "cfg-if 1.0.0",
  "cfg-match",
  "gloo",
  "js-sys",
@@ -3111,16 +3152,16 @@ dependencies = [
  "serde_json",
  "wasm-bindgen",
  "web-sys",
- "yew",
+ "yew 0.18.0",
  "yew-router-macro",
  "yew-router-route-parser",
 ]
 
 [[package]]
 name = "yew-router-macro"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "768693f16c930d8a8742c2e5f62f258d5a6f0392e8c9265a45c550fac4cbe5a7"
+checksum = "4c0ace2924b7a175e2d1c0e62ee7022a5ad840040dcd52414ce5f410ab322dba"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3130,9 +3171,9 @@ dependencies = [
 
 [[package]]
 name = "yew-router-route-parser"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49bf2f66f0e61d65d1637523fa1faedd5aa291cf9cb8d8fb200678472279b672"
+checksum = "de4a67208fb46b900af18a7397938b01f379dfc18da34799cfa8347eec715697"
 dependencies = [
  "nom 5.1.2",
 ]
