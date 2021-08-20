@@ -1184,9 +1184,9 @@ dependencies = [
 
 [[package]]
 name = "httparse"
-version = "1.5.0"
+version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ba8d84e9efea6aedae6fed9b6d9cfcaac6c53992b437d79a87a549d5537fea9"
+checksum = "acd94fdbe1d4ff688b67b04eee2e17bd50995534a61539e45adfefb45e5e5503"
 
 [[package]]
 name = "httpdate"
