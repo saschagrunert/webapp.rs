@@ -18,7 +18,7 @@ codecov = { repository = "saschagrunert/webapp.rs", branch = "master", service =
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-diesel = { version = "1.4.7", optional = true }
+diesel = { version = "1.4.8", optional = true }
 anyhow = "1.0.44"
 serde = { version = "1.0.130", features = ["derive"] }
 toml = "0.5.8"
