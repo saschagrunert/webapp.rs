@@ -51,7 +51,7 @@ This installs build requirements, rust and wasm-pack, on Ubuntu or Debian.
 > sudo apt-get install -y pkg-config libssl-dev npm sudo wget
 > wget https://sh.rustup.rs -O rustup-init
 > sudo sh rustup-init -y
-> sudo cargo install wasm-pack
+> cargo install wasm-pack
 > sudo npm install -g rollup
 ```
 
