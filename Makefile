@@ -2,7 +2,7 @@
 GENERAL_ARGS = --release
 FRONTEND_ARGS = $(GENERAL_ARGS)
 BACKEND_ARGS = $(GENERAL_ARGS) -p webapp-backend
-CONTAINER_RUNTIME ?= podman
+CONTAINER_RUNTIME ?= docker
 
 # Application configuration
 define get_config_value
