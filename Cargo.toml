@@ -19,8 +19,9 @@ leptos_router = { version = "0.8.12" }
 leptos_axum = { version = "0.8.8", optional = true }
 axum = { version = "0.8.8", optional = true }
 tokio = { version = "1.50.0", features = ["rt-multi-thread"], optional = true }
-sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate"], optional = true }
+sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate", "chrono"], optional = true }
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"], optional = true }
+argon2 = { version = "0.5.3", optional = true }
 chrono = { version = "0.4.44", features = ["serde"], optional = true }
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 uuid = { version = "1.22.0", features = ["v4"], optional = true }
@@ -47,6 +48,7 @@ ssr = [
     "dep:leptos_axum",
     "dep:sqlx",
     "dep:jsonwebtoken",
+    "dep:argon2",
     "dep:chrono",
     "dep:serde",
     "dep:uuid",
@@ -75,7 +77,6 @@ assets-dir = "public"
 site-addr = "127.0.0.1:3000"
 reload-port = 3001
 browserquery = "defaults"
-env = "DEV"
 bin-features = ["ssr"]
 bin-default-features = false
 lib-features = ["hydrate"]

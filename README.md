@@ -38,9 +38,12 @@ client are compiled from a single Rust crate.
 
 ## Features
 
+- User registration with Argon2 password hashing
 - Login with username and password
 - JWT-based session management with automatic renewal
-- PostgreSQL session storage
+- PostgreSQL session and user storage
+- CSRF protection via origin validation
+- Health check endpoint (`/healthz`) for container orchestration
 - Server-side rendering with client-side hydration
 - Single binary deployment
 
@@ -73,9 +76,8 @@ cargo leptos watch
 
 The application will be available at `http://127.0.0.1:3000`.
 
-The login screen will accept any username and password that are equal, such as
-`me` (username) and `me` (password). Non matching combinations will result in an
-authentication failure.
+Register a new account using the "Register" link on the login page, then log in
+with your credentials.
 
 ## Configuration
 

@@ -1,3 +1,0 @@
-CREATE TABLE IF NOT EXISTS sessions (
-    token TEXT PRIMARY KEY
-);

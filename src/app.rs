@@ -44,15 +44,52 @@ pub fn App() -> impl IntoView {
 }
 
 #[server]
+pub async fn register(username: String, password: String) -> Result<(), ServerFnError> {
+    use crate::{auth, database};
+
+    if username.is_empty() || password.is_empty() {
+        return Err(ServerFnError::new("Username and password are required"));
+    }
+
+    if username.len() > 64 || password.len() > 128 {
+        return Err(ServerFnError::new("Input too long"));
+    }
+
+    if database::user_exists(&username)
+        .await
+        .map_err(|e| ServerFnError::new(e.to_string()))?
+    {
+        return Err(ServerFnError::new("User already exists"));
+    }
+
+    let hash = auth::hash_password(&password).map_err(ServerFnError::new)?;
+    database::create_user(&username, &hash)
+        .await
+        .map_err(|e| ServerFnError::new(e.to_string()))?;
+
+    Ok(())
+}
+
+#[server]
 pub async fn login(username: String, password: String) -> Result<String, ServerFnError> {
     use crate::{auth, database};
 
-    if username.is_empty() || password.is_empty() || username != password {
+    if username.is_empty() || password.is_empty() {
+        return Err(ServerFnError::new("Invalid credentials"));
+    }
+
+    let hash = database::get_password_hash(&username)
+        .await
+        .map_err(|e| ServerFnError::new(e.to_string()))?
+        .ok_or_else(|| ServerFnError::new("Invalid credentials"))?;
+
+    if !auth::verify_password(&password, &hash).map_err(ServerFnError::new)? {
         return Err(ServerFnError::new("Invalid credentials"));
     }
 
     let token = auth::create_token(&username).map_err(|e| ServerFnError::new(e.to_string()))?;
-    database::create_session(&token)
+    let expires_at = auth::token_expiry();
+    database::create_session(&token, &username, expires_at)
         .await
         .map_err(|e| ServerFnError::new(e.to_string()))?;
 
@@ -65,8 +102,16 @@ pub async fn renew_session(token: String) -> Result<String, ServerFnError> {
 
     let username = auth::verify_token(&token).map_err(|e| ServerFnError::new(e.to_string()))?;
 
+    if !database::session_exists(&token)
+        .await
+        .map_err(|e| ServerFnError::new(e.to_string()))?
+    {
+        return Err(ServerFnError::new("Session not found"));
+    }
+
     let new_token = auth::create_token(&username).map_err(|e| ServerFnError::new(e.to_string()))?;
-    database::update_session(&token, &new_token)
+    let expires_at = auth::token_expiry();
+    database::update_session(&token, &new_token, expires_at)
         .await
         .map_err(|e| ServerFnError::new(e.to_string()))?;
 
@@ -75,11 +120,17 @@ pub async fn renew_session(token: String) -> Result<String, ServerFnError> {
 
 #[server]
 pub async fn logout(token: String) -> Result<(), ServerFnError> {
-    use crate::database;
+    use crate::{auth, database};
 
-    database::delete_session(&token)
+    // Verify the token is valid before attempting deletion
+    auth::verify_token(&token).map_err(|e| ServerFnError::new(e.to_string()))?;
+
+    if !database::delete_session(&token)
         .await
-        .map_err(|e| ServerFnError::new(e.to_string()))?;
+        .map_err(|e| ServerFnError::new(e.to_string()))?
+    {
+        return Err(ServerFnError::new("Session not found"));
+    }
 
     Ok(())
 }
