@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
 
-use crate::app::logout;
+use crate::app::{logout, whoami};
 use crate::pages::login::{get_cookie, remove_cookie};
 
 #[cfg(feature = "hydrate")]
@@ -14,13 +14,21 @@ use crate::pages::login::set_cookie;
 pub fn ContentPage() -> impl IntoView {
     let navigate = use_navigate();
     let token = RwSignal::new(String::new());
+    let username = RwSignal::new(String::new());
     let logging_out = RwSignal::new(false);
 
-    // Check session on mount
+    // Check session on mount and fetch username
     Effect::new({
         let navigate = navigate.clone();
         move |_| match get_cookie("session_token") {
-            Some(t) => token.set(t),
+            Some(t) => {
+                token.set(t.clone());
+                spawn_local(async move {
+                    if let Ok(name) = whoami(t).await {
+                        username.set(name);
+                    }
+                });
+            }
             None => navigate("/", Default::default()),
         }
     });
@@ -75,7 +83,19 @@ pub fn ContentPage() -> impl IntoView {
         <div class="container">
             <div class="card">
                 <h1>"Welcome"</h1>
-                <p>"You are logged in to a web application completely written in Rust."</p>
+                <p>
+                    {move || {
+                        let name = username.get();
+                        if name.is_empty() {
+                            "You are logged in to a web application completely written in Rust."
+                                .to_string()
+                        } else {
+                            format!(
+                                "Hello {name}, you are logged in to a web application completely written in Rust.",
+                            )
+                        }
+                    }}
+                </p>
                 <button on:click=on_logout disabled=move || logging_out.get()>
                     {move || if logging_out.get() { "Logging out..." } else { "Logout" }}
                 </button>

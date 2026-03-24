@@ -89,4 +89,11 @@ jobs:
     needs: [fmt, clippy, test, build]
     steps:
       - uses: actions/checkout@v6
-      - run: docker build -t webapp .
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: webapp:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

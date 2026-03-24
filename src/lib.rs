@@ -6,6 +6,8 @@ pub mod csrf;
 #[cfg(feature = "ssr")]
 pub mod database;
 pub mod pages;
+#[cfg(feature = "ssr")]
+pub mod rate_limit;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]
