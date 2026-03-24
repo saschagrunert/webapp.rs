@@ -38,8 +38,22 @@ async fn main() {
         })
         .fallback(leptos_axum::file_and_error_handler(shell))
         .layer(middleware::from_fn(webapp::csrf::validate))
+        .layer(middleware::from_fn(webapp::rate_limit::check))
         .layer(CompressionLayer::new())
         .with_state(leptos_options);
+
+    // Periodically clean up expired sessions every 5 minutes
+    tokio::spawn(async {
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs(300));
+        loop {
+            interval.tick().await;
+            match webapp::database::delete_expired_sessions().await {
+                Ok(0) => {}
+                Ok(n) => tracing::info!("cleaned up {n} expired sessions"),
+                Err(e) => tracing::warn!("failed to clean up expired sessions: {e}"),
+            }
+        }
+    });
 
     tracing::info!("listening on http://{addr}");
     let listener = tokio::net::TcpListener::bind(&addr)

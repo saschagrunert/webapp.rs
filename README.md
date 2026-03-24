@@ -4,18 +4,18 @@
 [![Coverage](https://codecov.io/gh/saschagrunert/webapp.rs/branch/main/graph/badge.svg)](https://codecov.io/gh/saschagrunert/webapp.rs)
 [![Docs](https://docs.rs/webapp/badge.svg)](https://docs.rs/webapp)
 [![Crates.io](https://img.shields.io/crates/v/webapp.svg)](https://crates.io/crates/webapp)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/webapp.rs/blob/main/LICENSE)
+[![License Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/saschagrunert/webapp.rs/blob/main/LICENSE)
 
 ## A web application completely written in Rust
 
 Target of this project is to write a complete web application including backend
 and frontend within Rust.
 
-```
-Leptos (WASM)              Axum
-in browser  <- SSR/RPC ->  HTTP Server
-                               |
-                           SQLx -> PostgreSQL
+```mermaid
+graph LR
+    A[Leptos / WASM<br>in browser] -->|SSR / RPC| B[Axum<br>HTTP Server]
+    B --> C[SQLx]
+    C --> D[(PostgreSQL)]
 ```
 
 ### Blog Posts
@@ -30,7 +30,7 @@ in browser  <- SSR/RPC ->  HTTP Server
 | Frontend  | [Leptos](https://leptos.dev) (WebAssembly with SSR + hydration) |
 | Backend   | [Axum](https://github.com/tokio-rs/axum) (via leptos_axum) |
 | Database  | [PostgreSQL](https://www.postgresql.org) (via SQLx) |
-| Auth      | JWT tokens (jsonwebtoken) |
+| Auth      | JWT tokens (jsonwebtoken) + Argon2 password hashing |
 
 The application uses Leptos server functions to communicate between frontend and
 backend, eliminating the need for a separate REST API layer. Both server and
@@ -53,6 +53,7 @@ client are compiled from a single Rust crate.
 - [cargo-leptos](https://github.com/leptos-rs/cargo-leptos): `cargo install cargo-leptos`
 - [PostgreSQL](https://www.postgresql.org)
 - `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- [wasm-bindgen-cli](https://rustwasm.github.io/wasm-bindgen/): `cargo install wasm-bindgen-cli`
 
 ## Getting Started
 
@@ -115,4 +116,4 @@ send me a pull request.
 
 ## License
 
-[MIT](LICENSE)
+[Apache 2.0](LICENSE)

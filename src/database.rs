@@ -45,11 +45,11 @@ pub async fn get_password_hash(username: &str) -> Result<Option<String>, sqlx::E
 }
 
 pub async fn user_exists(username: &str) -> Result<bool, sqlx::Error> {
-    let row: Option<(i64,)> = sqlx::query_as("SELECT COUNT(*) FROM users WHERE username = $1")
+    let row: Option<(i32,)> = sqlx::query_as("SELECT 1 FROM users WHERE username = $1 LIMIT 1")
         .bind(username)
         .fetch_optional(pool())
         .await?;
-    Ok(row.is_some_and(|r| r.0 > 0))
+    Ok(row.is_some())
 }
 
 // Session management
@@ -69,11 +69,11 @@ pub async fn create_session(
 }
 
 pub async fn session_exists(token: &str) -> Result<bool, sqlx::Error> {
-    let row: Option<(i64,)> = sqlx::query_as("SELECT COUNT(*) FROM sessions WHERE token = $1")
+    let row: Option<(i32,)> = sqlx::query_as("SELECT 1 FROM sessions WHERE token = $1 LIMIT 1")
         .bind(token)
         .fetch_optional(pool())
         .await?;
-    Ok(row.is_some_and(|r| r.0 > 0))
+    Ok(row.is_some())
 }
 
 pub async fn update_session(

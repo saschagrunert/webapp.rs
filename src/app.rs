@@ -119,6 +119,22 @@ pub async fn renew_session(token: String) -> Result<String, ServerFnError> {
 }
 
 #[server]
+pub async fn whoami(token: String) -> Result<String, ServerFnError> {
+    use crate::{auth, database};
+
+    let username = auth::verify_token(&token).map_err(|e| ServerFnError::new(e.to_string()))?;
+
+    if !database::session_exists(&token)
+        .await
+        .map_err(|e| ServerFnError::new(e.to_string()))?
+    {
+        return Err(ServerFnError::new("Session not found"));
+    }
+
+    Ok(username)
+}
+
+#[server]
 pub async fn logout(token: String) -> Result<(), ServerFnError> {
     use crate::{auth, database};
 
