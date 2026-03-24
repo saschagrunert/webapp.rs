@@ -1,6 +1,7 @@
 # webapp.rs
 
 [![CI](https://github.com/saschagrunert/webapp.rs/actions/workflows/ci.yml/badge.svg)](https://github.com/saschagrunert/webapp.rs/actions/workflows/ci.yml)
+[![Docs](https://github.com/saschagrunert/webapp.rs/actions/workflows/gh-pages.yml/badge.svg)](https://saschagrunert.github.io/webapp.rs)
 [![Coverage](https://codecov.io/gh/saschagrunert/webapp.rs/branch/main/graph/badge.svg)](https://codecov.io/gh/saschagrunert/webapp.rs)
 [![Docs](https://docs.rs/webapp/badge.svg)](https://docs.rs/webapp)
 [![Crates.io](https://img.shields.io/crates/v/webapp.svg)](https://crates.io/crates/webapp)

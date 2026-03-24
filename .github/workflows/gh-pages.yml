@@ -20,11 +20,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Build documentation
-        run: cargo doc --features ssr --no-deps
+        run: |
+          cargo doc --features ssr --no-deps
+          echo '<meta http-equiv="refresh" content="0;url=webapp/index.html">' > ./target/doc/index.html
       - name: Deploy documentation
         uses: peaceiris/actions-gh-pages@v4
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./target/doc
           force_orphan: true
