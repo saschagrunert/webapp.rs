@@ -1,33 +1,83 @@
 [package]
-authors = ["Sascha Grunert <mail@saschagrunert.de>"]
-categories = ["web-programming"]
-description = "A web application completely written in Rust"
-documentation = "https://docs.rs/webapp"
-homepage = "https://github.com/saschagrunert/webapp.rs"
-keywords = ["web", "app", "webapp", "wasm", "webassembly"]
-license = "MIT"
 name = "webapp"
-readme = "README.md"
+version = "0.1.0"
+edition = "2024"
+authors = ["Sascha Grunert <mail@saschagrunert.de>"]
+license = "MIT"
+description = "A web application completely written in Rust"
 repository = "https://github.com/saschagrunert/webapp.rs"
-version = "1.0.0"
-edition = "2018"
 
-[badges]
-circle-ci = { repository = "saschagrunert/webapp.rs", branch = "master" }
-codecov = { repository = "saschagrunert/webapp.rs", branch = "master", service = "github" }
-maintenance = { status = "actively-developed" }
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-diesel = { version = "1.4.8", optional = true }
-anyhow = "1.0.51"
-serde = { version = "1.0.147", features = ["derive"] }
-toml = "0.5.8"
+leptos = { version = "0.8.17" }
+leptos_meta = { version = "0.8.6" }
+leptos_router = { version = "0.8.12" }
+
+# Server dependencies
+leptos_axum = { version = "0.8.8", optional = true }
+axum = { version = "0.8.8", optional = true }
+tokio = { version = "1.50.0", features = ["rt-multi-thread"], optional = true }
+sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate"], optional = true }
+jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"], optional = true }
+chrono = { version = "0.4.44", features = ["serde"], optional = true }
+serde = { version = "1.0.228", features = ["derive"], optional = true }
+uuid = { version = "1.22.0", features = ["v4"], optional = true }
+tower = { version = "0.5.3", optional = true }
+tower-http = { version = "0.6.8", features = ["compression-gzip"], optional = true }
+tracing = { version = "0.1.44", optional = true }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"], optional = true }
+
+# Client dependencies
+console_error_panic_hook = { version = "0.1.7", optional = true }
+wasm-bindgen = { version = "0.2.114", optional = true }
+web-sys = { version = "0.3.91", features = ["HtmlDocument", "Window"], optional = true }
 
 [features]
-backend = ["diesel"]
-
-[workspace]
-members = [
-    "backend",
-    "frontend",
+hydrate = [
+    "leptos/hydrate",
+    "dep:console_error_panic_hook",
+    "dep:wasm-bindgen",
+    "dep:web-sys",
 ]
+ssr = [
+    "dep:axum",
+    "dep:tokio",
+    "dep:leptos_axum",
+    "dep:sqlx",
+    "dep:jsonwebtoken",
+    "dep:chrono",
+    "dep:serde",
+    "dep:uuid",
+    "dep:tower",
+    "dep:tower-http",
+    "dep:tracing",
+    "dep:tracing-subscriber",
+    "leptos/ssr",
+    "leptos_meta/ssr",
+    "leptos_router/ssr",
+]
+
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[package.metadata.leptos]
+output-name = "webapp"
+site-root = "target/site"
+site-pkg-dir = "pkg"
+style-file = "style/main.css"
+assets-dir = "public"
+site-addr = "127.0.0.1:3000"
+reload-port = 3001
+browserquery = "defaults"
+env = "DEV"
+bin-features = ["ssr"]
+bin-default-features = false
+lib-features = ["hydrate"]
+lib-default-features = false
+lib-profile-release = "wasm-release"
