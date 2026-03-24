@@ -2,7 +2,7 @@ use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos_router::hooks::use_navigate;
 
-use crate::app::login;
+use crate::app::{login, register};
 
 pub fn get_cookie(name: &str) -> Option<String> {
     #[cfg(feature = "hydrate")]
@@ -67,7 +67,9 @@ pub fn LoginPage() -> impl IntoView {
     let username = RwSignal::new(String::new());
     let password = RwSignal::new(String::new());
     let error = RwSignal::new(Option::<String>::None);
+    let success = RwSignal::new(Option::<String>::None);
     let pending = RwSignal::new(false);
+    let is_register = RwSignal::new(false);
     let navigate = use_navigate();
 
     // Check for existing session on mount
@@ -85,19 +87,36 @@ pub fn LoginPage() -> impl IntoView {
         let navigate = navigate.clone();
         pending.set(true);
         error.set(None);
+        success.set(None);
 
-        spawn_local(async move {
-            match login(username.get(), password.get()).await {
-                Ok(token) => {
-                    set_cookie("session_token", &token);
-                    navigate("/content", Default::default());
+        if is_register.get() {
+            spawn_local(async move {
+                match register(username.get(), password.get()).await {
+                    Ok(()) => {
+                        success.set(Some("Account created, you can now log in".into()));
+                        is_register.set(false);
+                        pending.set(false);
+                    }
+                    Err(e) => {
+                        error.set(Some(e.to_string()));
+                        pending.set(false);
+                    }
                 }
-                Err(_) => {
-                    error.set(Some("Authentication failed".into()));
-                    pending.set(false);
+            });
+        } else {
+            spawn_local(async move {
+                match login(username.get(), password.get()).await {
+                    Ok(token) => {
+                        set_cookie("session_token", &token);
+                        navigate("/content", Default::default());
+                    }
+                    Err(_) => {
+                        error.set(Some("Invalid username or password".into()));
+                        pending.set(false);
+                    }
                 }
-            }
-        });
+            });
+        }
     };
 
     let disabled = move || pending.get() || username.get().is_empty() || password.get().is_empty();
@@ -131,10 +150,45 @@ pub fn LoginPage() -> impl IntoView {
                                 view! { <div class="error">{msg}</div> }
                             })
                     }}
+                    {move || {
+                        success
+                            .get()
+                            .map(|msg| {
+                                view! { <div class="success">{msg}</div> }
+                            })
+                    }}
                     <button type="submit" disabled=disabled>
-                        {move || if pending.get() { "Logging in..." } else { "Login" }}
+                        {move || {
+                            if pending.get() {
+                                if is_register.get() { "Registering..." } else { "Logging in..." }
+                            } else if is_register.get() {
+                                "Register"
+                            } else {
+                                "Login"
+                            }
+                        }}
                     </button>
                 </form>
+                <p class="toggle">
+                    {move || {
+                        if is_register.get() {
+                            "Already have an account? "
+                        } else {
+                            "Don't have an account? "
+                        }
+                    }}
+                    <a
+                        href="#"
+                        on:click=move |ev| {
+                            ev.prevent_default();
+                            is_register.set(!is_register.get());
+                            error.set(None);
+                            success.set(None);
+                        }
+                    >
+                        {move || if is_register.get() { "Login" } else { "Register" }}
+                    </a>
+                </p>
             </div>
         </div>
     }

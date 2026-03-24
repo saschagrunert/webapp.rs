@@ -1,3 +1,7 @@
+use argon2::{
+    Argon2,
+    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
+};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
@@ -17,6 +21,22 @@ fn secret() -> Vec<u8> {
         .into_bytes()
 }
 
+pub fn hash_password(password: &str) -> Result<String, String> {
+    let salt = SaltString::generate(&mut OsRng);
+    let argon2 = Argon2::default();
+    argon2
+        .hash_password(password.as_bytes(), &salt)
+        .map(|h| h.to_string())
+        .map_err(|e| e.to_string())
+}
+
+pub fn verify_password(password: &str, hash: &str) -> Result<bool, String> {
+    let parsed = PasswordHash::new(hash).map_err(|e| e.to_string())?;
+    Ok(Argon2::default()
+        .verify_password(password.as_bytes(), &parsed)
+        .is_ok())
+}
+
 pub fn create_token(username: &str) -> Result<String, jsonwebtoken::errors::Error> {
     let now = Utc::now();
     let claims = Claims {
@@ -30,6 +50,10 @@ pub fn create_token(username: &str) -> Result<String, jsonwebtoken::errors::Erro
         &claims,
         &EncodingKey::from_secret(&secret()),
     )
+}
+
+pub fn token_expiry() -> chrono::DateTime<Utc> {
+    Utc::now() + Duration::hours(1)
 }
 
 pub fn verify_token(token: &str) -> Result<String, jsonwebtoken::errors::Error> {
@@ -72,5 +96,19 @@ mod tests {
         )
         .unwrap();
         assert!(verify_token(&token).is_err());
+    }
+
+    #[test]
+    fn hash_and_verify_password() {
+        let hash = hash_password("my-secret").unwrap();
+        assert!(verify_password("my-secret", &hash).unwrap());
+        assert!(!verify_password("wrong-password", &hash).unwrap());
+    }
+
+    #[test]
+    fn hash_produces_unique_salts() {
+        let h1 = hash_password("same").unwrap();
+        let h2 = hash_password("same").unwrap();
+        assert_ne!(h1, h2);
     }
 }

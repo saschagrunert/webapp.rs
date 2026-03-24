@@ -89,6 +89,28 @@ button:disabled {
     margin-bottom: 0.5rem;
 }
 
+.success {
+    color: #2e7d32;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.toggle {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.toggle a {
+    color: #4a90d9;
+    text-decoration: none;
+}
+
+.toggle a:hover {
+    text-decoration: underline;
+}
+
 p {
     margin-bottom: 1.5rem;
     line-height: 1.5;
