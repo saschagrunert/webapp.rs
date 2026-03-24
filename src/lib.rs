@@ -1,28 +1,13 @@
-//! The core library
-#![deny(missing_docs)]
-#![allow(unknown_lints, proc_macro_derive_resolution_fallback)]
+pub mod app;
+#[cfg(feature = "ssr")]
+pub mod auth;
+#[cfg(feature = "ssr")]
+pub mod database;
+pub mod pages;
 
-#[cfg(feature = "backend")]
-#[macro_use]
-extern crate diesel;
-
-pub mod config;
-pub mod protocol;
-#[cfg(feature = "backend")]
-#[allow(missing_docs)]
-pub mod schema;
-
-/// The global config file name
-pub const CONFIG_FILENAME: &str = "Config.toml";
-
-macro_rules! apis {
-    ($($name:ident => $content:expr,)*) => (
-        $(#[allow(missing_docs)] pub const $name: &str = $content;)*
-    )
-}
-
-apis! {
-    API_URL_LOGIN_CREDENTIALS => "login/credentials",
-    API_URL_LOGIN_SESSION => "login/session",
-    API_URL_LOGOUT => "logout",
+#[cfg(feature = "hydrate")]
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn hydrate() {
+    console_error_panic_hook::set_once();
+    leptos::mount::hydrate_body(app::App);
 }

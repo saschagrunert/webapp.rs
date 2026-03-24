@@ -1,5 +1,4 @@
-**/*.rs.bk
-*.tar
-.*/target/
-.gdb_history
 target/
+pkg/
+*.tar
+.env

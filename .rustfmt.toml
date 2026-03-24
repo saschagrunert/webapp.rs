@@ -1,13 +1,1 @@
-condense_wildcard_suffixes = true
-format_strings = true
-max_width = 100
-merge_imports = true
-newline_style = "Unix"
-normalize_comments = true
-reorder_impl_items = true
-report_fixme = "Always"
-report_todo = "Always"
-unstable_features = true
-use_field_init_shorthand = true
-use_try_shorthand = true
-wrap_comments = true
+edition = "2024"
