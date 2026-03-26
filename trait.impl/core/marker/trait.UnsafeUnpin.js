@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["webapp",[["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.AppProps.html\" title=\"struct webapp::app::AppProps\">AppProps</a>",0,1,["webapp::app::AppProps"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.Login.html\" title=\"struct webapp::app::Login\">Login</a>",0,1,["webapp::app::Login"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.Logout.html\" title=\"struct webapp::app::Logout\">Logout</a>",0,1,["webapp::app::Logout"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.Register.html\" title=\"struct webapp::app::Register\">Register</a>",0,1,["webapp::app::Register"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.RenewSession.html\" title=\"struct webapp::app::RenewSession\">RenewSession</a>",0,1,["webapp::app::RenewSession"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/app/struct.Whoami.html\" title=\"struct webapp::app::Whoami\">Whoami</a>",0,1,["webapp::app::Whoami"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/pages/content/struct.ContentPageProps.html\" title=\"struct webapp::pages::content::ContentPageProps\">ContentPageProps</a>",0,1,["webapp::pages::content::ContentPageProps"]],["impl UnsafeUnpin for <a class=\"struct\" href=\"webapp/pages/login/struct.LoginPageProps.html\" title=\"struct webapp::pages::login::LoginPageProps\">LoginPageProps</a>",0,1,["webapp::pages::login::LoginPageProps"]]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[1458]}
