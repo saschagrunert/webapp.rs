@@ -24,7 +24,7 @@ jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"], optional = true
 argon2 = { version = "0.5.3", optional = true }
 chrono = { version = "0.4.44", features = ["serde"], optional = true }
 serde = { version = "1.0.228", features = ["derive"], optional = true }
-uuid = { version = "1.23.0", features = ["v4"], optional = true }
+uuid = { version = "1.23.1", features = ["v4"], optional = true }
 tower = { version = "0.5.3", optional = true }
 tower-http = { version = "0.6.8", features = ["compression-gzip"], optional = true }
 tracing = { version = "0.1.44", optional = true }
