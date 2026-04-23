@@ -17,7 +17,7 @@ leptos_router = { version = "0.8.13" }
 
 # Server dependencies
 leptos_axum = { version = "0.8.8", optional = true }
-axum = { version = "0.8.8", optional = true }
+axum = { version = "0.8.9", optional = true }
 tokio = { version = "1.50.0", features = ["rt-multi-thread"], optional = true }
 sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "migrate", "chrono"], optional = true }
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"], optional = true }
