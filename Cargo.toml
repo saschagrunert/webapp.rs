@@ -26,7 +26,7 @@ chrono = { version = "0.4.44", features = ["serde"], optional = true }
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 uuid = { version = "1.23.2", features = ["v4"], optional = true }
 tower = { version = "0.5.3", optional = true }
-tower-http = { version = "0.6.11", features = ["compression-gzip"], optional = true }
+tower-http = { version = "0.7.0", features = ["compression-gzip"], optional = true }
 tracing = { version = "0.1.44", optional = true }
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"], optional = true }
 
