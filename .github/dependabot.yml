@@ -5,6 +5,18 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    allow:
+      - dependency-type: direct
+      # server_fn crates are pulled in by leptos and have to move in
+      # lockstep with it, otherwise the proc macros can end up on
+      # different syn versions.
+      - dependency-name: "server_fn*"
+        dependency-type: indirect
+    groups:
+      leptos:
+        patterns:
+          - "leptos*"
+          - "server_fn*"
 
   - package-ecosystem: github-actions
     directory: "/"
