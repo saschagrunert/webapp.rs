@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_session","create_user","delete_expired_sessions","delete_session","get_password_hash","init","pool","session_exists","update_session","user_exists"]};
