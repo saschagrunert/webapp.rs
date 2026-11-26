@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["App","login","logout","register","renew_session","shell","whoami"],"struct":["AppProps","Login","Logout","Register","RenewSession","Whoami"]};
